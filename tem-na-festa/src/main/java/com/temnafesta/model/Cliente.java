@@ -93,4 +93,11 @@ public class Cliente {
         this.anotacoes = anotacoes;
     }
 
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
 }

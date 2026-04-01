@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class ClienteNaoEncontrado extends RuntimeException {
-    public ClienteNaoEncontrado(String message) {
-        super(message);
+    public ClienteNaoEncontrado(Integer id) {
+        super("Cliente com id %d não encontrado".formatted(id));
     }
 }

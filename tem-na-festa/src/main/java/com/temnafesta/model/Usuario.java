@@ -2,6 +2,7 @@ package com.temnafesta.model;
 
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,7 @@ public class Usuario {
     @Column(nullable = false)
     private Boolean isAtivo;
 
+    @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime dataCriacao;
 
