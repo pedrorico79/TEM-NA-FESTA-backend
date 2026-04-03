@@ -8,7 +8,7 @@ public class CampanhaResponseDto {
     private String nome;
     private LocalDate dataInicio;
     private LocalDate dataFim;
-    private Boolean ativa;
+    private Boolean ativa = false;
 
     public Integer getId() {
         return id;

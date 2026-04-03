@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class CampanhaNaoEncontrada extends RuntimeException {
-    public CampanhaNaoEncontrada(String message) {
-        super(message);
+    public CampanhaNaoEncontrada(Integer id) {
+        super("Não existe uma campanha com o id " + id);
     }
 }

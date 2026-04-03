@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.AssertTrue;
 
 import java.time.LocalDate;
 
@@ -16,8 +17,8 @@ public class CampanhaRequestDto {
     @FutureOrPresent
     private LocalDate dataInicio;
 
-    @Future // ver como colocar para ser maior que a data início
     @NotNull
+    @Future
     private LocalDate dataFim;
 
     @NotNull
@@ -54,4 +55,13 @@ public class CampanhaRequestDto {
     public void setAtiva(Boolean ativa) {
         this.ativa = ativa;
     }
+
+    @AssertTrue(message = "A data de término deve ser depois da data de início")
+    public boolean isDataFimAfterDataInicio() {
+        if (dataInicio == null || dataFim == null) {
+            return true;
+        }
+        return dataFim.isAfter(dataInicio);
+    }
+
 }
