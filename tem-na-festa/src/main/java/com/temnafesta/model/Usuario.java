@@ -34,6 +34,14 @@ public class Usuario {
     @JoinColumn(name = "perfil_id", nullable = false)
     private Perfil perfil;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public String getNome() {
         return nome;
     }
