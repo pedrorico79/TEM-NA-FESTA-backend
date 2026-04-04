@@ -36,7 +36,6 @@ public class PedidoMapper {
         usuarioDto.setId(usuarioEntidade.getId());
         usuarioDto.setNome(usuarioEntidade.getNome());
         usuarioDto.setEmail(usuarioEntidade.getEmail());
-        usuarioDto.setSenha(usuarioEntidade.getSenha());
         usuarioDto.setAtivo(usuarioEntidade.getAtivo());
         usuarioDto.setDataCriacao(usuarioEntidade.getDataCriacao());
         usuarioDto.setPerfil(usuarioEntidade.getPerfil());

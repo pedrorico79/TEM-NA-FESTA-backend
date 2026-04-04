@@ -109,8 +109,6 @@ public class PedidoResponseDto {
 
         private String email;
 
-        private String senha;
-
         private Boolean isAtivo;
 
         private LocalDateTime dataCriacao;
@@ -139,14 +137,6 @@ public class PedidoResponseDto {
 
         public void setEmail(String email) {
             this.email = email;
-        }
-
-        public String getSenha() {
-            return senha;
-        }
-
-        public void setSenha(String senha) {
-            this.senha = senha;
         }
 
         public Boolean getAtivo() {

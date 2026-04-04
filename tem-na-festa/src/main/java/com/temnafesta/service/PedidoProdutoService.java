@@ -21,46 +21,67 @@ public class PedidoProdutoService {
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
 
-    public PedidoProdutoService(PedidoProdutoRepository pedidoProdutoRepository, PedidoRepository pedidoRepository, ProdutoRepository produtoRepository) {
+    public PedidoProdutoService(
+            PedidoProdutoRepository pedidoProdutoRepository,
+            PedidoRepository pedidoRepository,
+            ProdutoRepository produtoRepository
+    ) {
         this.pedidoProdutoRepository = pedidoProdutoRepository;
         this.pedidoRepository = pedidoRepository;
         this.produtoRepository = produtoRepository;
     }
 
-    public PedidoProduto criar(PedidoProduto pedidoProduto, Integer pedidoId, Integer produtoId){
-        Pedido pedido = pedidoRepository.findById(pedidoId).
-                orElseThrow(() -> new PedidoNaoEncontrado(pedidoId));
-        Produto produto = produtoRepository.findById(produtoId).
-                orElseThrow(() -> new ProdutoNaoEncontrado(produtoId));
+    public PedidoProduto criar(PedidoProduto pedidoProduto, Integer pedidoId, Integer produtoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new PedidoNaoEncontrado(pedidoId));
+        Produto produto = produtoRepository.findById(produtoId)
+                .orElseThrow(() -> new ProdutoNaoEncontrado(produtoId));
+
         pedidoProduto.setPedido(pedido);
         pedidoProduto.setProduto(produto);
+
         return pedidoProdutoRepository.save(pedidoProduto);
     }
 
-    public List<PedidoProduto> listar(){return pedidoProdutoRepository.findAll();}
+    public List<PedidoProduto> listar() {
+        return pedidoProdutoRepository.findAll();
+    }
 
-    public List<PedidoProduto> listarPorPedido(Integer pedidoId){
+    public List<PedidoProduto> listarPorPedido(Integer pedidoId) {
         return pedidoProdutoRepository.findByPedidoId(pedidoId);
     }
 
-    public PedidoProduto buscarPorId(Integer id){
+    public PedidoProduto buscarPorId(Integer id) {
         return pedidoProdutoRepository.findById(id)
                 .orElseThrow(() -> new PedidoProdutoNaoEncontrado(id));
     }
 
-    public PedidoProduto atualizar(Integer id, PedidoProduto pedidoProdutoAtualizado, Integer pedidoId, Integer produtoId){
-        if(!pedidoProdutoRepository.existsById(id)){ throw new PedidoProdutoNaoEncontrado(id);}
-        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(()->new PedidoNaoEncontrado(pedidoId));
-        Produto produto = produtoRepository.findById(produtoId).orElseThrow(()->new ProdutoNaoEncontrado(produtoId));
+    public PedidoProduto atualizar(
+            Integer id,
+            PedidoProduto pedidoProdutoAtualizado,
+            Integer pedidoId,
+            Integer produtoId
+    ) {
+        if (!pedidoProdutoRepository.existsById(id)) {
+            throw new PedidoProdutoNaoEncontrado(id);
+        }
+
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new PedidoNaoEncontrado(pedidoId));
+        Produto produto = produtoRepository.findById(produtoId)
+                .orElseThrow(() -> new ProdutoNaoEncontrado(produtoId));
 
         pedidoProdutoAtualizado.setPedido(pedido);
         pedidoProdutoAtualizado.setProduto(produto);
         pedidoProdutoAtualizado.setId(id);
+
         return pedidoProdutoRepository.save(pedidoProdutoAtualizado);
     }
 
     public void deletar(Integer id) {
-        if (!pedidoProdutoRepository.existsById(id)){throw new PedidoProdutoNaoEncontrado(id);}
+        if (!pedidoProdutoRepository.existsById(id)) {
+            throw new PedidoProdutoNaoEncontrado(id);
+        }
         pedidoProdutoRepository.deleteById(id);
     }
 

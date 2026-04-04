@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.temnafesta.model.*;
 import com.temnafesta.repository.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -43,6 +44,7 @@ public class PedidoService {
         pedido.setCliente(cliente);
         pedido.setUsuario(usuario);
         pedido.setStatusProducao(status);
+        pedido.setDataPedido(LocalDate.now());
 
         return pedidoRepository.save(pedido);
     }
