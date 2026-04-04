@@ -23,46 +23,21 @@ public class Campanha {
     @Column(nullable = false)
     private LocalDate dataFim;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "is_ativa")
     private Boolean ativa = false;
 
-    public Integer getId() {
-        return id;
-    }
+    public Integer getId() {return id;}
+    public void setId(Integer id) {this.id = id;}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public String getNome() {return nome;}
+    public void setNome(String nome) {this.nome = nome;}
 
-    public String getNome() {
-        return nome;
-    }
+    public LocalDate getDataInicio() {return dataInicio;}
+    public void setDataInicio(LocalDate dataInicio) {this.dataInicio = dataInicio;}
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
+    public LocalDate getDataFim() {return dataFim;}
+    public void setDataFim(LocalDate dataFim) {this.dataFim = dataFim;}
 
-    public LocalDate getDataInicio() {
-        return dataInicio;
-    }
-
-    public void setDataInicio(LocalDate dataInicio) {
-        this.dataInicio = dataInicio;
-    }
-
-    public LocalDate getDataFim() {
-        return dataFim;
-    }
-
-    public void setDataFim(LocalDate dataFim) {
-        this.dataFim = dataFim;
-    }
-
-    public Boolean getAtiva() {
-        return ativa;
-    }
-
-    public void setAtiva(Boolean ativa) {
-        this.ativa = ativa;
-    }
+    public Boolean getAtiva() {return ativa;}
+    public void setAtiva(Boolean ativa) {this.ativa = ativa;}
 }
