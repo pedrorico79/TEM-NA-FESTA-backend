@@ -32,7 +32,7 @@ public class CardapioProdutoService {
         Cardapio cardapio = cardapioRepository.findById(cardapioId)
                 .orElseThrow(() -> new CardapioNaoEncontrado(cardapioId));
         Produto produto = produtoRepository.findById(produtoId)
-                .orElseThrow(() -> new ProdutoNaoEncontrado("Produto com id %d não encontrado".formatted(produtoId)));
+                .orElseThrow(() -> new ProdutoNaoEncontrado(produtoId));
         cardapioProduto.setCardapio(cardapio);
         cardapioProduto.setProduto(produto);
         return cardapioProdutoRepository.save(cardapioProduto);
@@ -58,7 +58,7 @@ public class CardapioProdutoService {
         Cardapio cardapio = cardapioRepository.findById(cardapioId)
                 .orElseThrow(() -> new CardapioNaoEncontrado(cardapioId));
         Produto produto = produtoRepository.findById(produtoId)
-                .orElseThrow(() -> new ProdutoNaoEncontrado("Produto com id %d não encontrado".formatted(produtoId)));
+                .orElseThrow(() -> new ProdutoNaoEncontrado((produtoId)));
         cardapioProdutoAtualizado.setCardapio(cardapio);
         cardapioProdutoAtualizado.setProduto(produto);
         cardapioProdutoAtualizado.setId(id);
