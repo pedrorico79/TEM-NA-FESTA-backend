@@ -28,12 +28,15 @@ public class Pedido {
 
     private String observacao;
 
+    @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
+    @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    @ManyToOne
     @JoinColumn(name = "status_producao_id", nullable = false)
     private StatusProducao statusProducao;
 
