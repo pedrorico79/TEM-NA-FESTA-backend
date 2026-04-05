@@ -28,12 +28,21 @@ public class CardapioProdutoRequestDto {
 
     public Integer getCardapioId() {return cardapioId;}
 
+    public void setCardapioId(Integer cardapioId) {this.cardapioId = cardapioId;}
 
     public Integer getProdutoId() {return produtoId;}
 
+    public void setProdutoId(Integer produtoId) {this.produtoId = produtoId;}
+
     public Integer getOrdemExibicao() {return ordemExibicao;}
+
+    public void setOrdemExibicao(Integer ordemExibicao) {this.ordemExibicao = ordemExibicao;}
 
     public Integer getQtdProdutoTotal() {return qtdProdutoTotal;}
 
+    public void setQtdProdutoTotal(Integer qtdProdutoTotal) {this.qtdProdutoTotal = qtdProdutoTotal;}
+
     public Integer getQtdProdutoDisponivel() {return qtdProdutoDisponivel;}
+
+    public void setQtdProdutoDisponivel(Integer qtdProdutoDisponivel) {this.qtdProdutoDisponivel = qtdProdutoDisponivel;}
 }
