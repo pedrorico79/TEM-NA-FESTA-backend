@@ -55,7 +55,7 @@ public class CardapioController {
 
     @GetMapping("/filtro-ativo/{filtro}")
     public ResponseEntity<List<CardapioResponseDto>> findByIsAtivo(@PathVariable Boolean filtro) {
-        List<CardapioResponseDto> result = CardapioMapper.toResponseDto(service.findByisAtivo(filtro));
+        List<CardapioResponseDto> result = CardapioMapper.toResponseDto(service.findByIsAtivo(filtro));
         if (result.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(result);
     }
