@@ -65,7 +65,7 @@ public class CardapioService {
         cardapioRepository.deleteById(id);
     }
 
-    public List<Cardapio> findByisAtivo(Boolean filtro) {
+    public List<Cardapio> findByIsAtivo(Boolean filtro) {
         return cardapioRepository.findByIsAtivo(filtro);
     }
 
