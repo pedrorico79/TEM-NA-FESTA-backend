@@ -7,5 +7,5 @@ package-lock.json
 
 .github
 
-/temnafesta/target/
+temnafesta/target/
 
