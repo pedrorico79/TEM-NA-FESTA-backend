@@ -8,4 +8,5 @@ package-lock.json
 .github
 
 temnafesta/target/
-
+tem-na-festa/target
+target
