@@ -23,6 +23,9 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
+    @Enumerated(EnumType.STRING)
+    private Perfil perfil;
+
     @Column(nullable = false)
     private Boolean isAtivo;
 
@@ -30,9 +33,6 @@ public class Usuario {
     @Column(nullable = false)
     private LocalDateTime dataCriacao;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "perfil_id", nullable = false)
-    private Perfil perfil;
 
     public Integer getId() {
         return id;

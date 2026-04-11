@@ -23,19 +23,22 @@ public class Cliente {
     @Column(nullable = false)
     private String whatsapp;
 
-    @Column(nullable = false)
+    @Column
     private String instagram;
 
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDate dataCadastro;
 
-    @Column(nullable = false)
+    @Column
     private String anotacoes;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "endereco_id", nullable = false)
     private Endereco endereco;
+
+    @Column(nullable = false)
+    private Boolean isAtivo;
 
     public Integer getId() {
         return id;
@@ -99,5 +102,13 @@ public class Cliente {
 
     public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
+    }
+
+    public Boolean getAtivo() {
+        return isAtivo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        isAtivo = ativo;
     }
 }

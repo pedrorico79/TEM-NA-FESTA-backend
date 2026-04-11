@@ -6,6 +6,9 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "pedido")
@@ -16,15 +19,19 @@ public class Pedido {
     private Integer id;
 
     @Column(nullable = false)
-    private LocalDate dataPedido;
+    private LocalDateTime dataPedido;
 
     @FutureOrPresent
     @Column(nullable = false)
-    private LocalDate dataEntrega;
+    private LocalDateTime dataEntrega;
 
     @Positive
     @Column(nullable = false)
     private Double valorTotal;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_atual", nullable = false)
+    private StatusProducao statusAtual;
 
     private String observacao;
 
@@ -36,9 +43,18 @@ public class Pedido {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @ManyToOne
-    @JoinColumn(name = "status_producao_id", nullable = false)
-    private StatusProducao statusProducao;
+    @Column(nullable = false)
+    private Boolean isAtivo;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PedidoProduto> produtos;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoricoStatusPedido> historicoStatus;
+
+    @OneToMany(mappedBy = "pedido", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Pagamento> pagamentos;
+
 
     public Integer getId() {
         return id;
@@ -48,19 +64,19 @@ public class Pedido {
         this.id = id;
     }
 
-    public LocalDate getDataPedido() {
+    public LocalDateTime getDataPedido() {
         return dataPedido;
     }
 
-    public void setDataPedido(LocalDate dataPedido) {
+    public void setDataPedido(LocalDateTime dataPedido) {
         this.dataPedido = dataPedido;
     }
 
-    public LocalDate getDataEntrega() {
+    public LocalDateTime getDataEntrega() {
         return dataEntrega;
     }
 
-    public void setDataEntrega(LocalDate dataEntrega) {
+    public void setDataEntrega(LocalDateTime dataEntrega) {
         this.dataEntrega = dataEntrega;
     }
 
@@ -96,11 +112,43 @@ public class Pedido {
         this.usuario = usuario;
     }
 
-    public StatusProducao getStatusProducao() {
-        return statusProducao;
+    public StatusProducao getStatusAtual() {
+        return statusAtual;
     }
 
-    public void setStatusProducao(StatusProducao statusProducao) {
-        this.statusProducao = statusProducao;
+    public void setStatusAtual(StatusProducao statusAtual) {
+        this.statusAtual = statusAtual;
+    }
+
+    public Boolean getAtivo() {
+        return isAtivo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        isAtivo = ativo;
+    }
+
+    public List<PedidoProduto> getProdutos() {
+        return produtos;
+    }
+
+    public void setProdutos(List<PedidoProduto> produtos) {
+        this.produtos = produtos;
+    }
+
+    public List<HistoricoStatusPedido> getHistoricoStatus() {
+        return historicoStatus;
+    }
+
+    public void setHistoricoStatus(List<HistoricoStatusPedido> historicoStatus) {
+        this.historicoStatus = historicoStatus;
+    }
+
+    public List<Pagamento> getPagamentos() {
+        return pagamentos;
+    }
+
+    public void setPagamentos(List<Pagamento> pagamentos) {
+        this.pagamentos = pagamentos;
     }
 }

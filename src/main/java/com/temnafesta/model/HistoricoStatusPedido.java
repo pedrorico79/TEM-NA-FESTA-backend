@@ -1,24 +1,22 @@
 package com.temnafesta.model;
 
-
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "pagamento")
-public class Pagamento {
+public class HistoricoStatusPedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Double valor;
-
-    private LocalDateTime dataPagamento;
-
     @Enumerated(EnumType.STRING)
-    private MetodoPagamento metodo;
+    @Column(name = "status_producao")
+    private StatusProducao statusProducao;
+
+    private LocalDateTime dataAlteracao;
+
+    private String observacao;
 
     @ManyToOne
     @JoinColumn(name = "pedido_id", nullable = false)
@@ -36,28 +34,28 @@ public class Pagamento {
         this.id = id;
     }
 
-    public Double getValor() {
-        return valor;
+    public StatusProducao getStatusProducao() {
+        return statusProducao;
     }
 
-    public void setValor(Double valor) {
-        this.valor = valor;
+    public void setStatusProducao(StatusProducao statusProducao) {
+        this.statusProducao = statusProducao;
     }
 
-    public LocalDateTime getDataPagamento() {
-        return dataPagamento;
+    public LocalDateTime getDataAlteracao() {
+        return dataAlteracao;
     }
 
-    public void setDataPagamento(LocalDateTime dataPagamento) {
-        this.dataPagamento = dataPagamento;
+    public void setDataAlteracao(LocalDateTime dataAlteracao) {
+        this.dataAlteracao = dataAlteracao;
     }
 
-    public MetodoPagamento getMetodo() {
-        return metodo;
+    public String getObservacao() {
+        return observacao;
     }
 
-    public void setMetodo(MetodoPagamento metodo) {
-        this.metodo = metodo;
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 
     public Pedido getPedido() {
