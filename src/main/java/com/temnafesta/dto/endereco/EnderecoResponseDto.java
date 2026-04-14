@@ -2,7 +2,7 @@ package com.temnafesta.dto.endereco;
 
 public class EnderecoResponseDto {
 
-    private Long id;
+    private Integer id;
     private String cep;
     private String logradouro;
     private String numero;
@@ -11,11 +11,11 @@ public class EnderecoResponseDto {
     private String cidade;
     private String estado;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
