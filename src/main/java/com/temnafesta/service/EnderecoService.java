@@ -1,6 +1,8 @@
 package com.temnafesta.service;
 
+import com.temnafesta.dto.endereco.EnderecoRequestDto;
 import com.temnafesta.exception.endereco.EnderecoNaoEncontrado;
+import com.temnafesta.mapper.EnderecoMapper;
 import com.temnafesta.model.Endereco;
 import com.temnafesta.repository.EnderecoRepository;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,10 @@ public class EnderecoService {
         this.enderecoRepository = enderecoRepository;
     }
 
-    public Endereco criar(Endereco endereco){
-        if (endereco == null) throw new IllegalArgumentException("Enreço não pode ser nulo");
-        return enderecoRepository.save(endereco);
+    public Endereco criar(EnderecoRequestDto enderecoRequestDto){
+        if (enderecoRequestDto == null) throw new IllegalArgumentException("Enreço não pode ser nulo");
+        Endereco entity = EnderecoMapper.toEntity(enderecoRequestDto);
+        return enderecoRepository.save(entity);
     }
 
     public List<Endereco> listar(){
@@ -31,7 +34,7 @@ public class EnderecoService {
                 .orElseThrow(() -> new EnderecoNaoEncontrado(id));
     }
 
-    public Endereco atualizar(Integer id, Endereco endereco){
+    public Endereco atualizar(Integer id, EnderecoRequestDto endereco){
         if (id == null || endereco == null)
             throw new IllegalArgumentException("Endereço ou ID não pode ser nulo");
 
