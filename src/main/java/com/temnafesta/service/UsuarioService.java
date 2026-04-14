@@ -99,6 +99,7 @@ public class UsuarioService {
         }
         usuarioExistente.setNome(usuarioAtualizado.getNome());
         usuarioExistente.setEmail(usuarioAtualizado.getEmail());
+        usuarioExistente.setAtivo(usuarioAtualizado.getAtivo());
 
         // Só atualiza a senha se ela for enviada e criptografa
         if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isBlank()) {
