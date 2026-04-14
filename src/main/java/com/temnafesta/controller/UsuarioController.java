@@ -32,7 +32,6 @@ public class UsuarioController {
     }
 
     @PostMapping
-    @SecurityRequirement(name = "Bearer")
     public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto dto) {
         Usuario novoUsuario = UsuarioMapper.toEntity(dto);
         this.service.criar(novoUsuario);
