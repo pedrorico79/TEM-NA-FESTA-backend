@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
+
 public class ProdutoRequestDto {
     @NotBlank
     private String nome;
@@ -12,7 +14,7 @@ public class ProdutoRequestDto {
 
     @NotNull
     @Positive
-    private Double precoVenda;
+    private BigDecimal precoVenda;
 
     @NotNull
     private Boolean isAtivo;
@@ -33,11 +35,11 @@ public class ProdutoRequestDto {
         this.descricao = descricao;
     }
 
-    public Double getPrecoVenda() {
+    public @NotNull @Positive BigDecimal getPrecoVenda() {
         return precoVenda;
     }
 
-    public void setPrecoVenda(Double precoVenda) {
+    public void setPrecoVenda(@NotNull @Positive BigDecimal precoVenda) {
         this.precoVenda = precoVenda;
     }
 

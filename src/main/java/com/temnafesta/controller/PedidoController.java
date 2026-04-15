@@ -30,7 +30,7 @@ public class PedidoController {
                 pedido,
                 dto.getClienteId(),
                 dto.getUsuarioId(),
-                dto.getStatusProducaoId()
+                dto.getStatusProducao()
         );
 
         return ResponseEntity.status(201)
@@ -69,7 +69,7 @@ public class PedidoController {
                 pedido,
                 dto.getClienteId(),
                 dto.getUsuarioId(),
-                dto.getStatusProducaoId()
+                dto.getStatusProducao()
         );
 
         return ResponseEntity.ok(

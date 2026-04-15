@@ -14,7 +14,6 @@ public class CampanhaRequestDto {
     private String nome;
 
     @NotNull
-    @FutureOrPresent
     private LocalDate dataInicio;
 
     @NotNull

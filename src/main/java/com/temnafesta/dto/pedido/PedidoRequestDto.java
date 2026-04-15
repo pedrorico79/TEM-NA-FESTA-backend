@@ -1,20 +1,23 @@
 package com.temnafesta.dto.pedido;
 
+import com.temnafesta.model.StatusProducao;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class PedidoRequestDto {
 
     @NotNull
     @FutureOrPresent
-    private LocalDate dataEntrega;
+    private LocalDateTime dataEntrega;
 
     @NotNull
     @Positive
-    private Double valorTotal;
+    private BigDecimal valorTotal;
 
     private String observacao;
 
@@ -25,21 +28,21 @@ public class PedidoRequestDto {
     private Integer usuarioId;
 
     @NotNull
-    private Integer statusProducaoId;
+    private StatusProducao statusProducao;
 
-    public LocalDate getDataEntrega() {
+    public LocalDateTime getDataEntrega() {
         return dataEntrega;
     }
 
-    public void setDataEntrega(LocalDate dataEntrega) {
+    public void setDataEntrega(LocalDateTime dataEntrega) {
         this.dataEntrega = dataEntrega;
     }
 
-    public Double getValorTotal() {
+    public BigDecimal getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(Double valorTotal) {
+    public void setValorTotal(BigDecimal valorTotal) {
         this.valorTotal = valorTotal;
     }
 
@@ -67,11 +70,11 @@ public class PedidoRequestDto {
         this.usuarioId = usuarioId;
     }
 
-    public Integer getStatusProducaoId() {
-        return statusProducaoId;
+    public StatusProducao getStatusProducao() {
+        return statusProducao;
     }
 
-    public void setStatusProducaoId(Integer statusProducaoId) {
-        this.statusProducaoId = statusProducaoId;
+    public void setStatusProducao(StatusProducao statusProducao) {
+        this.statusProducao = statusProducao;
     }
 }

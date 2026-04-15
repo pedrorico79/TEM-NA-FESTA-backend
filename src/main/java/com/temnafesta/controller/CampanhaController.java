@@ -6,16 +6,15 @@ import com.temnafesta.dto.campanha.CampanhaResponseDto;
 import com.temnafesta.mapper.CampanhaMapper;
 import com.temnafesta.service.CampanhaService;
 import jakarta.validation.Valid;
-import org.springframework.data.repository.config.RepositoryConfigurationSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.net.ssl.CertPathTrustManagerParameters;
+
 import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/tem-na-festa/campanhas")
+@RequestMapping("/campanhas")
 public class CampanhaController {
 
     private final CampanhaService service;

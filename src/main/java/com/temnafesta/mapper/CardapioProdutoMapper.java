@@ -26,6 +26,8 @@ public class CardapioProdutoMapper {
 
         CardapioProdutoResponseDto.ProdutoDto produtoDto = new CardapioProdutoResponseDto.ProdutoDto();
         produtoDto.setId(entity.getProduto().getId());
+        produtoDto.setNome(entity.getProduto().getNome());
+        produtoDto.setPrecoVenda(entity.getProduto().getPrecoVenda());
 
         CardapioProdutoResponseDto dto = new CardapioProdutoResponseDto();
         dto.setId(entity.getId());

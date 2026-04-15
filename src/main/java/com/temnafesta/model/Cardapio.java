@@ -20,8 +20,7 @@ public class Cardapio {
     @Column(nullable = false)
     private Boolean isAtivo;
 
-    @ManyToOne
-    @NotNull
+    @ManyToOne(optional = false)
     @JoinColumn(name = "campanha_id")
     private Campanha campanha;
 

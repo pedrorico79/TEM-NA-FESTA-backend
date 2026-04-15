@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/tem-na-festa/cardapios")
+@RequestMapping("/cardapios")
 public class CardapioController {
 
     private final CardapioService service;

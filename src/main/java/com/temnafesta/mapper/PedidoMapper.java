@@ -28,22 +28,26 @@ public class PedidoMapper {
         clienteDto.setInstagram(clienteEntidade.getInstagram());
         clienteDto.setDataCadastro(clienteEntidade.getDataCadastro());
         clienteDto.setAnotacoes(clienteEntidade.getAnotacoes());
-        clienteDto.setEndereco(clienteEntidade.getEndereco());
+
+        Endereco enderecoEntidade = pedido.getCliente().getEndereco();
+        PedidoResponseDto.ClientePedidoDto.EnderecoClientePedidoDto enderecoDto = new PedidoResponseDto.ClientePedidoDto.EnderecoClientePedidoDto();
+        enderecoDto.setId(enderecoEntidade.getId());
+        enderecoDto.setCep(enderecoDto.getCep());
+        enderecoDto.setCidade(enderecoDto.getCidade());
+        enderecoDto.setNumero(enderecoDto.getNumero());
+        enderecoDto.setLogradouro(enderecoDto.getLogradouro());
+
+        clienteDto.setEndereco(enderecoDto);
 
         Usuario usuarioEntidade = pedido.getUsuario();
 
         PedidoResponseDto.UsuarioPedidoDto usuarioDto = new PedidoResponseDto.UsuarioPedidoDto();
         usuarioDto.setId(usuarioEntidade.getId());
         usuarioDto.setNome(usuarioEntidade.getNome());
-        usuarioDto.setEmail(usuarioEntidade.getEmail());
-        usuarioDto.setAtivo(usuarioEntidade.getAtivo());
-        usuarioDto.setDataCriacao(usuarioEntidade.getDataCriacao());
-        usuarioDto.setPerfil(usuarioEntidade.getPerfil());
 
 
         PedidoResponseDto.StatusPedidoDto statusDto = new PedidoResponseDto.StatusPedidoDto();
-        statusDto.setId(pedido.getStatusProducao().getId());
-        statusDto.setNome(pedido.getStatusProducao().getNome());
+        statusDto.setNome(pedido.getStatusProducao().name());
 
         PedidoResponseDto dto = new PedidoResponseDto();
         dto.setId(pedido.getId());

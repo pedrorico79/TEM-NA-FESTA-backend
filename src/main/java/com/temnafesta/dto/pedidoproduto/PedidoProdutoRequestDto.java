@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.math.BigDecimal;
+
 public class PedidoProdutoRequestDto {
 
     @NotNull
@@ -20,10 +22,10 @@ public class PedidoProdutoRequestDto {
 
     @NotNull
     @PositiveOrZero
-    private Double precoUnitario;
+    private BigDecimal precoUnitario;
 
     public Integer getPedidoId() {return pedidoId;}public void setPedidoId(Integer pedidoId) {this.pedidoId = pedidoId;}
     public Integer getProdutoId() {return produtoId;}public void setProdutoId(Integer produtoId) {this.produtoId = produtoId;}
     public Integer getQuantidade() {return quantidade;}public void setQuantidade(Integer quantidade) {this.quantidade = quantidade;}
-    public Double getPrecoUnitario() {return precoUnitario;}public void setPrecoUnitario(Double precoUnitario) {this.precoUnitario = precoUnitario;}
+    public @NotNull @PositiveOrZero BigDecimal getPrecoUnitario() {return precoUnitario;}public void setPrecoUnitario(@NotNull @PositiveOrZero BigDecimal precoUnitario) {this.precoUnitario = precoUnitario;}
 }

@@ -2,10 +2,9 @@ package com.temnafesta.model;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Positive;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,17 +20,15 @@ public class Pedido {
     @Column(nullable = false)
     private LocalDateTime dataPedido;
 
-    @FutureOrPresent
     @Column(nullable = false)
     private LocalDateTime dataEntrega;
 
-    @Positive
     @Column(nullable = false)
-    private Double valorTotal;
+    private BigDecimal valorTotal;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_atual", nullable = false)
-    private StatusProducao statusAtual;
+    private StatusProducao statusProducao;
 
     private String observacao;
 
@@ -44,16 +41,16 @@ public class Pedido {
     private Usuario usuario;
 
     @Column(nullable = false)
-    private Boolean isAtivo;
+    private Boolean isAtivo = true;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PedidoProduto> produtos;
+    private List<PedidoProduto> produtos = new ArrayList<>();
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistoricoStatusPedido> historicoStatus;
+    private List<HistoricoStatusPedido> historicoStatus = new ArrayList<>();
 
     @OneToMany(mappedBy = "pedido", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Pagamento> pagamentos;
+    private List<Pagamento> pagamentos = new ArrayList<>();
 
 
     public Integer getId() {
@@ -80,12 +77,20 @@ public class Pedido {
         this.dataEntrega = dataEntrega;
     }
 
-    public Double getValorTotal() {
+    public @Positive BigDecimal getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(Double valorTotal) {
+    public void setValorTotal(@Positive BigDecimal valorTotal) {
         this.valorTotal = valorTotal;
+    }
+
+    public StatusProducao getStatusProducao() {
+        return statusProducao;
+    }
+
+    public void setStatusProducao(StatusProducao statusProducao) {
+        this.statusProducao = statusProducao;
     }
 
     public String getObservacao() {
@@ -110,14 +115,6 @@ public class Pedido {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
-    }
-
-    public StatusProducao getStatusAtual() {
-        return statusAtual;
-    }
-
-    public void setStatusAtual(StatusProducao statusAtual) {
-        this.statusAtual = statusAtual;
     }
 
     public Boolean getAtivo() {

@@ -23,7 +23,7 @@ public class UsuarioMapper {
 
         // Converte a String do DTO para o Enum da sua Entity
         if (dto.getPerfil() != null) {
-            usuario.setPerfil(Perfil.valueOf(dto.getPerfil().toUpperCase()));
+            usuario.setPerfil(dto.getPerfil());
         }
 
         return usuario;

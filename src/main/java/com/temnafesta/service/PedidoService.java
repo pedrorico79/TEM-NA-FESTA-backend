@@ -2,14 +2,13 @@ package com.temnafesta.service;
 
 import com.temnafesta.exception.cliente.ClienteNaoEncontrado;
 import com.temnafesta.exception.pedido.PedidoNaoEncontrado;
-import com.temnafesta.exception.statusProducao.StatusProducaoNaoEncontrado;
 import com.temnafesta.exception.usuario.UsuarioNaoEncontrado;
 import org.springframework.stereotype.Service;
 
 import com.temnafesta.model.*;
 import com.temnafesta.repository.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,19 +17,16 @@ public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
-    private final StatusProducaoRepository statusRepository;
 
     public PedidoService(PedidoRepository pedidoRepository,
                          ClienteRepository clienteRepository,
-                         UsuarioRepository usuarioRepository,
-                         StatusProducaoRepository statusRepository) {
+                         UsuarioRepository usuarioRepository){
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.usuarioRepository = usuarioRepository;
-        this.statusRepository = statusRepository;
     }
 
-    public Pedido criar(Pedido pedido, Integer clienteId, Integer usuarioId, Integer statusId) {
+    public Pedido criar(Pedido pedido, Integer clienteId, Integer usuarioId, StatusProducao statusProducao) {
 
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new ClienteNaoEncontrado(clienteId));
@@ -38,13 +34,10 @@ public class PedidoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(usuarioId));
 
-        StatusProducao status = statusRepository.findById(statusId)
-                .orElseThrow(() -> new StatusProducaoNaoEncontrado(statusId));
-
         pedido.setCliente(cliente);
         pedido.setUsuario(usuario);
-        pedido.setStatusProducao(status);
-        pedido.setDataPedido(LocalDate.now());
+        pedido.setStatusProducao(statusProducao);
+        pedido.setDataPedido(LocalDateTime.now());
 
         return pedidoRepository.save(pedido);
     }
@@ -59,7 +52,7 @@ public class PedidoService {
     }
 
     public Pedido atualizar(Integer id, Pedido pedidoAtualizado,
-                            Integer clienteId, Integer usuarioId, Integer statusId) {
+                            Integer clienteId, Integer usuarioId, StatusProducao statusProducao) {
 
         Pedido pedidoExistente = pedidoRepository.findById(id)
                 .orElseThrow(() -> new PedidoNaoEncontrado(id));
@@ -70,8 +63,7 @@ public class PedidoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(usuarioId));
 
-        StatusProducao status = statusRepository.findById(statusId)
-                .orElseThrow(() -> new StatusProducaoNaoEncontrado(statusId));
+
 
 
         pedidoExistente.setDataEntrega(pedidoAtualizado.getDataEntrega());
@@ -80,7 +72,7 @@ public class PedidoService {
 
         pedidoExistente.setCliente(cliente);
         pedidoExistente.setUsuario(usuario);
-        pedidoExistente.setStatusProducao(status);
+        pedidoExistente.setStatusProducao(statusProducao);
 
         return pedidoRepository.save(pedidoExistente);
     }

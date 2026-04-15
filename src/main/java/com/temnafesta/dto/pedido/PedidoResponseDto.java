@@ -1,23 +1,20 @@
 package com.temnafesta.dto.pedido;
 
-import com.temnafesta.model.Endereco;
-import com.temnafesta.model.Perfil;
-
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class PedidoResponseDto {
 
     private Integer id;
-    private LocalDate dataPedido;
-    private LocalDate dataEntrega;
-    private Double valorTotal;
+    private LocalDateTime dataPedido;
+    private LocalDateTime dataEntrega;
+    private BigDecimal valorTotal;
     private String observacao;
 
     private ClientePedidoDto cliente;
     private UsuarioPedidoDto usuario;
     private StatusPedidoDto statusProducao;
-
 
 
     public static class ClientePedidoDto {
@@ -35,7 +32,55 @@ public class PedidoResponseDto {
 
         private String anotacoes;
 
-        private Endereco endereco;
+        private EnderecoClientePedidoDto endereco;
+
+        public static class EnderecoClientePedidoDto{
+            private Integer id;
+            private String cep;
+            private String logradouro;
+            private String numero;
+            private String cidade;
+
+            public Integer getId() {
+                return id;
+            }
+
+            public void setId(Integer id) {
+                this.id = id;
+            }
+
+            public String getCep() {
+                return cep;
+            }
+
+            public void setCep(String cep) {
+                this.cep = cep;
+            }
+
+            public String getLogradouro() {
+                return logradouro;
+            }
+
+            public void setLogradouro(String logradouro) {
+                this.logradouro = logradouro;
+            }
+
+            public String getNumero() {
+                return numero;
+            }
+
+            public void setNumero(String numero) {
+                this.numero = numero;
+            }
+
+            public String getCidade() {
+                return cidade;
+            }
+
+            public void setCidade(String cidade) {
+                this.cidade = cidade;
+            }
+        }
 
         public Integer getId() {
             return id;
@@ -93,11 +138,11 @@ public class PedidoResponseDto {
             this.anotacoes = anotacoes;
         }
 
-        public Endereco getEndereco() {
+        public EnderecoClientePedidoDto getEndereco() {
             return endereco;
         }
 
-        public void setEndereco(Endereco endereco) {
+        public void setEndereco(EnderecoClientePedidoDto endereco) {
             this.endereco = endereco;
         }
     }
@@ -106,14 +151,6 @@ public class PedidoResponseDto {
         private Integer id;
 
         private String nome;
-
-        private String email;
-
-        private Boolean isAtivo;
-
-        private LocalDateTime dataCriacao;
-
-        private Perfil perfil;
 
         public Integer getId() {
             return id;
@@ -130,51 +167,10 @@ public class PedidoResponseDto {
         public void setNome(String nome) {
             this.nome = nome;
         }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public Boolean getAtivo() {
-            return isAtivo;
-        }
-
-        public void setAtivo(Boolean ativo) {
-            isAtivo = ativo;
-        }
-
-        public LocalDateTime getDataCriacao() {
-            return dataCriacao;
-        }
-
-        public void setDataCriacao(LocalDateTime dataCriacao) {
-            this.dataCriacao = dataCriacao;
-        }
-
-        public Perfil getPerfil() {
-            return perfil;
-        }
-
-        public void setPerfil(Perfil perfil) {
-            this.perfil = perfil;
-        }
     }
 
     public static class StatusPedidoDto {
-        private Integer id;
         private String nome;
-
-        public Integer getId() {
-            return id;
-        }
-
-        public void setId(Integer id) {
-            this.id = id;
-        }
 
         public String getNome() {
             return nome;
@@ -193,28 +189,27 @@ public class PedidoResponseDto {
         this.id = id;
     }
 
-
-    public LocalDate getDataPedido() {
+    public LocalDateTime getDataPedido() {
         return dataPedido;
     }
 
-    public void setDataPedido(LocalDate dataPedido) {
+    public void setDataPedido(LocalDateTime dataPedido) {
         this.dataPedido = dataPedido;
     }
 
-    public LocalDate getDataEntrega() {
+    public LocalDateTime getDataEntrega() {
         return dataEntrega;
     }
 
-    public void setDataEntrega(LocalDate dataEntrega) {
+    public void setDataEntrega(LocalDateTime dataEntrega) {
         this.dataEntrega = dataEntrega;
     }
 
-    public Double getValorTotal() {
+    public BigDecimal getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(Double valorTotal) {
+    public void setValorTotal(BigDecimal valorTotal) {
         this.valorTotal = valorTotal;
     }
 
