@@ -9,6 +9,9 @@ import java.util.List;
 
 public class CardapioMapper {
 
+    private CardapioMapper() {
+    }
+
     public static Cardapio toEntityForCreate(CardapioRequestDto dto, Campanha campanha) {
         Cardapio cardapio = new Cardapio();
         cardapio.setNome(dto.getNome());

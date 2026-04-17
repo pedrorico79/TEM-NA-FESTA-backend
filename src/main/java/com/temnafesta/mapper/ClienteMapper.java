@@ -8,6 +8,9 @@ import com.temnafesta.model.Endereco;
 import java.util.List;
 
 public class ClienteMapper {
+
+    private ClienteMapper(){}
+
     public static Cliente toEntity(ClienteRequestDto dto) {
         Cliente cliente = new Cliente();
         cliente.setNome(dto.getNome());

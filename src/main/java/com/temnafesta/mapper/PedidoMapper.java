@@ -8,6 +8,8 @@ import java.util.List;
 
 public class PedidoMapper {
 
+    private PedidoMapper(){}
+
     public static Pedido toEntity(PedidoRequestDto dto) {
         Pedido pedido = new Pedido();
         pedido.setDataEntrega(dto.getDataEntrega());

@@ -35,11 +35,11 @@ public class ProdutoRequestDto {
         this.descricao = descricao;
     }
 
-    public @NotNull @Positive BigDecimal getPrecoVenda() {
+    public BigDecimal getPrecoVenda() {
         return precoVenda;
     }
 
-    public void setPrecoVenda(@NotNull @Positive BigDecimal precoVenda) {
+    public void setPrecoVenda( BigDecimal precoVenda) {
         this.precoVenda = precoVenda;
     }
 

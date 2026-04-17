@@ -27,5 +27,5 @@ public class PedidoProdutoRequestDto {
     public Integer getPedidoId() {return pedidoId;}public void setPedidoId(Integer pedidoId) {this.pedidoId = pedidoId;}
     public Integer getProdutoId() {return produtoId;}public void setProdutoId(Integer produtoId) {this.produtoId = produtoId;}
     public Integer getQuantidade() {return quantidade;}public void setQuantidade(Integer quantidade) {this.quantidade = quantidade;}
-    public @NotNull @PositiveOrZero BigDecimal getPrecoUnitario() {return precoUnitario;}public void setPrecoUnitario(@NotNull @PositiveOrZero BigDecimal precoUnitario) {this.precoUnitario = precoUnitario;}
+    public BigDecimal getPrecoUnitario() {return precoUnitario;}public void setPrecoUnitario(BigDecimal precoUnitario) {this.precoUnitario = precoUnitario;}
 }

@@ -19,6 +19,7 @@ public class Produto {
     private String descricao;
 
     @Positive
+    @NotNull @Positive
     @Column(name = "preco_venda")
     private BigDecimal precoVenda;
 
@@ -49,11 +50,11 @@ public class Produto {
         this.descricao = descricao;
     }
 
-    public @NotNull @Positive BigDecimal getPrecoVenda() {
+    public  BigDecimal getPrecoVenda() {
         return precoVenda;
     }
 
-    public void setPrecoVenda(@NotNull @Positive BigDecimal precoVenda) {
+    public void setPrecoVenda(BigDecimal precoVenda) {
         this.precoVenda = precoVenda;
     }
 

@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 public class UsuarioMapper {
 
+    private UsuarioMapper(){}
+
     /**
      * Converte o DTO de criação para a Entity.
      * Note que não setamos dataCriacao nem isAtivo, pois a Entity já cuida disso.
