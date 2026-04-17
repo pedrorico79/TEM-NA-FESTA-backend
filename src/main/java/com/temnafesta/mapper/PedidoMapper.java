@@ -32,10 +32,10 @@ public class PedidoMapper {
         Endereco enderecoEntidade = pedido.getCliente().getEndereco();
         PedidoResponseDto.ClientePedidoDto.EnderecoClientePedidoDto enderecoDto = new PedidoResponseDto.ClientePedidoDto.EnderecoClientePedidoDto();
         enderecoDto.setId(enderecoEntidade.getId());
-        enderecoDto.setCep(enderecoDto.getCep());
-        enderecoDto.setCidade(enderecoDto.getCidade());
-        enderecoDto.setNumero(enderecoDto.getNumero());
-        enderecoDto.setLogradouro(enderecoDto.getLogradouro());
+        enderecoDto.setCep(enderecoEntidade.getCep());
+        enderecoDto.setCidade(enderecoEntidade.getCidade());
+        enderecoDto.setNumero(enderecoEntidade.getNumero());
+        enderecoDto.setLogradouro(enderecoEntidade.getLogradouro());
 
         clienteDto.setEndereco(enderecoDto);
 
