@@ -30,9 +30,18 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClienteResponseDto>> listar(){
-        List<Cliente> clientes = service.listar();
-        return ResponseEntity.ok(ClienteMapper.toResponseDtoList(clientes));
+    public ResponseEntity<List<ClienteResponseDto>> listar(
+            @RequestParam(required = false, defaultValue = "true") Boolean apenasAtivos
+    ){
+        List<Cliente> clientes;
+        if (apenasAtivos) {
+            clientes = service.listarAtivos();
+        } else {
+            clientes = service.listarTodos();
+        }
+
+        List<ClienteResponseDto> clienteResponseDto = ClienteMapper.toResponseDtoList(clientes);
+        return ResponseEntity.ok(clienteResponseDto);
     }
 
     @GetMapping("/{id}")
@@ -48,9 +57,15 @@ public class ClienteController {
         return ResponseEntity.ok(ClienteMapper.toResponseDto(atualizado));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id){
-        service.deletar(id);
+    @PatchMapping("/{id}/desativar")
+    public ResponseEntity<Void> desativar(@PathVariable Integer id){
+        service.desativar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/reativar")
+    public ResponseEntity<Void> reativar(@PathVariable Integer id){
+        service.reativar(id);
         return ResponseEntity.noContent().build();
     }
 }
