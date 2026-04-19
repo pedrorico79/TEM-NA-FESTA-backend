@@ -38,7 +38,7 @@ public class CampanhaController {
     @PostMapping
     public ResponseEntity<CampanhaResponseDto> create(@RequestBody @Valid CampanhaRequestDto dto){
         CampanhaResponseDto created = CampanhaMapper.toResponse(service.create(CampanhaMapper.toEntityForCreate(dto)));
-        URI location = URI.create("/tem-na-festa/campanhas/" + created.getId());
+        URI location = URI.create("/campanhas/" + created.getId());
         return ResponseEntity.created(location).body(created);
     }
 

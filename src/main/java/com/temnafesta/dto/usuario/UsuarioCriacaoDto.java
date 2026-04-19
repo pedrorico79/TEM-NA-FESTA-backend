@@ -42,11 +42,11 @@ public class UsuarioCriacaoDto {
     this.email = email;
   }
 
-  public @NotNull Perfil getPerfil() {
+  public Perfil getPerfil() {
     return perfil;
   }
 
-  public void setPerfil(@NotNull Perfil perfil) {
+  public void setPerfil(Perfil perfil) {
     this.perfil = perfil;
   }
 

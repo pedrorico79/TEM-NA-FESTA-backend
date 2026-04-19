@@ -7,11 +7,9 @@ import com.temnafesta.model.Cliente;
 import com.temnafesta.model.Endereco;
 import com.temnafesta.repository.ClienteRepository;
 import com.temnafesta.repository.EnderecoRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ClienteService {

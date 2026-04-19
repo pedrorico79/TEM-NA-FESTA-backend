@@ -18,8 +18,6 @@ public class Produto {
 
     private String descricao;
 
-    @Positive
-    @NotNull @Positive
     @Column(name = "preco_venda")
     private BigDecimal precoVenda;
 

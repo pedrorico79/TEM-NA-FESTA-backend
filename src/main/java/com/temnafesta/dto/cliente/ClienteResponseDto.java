@@ -1,11 +1,5 @@
 package com.temnafesta.dto.cliente;
 
-import com.temnafesta.model.Endereco;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 

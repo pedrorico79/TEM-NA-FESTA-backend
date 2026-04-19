@@ -2,7 +2,6 @@ package com.temnafesta.model;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,10 +30,6 @@ public class Pedido {
     private StatusProducao statusProducao;
 
     private String observacao;
-
-    private Boolean isPago;
-
-
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
