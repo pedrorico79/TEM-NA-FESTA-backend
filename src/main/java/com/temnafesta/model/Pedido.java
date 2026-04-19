@@ -32,6 +32,10 @@ public class Pedido {
 
     private String observacao;
 
+    private Boolean isPago;
+
+
+
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
@@ -39,6 +43,10 @@ public class Pedido {
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "campanha_id", nullable = false)
+    private Campanha campanha;
 
     @Column(nullable = false)
     private Boolean isAtivo = true;
@@ -77,11 +85,11 @@ public class Pedido {
         this.dataEntrega = dataEntrega;
     }
 
-    public @Positive BigDecimal getValorTotal() {
+    public  BigDecimal getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(@Positive BigDecimal valorTotal) {
+    public void setValorTotal(BigDecimal valorTotal) {
         this.valorTotal = valorTotal;
     }
 
@@ -115,6 +123,14 @@ public class Pedido {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public Campanha getCampanha() {
+        return campanha;
+    }
+
+    public void setCampanha(Campanha campanha) {
+        this.campanha = campanha;
     }
 
     public Boolean getAtivo() {

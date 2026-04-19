@@ -30,6 +30,9 @@ public class PedidoRequestDto {
     @NotNull
     private StatusProducao statusProducao;
 
+    @NotNull
+    private Integer campanhaId;
+
     public LocalDateTime getDataEntrega() {
         return dataEntrega;
     }
@@ -76,5 +79,13 @@ public class PedidoRequestDto {
 
     public void setStatusProducao(StatusProducao statusProducao) {
         this.statusProducao = statusProducao;
+    }
+
+    public Integer getCampanhaId() {
+        return campanhaId;
+    }
+
+    public void setCampanhaId(Integer campanhaId) {
+        this.campanhaId = campanhaId;
     }
 }

@@ -21,24 +21,22 @@ public class CampanhaService {
         return campanhaRepository.findAll();
     }
 
-    public Campanha findById(Integer id){
+    public Campanha findById(Integer id) {
         return campanhaRepository.findById(id)
                 .orElseThrow(() -> new CampanhaNaoEncontrada(id));
     }
 
-    public Campanha create (Campanha campanha){
+    public Campanha create(Campanha campanha) {
         campanhaRepository.findByNomeIgnoreCase(campanha.getNome())
-                .ifPresent(c -> {throw new CampanhaDuplicadaException(campanha.getNome());
-                });
+                .ifPresent(c -> { throw new CampanhaDuplicadaException(campanha.getNome()); });
         return campanhaRepository.save(campanha);
     }
 
-    public Campanha update (Integer id, Campanha campanha){
-        if(!campanhaRepository.existsById(id)) {
+    public Campanha update(Integer id, Campanha campanha) {
+        if (!campanhaRepository.existsById(id)) {
             throw new CampanhaNaoEncontrada(id);
-
         }
-        if(campanhaRepository.existsByNomeIgnoreCaseAndIdNot(campanha.getNome(), id)){
+        if (campanhaRepository.existsByNomeIgnoreCaseAndIdNot(campanha.getNome(), id)) {
             throw new CampanhaDuplicadaException(campanha.getNome());
         }
 
@@ -49,17 +47,16 @@ public class CampanhaService {
         existente.setAtiva(campanha.getAtiva());
 
         return campanhaRepository.save(existente);
-
     }
 
-    public void deleteById(Integer id){
-        if(!campanhaRepository.existsById(id)){
+    public void deleteById(Integer id) {
+        if (!campanhaRepository.existsById(id)) {
             throw new CampanhaNaoEncontrada(id);
         }
         campanhaRepository.deleteById(id);
     }
 
-    public List<Campanha> findByAtiva(Boolean ativa){
+    public List<Campanha> findByAtiva(Boolean ativa) {
         return campanhaRepository.findByAtiva(ativa);
     }
 }

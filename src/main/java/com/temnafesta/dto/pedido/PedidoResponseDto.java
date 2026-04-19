@@ -15,7 +15,9 @@ public class PedidoResponseDto {
     private ClientePedidoDto cliente;
     private UsuarioPedidoDto usuario;
     private StatusPedidoDto statusProducao;
-
+    private CampanhaPedidoDto campanha;
+    private BigDecimal valorPago;
+    private Boolean isPago;
 
     public static class ClientePedidoDto {
         private Integer id;
@@ -181,6 +183,27 @@ public class PedidoResponseDto {
         }
     }
 
+    public static class CampanhaPedidoDto {
+        private Integer id;
+        private String nome;
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public String getNome() {
+            return nome;
+        }
+
+        public void setNome(String nome) {
+            this.nome = nome;
+        }
+    }
+
     public Integer getId() {
         return id;
     }
@@ -243,5 +266,29 @@ public class PedidoResponseDto {
 
     public void setStatusProducao(StatusPedidoDto statusProducao) {
         this.statusProducao = statusProducao;
+    }
+
+    public CampanhaPedidoDto getCampanha() {
+        return campanha;
+    }
+
+    public void setCampanha(CampanhaPedidoDto campanha) {
+        this.campanha = campanha;
+    }
+
+    public BigDecimal getValorPago() {
+        return valorPago;
+    }
+
+    public void setValorPago(BigDecimal valorPago) {
+        this.valorPago = valorPago;
+    }
+
+    public Boolean getPago() {
+        return isPago;
+    }
+
+    public void setIsPago(Boolean pago) {
+        isPago = pago;
     }
 }
