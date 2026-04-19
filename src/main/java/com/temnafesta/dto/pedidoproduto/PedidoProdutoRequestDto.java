@@ -17,7 +17,7 @@ public class PedidoProdutoRequestDto {
     private Integer produtoId;
 
     @NotNull
-    @PositiveOrZero
+    @Positive
     private Integer quantidade;
 
     @NotNull
