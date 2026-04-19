@@ -1,6 +1,7 @@
 package com.temnafesta.dto.pedido;
 
 import com.temnafesta.model.StatusProducao;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -8,27 +9,35 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Schema(description = "Dados para criação ou atualização de pedido")
 public class PedidoRequestDto {
 
+    @Schema(description = "Data e hora de entrega do pedido", example = "2024-12-31T18:00:00")
     @NotNull
     @FutureOrPresent
     private LocalDateTime dataEntrega;
 
+    @Schema(description = "Valor total do pedido", example = "150.00")
     @NotNull
     @Positive
     private BigDecimal valorTotal;
 
+    @Schema(description = "Observação do pedido", example = "Sem glúten")
     private String observacao;
 
+    @Schema(description = "ID do cliente", example = "1")
     @NotNull
     private Integer clienteId;
 
+    @Schema(description = "ID do usuário responsável", example = "1")
     @NotNull
     private Integer usuarioId;
 
+    @Schema(description = "Status de produção do pedido", example = "EM_PRODUCAO")
     @NotNull
     private StatusProducao statusProducao;
 
+    @Schema(description = "ID da campanha vinculada ao pedido", example = "1")
     @NotNull
     private Integer campanhaId;
 
