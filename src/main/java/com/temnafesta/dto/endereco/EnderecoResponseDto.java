@@ -1,14 +1,32 @@
 package com.temnafesta.dto.endereco;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Dados do endereço")
 public class EnderecoResponseDto {
 
+    @Schema(description = "ID do endereço", example = "1")
     private Integer id;
+
+    @Schema(description = "CEP do endereço sem máscara", example = "01310000")
     private String cep;
+
+    @Schema(description = "Logradouro do endereço", example = "Avenida Paulista")
     private String logradouro;
+
+    @Schema(description = "Número do endereço", example = "1578")
     private String numero;
+
+    @Schema(description = "Complemento do endereço", example = "Apto 42")
     private String complemento;
+
+    @Schema(description = "Bairro do endereço", example = "Bela Vista")
     private String bairro;
+
+    @Schema(description = "Cidade do endereço", example = "São Paulo")
     private String cidade;
+
+    @Schema(description = "UF do endereço", example = "SP")
     private String estado;
 
     public Integer getId() {

@@ -3,25 +3,27 @@ package com.temnafesta.dto.usuario;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
+@Schema(description = "Dados para criação de usuário")
 public class UsuarioCriacaoDto {
 
+  @Schema(description = "Nome do usuário", example = "João Silva", minLength = 3, maxLength = 100)
   @NotBlank
   @Size(min = 3, max = 100)
-  @Schema(description = "Nome do usuário", example = "John Doe")
   private String nome;
 
+  @Schema(description = "E-mail do usuário", example = "joao.silva@email.com")
   @NotBlank
   @Email
-  @Schema(description = "Email do usuário", example = "john@doe.com")
   private String email;
 
+  @Schema(description = "Senha do usuário", example = "Senha@123", minLength = 8)
   @NotBlank
   @Size(min = 8)
   @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).*$",
           message = "Senha muito fraca")
-  @Schema(description = "Senha do usuário", example = "123456")
   private String senha;
 
+  @Schema(description = "Perfil do usuário", example = "ADMIN")
   @NotNull
   private String perfil;
 

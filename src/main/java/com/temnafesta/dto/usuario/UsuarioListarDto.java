@@ -2,15 +2,16 @@ package com.temnafesta.dto.usuario;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "Dados de listagem de usuário")
 public class UsuarioListarDto {
 
-    @Schema(description = "Id do usuário", example = "1")
+    @Schema(description = "ID do usuário", example = "1")
     private Integer id;
 
-    @Schema(description = "Nome do usuário", example = "John Doe")
+    @Schema(description = "Nome do usuário", example = "João Silva")
     private String nome;
 
-    @Schema(description = "Email do usuário", example = "john@doe.com")
+    @Schema(description = "E-mail do usuário", example = "joao.silva@email.com")
     private String email;
 
     public Integer getId() {

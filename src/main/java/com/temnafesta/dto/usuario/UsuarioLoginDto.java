@@ -4,15 +4,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+@Schema(description = "Dados para login de usuário")
 public class UsuarioLoginDto {
 
+  @Schema(description = "E-mail do usuário", example = "joao.silva@email.com")
   @NotBlank
   @Email
-  @Schema(description = "E-mail do usuário", example = "john@doe.com")
   private String email;
 
+  @Schema(description = "Senha do usuário", example = "Senha@123")
   @NotBlank
-  @Schema(description = "Senha do usuário", example = "123456")
   private String senha;
 
   public String getEmail() {

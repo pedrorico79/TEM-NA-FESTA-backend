@@ -1,19 +1,25 @@
 package com.temnafesta.dto.produto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+@Schema(description = "Dados para criação ou atualização de produto")
 public class ProdutoRequestDto {
+    @Schema(description = "Nome do produto", example = "Bolo de Chocolate")
     @NotBlank
     private String nome;
 
+    @Schema(description = "Descrição do produto", example = "Bolo de chocolate com cobertura de ganache")
     private String descricao;
 
+    @Schema(description = "Preço de venda do produto", example = "49.90")
     @NotNull
     @Positive
     private Double precoVenda;
 
+    @Schema(description = "Status do produto", example = "true")
     @NotNull
     private Boolean isAtivo;
 
