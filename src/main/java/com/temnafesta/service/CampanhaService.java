@@ -2,10 +2,8 @@ package com.temnafesta.service;
 
 import com.temnafesta.exception.campanha.CampanhaDuplicadaException;
 import com.temnafesta.exception.campanha.CampanhaNaoEncontrada;
-import com.temnafesta.mapper.CardapioMapper;
 import com.temnafesta.model.Campanha;
 import com.temnafesta.repository.CampanhaRepository;
-import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
