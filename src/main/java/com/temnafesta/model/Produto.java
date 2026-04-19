@@ -2,9 +2,10 @@ package com.temnafesta.model;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "produto")
@@ -13,17 +14,13 @@ public class Produto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank
     private String nome;
 
     private String descricao;
 
-    @NotNull
-    @Positive
     @Column(name = "preco_venda")
-    private Double precoVenda;
+    private BigDecimal precoVenda;
 
-    @NotNull
     @Column(name = "is_ativo")
     private Boolean isAtivo;
 
@@ -51,11 +48,11 @@ public class Produto {
         this.descricao = descricao;
     }
 
-    public Double getPrecoVenda() {
+    public  BigDecimal getPrecoVenda() {
         return precoVenda;
     }
 
-    public void setPrecoVenda(Double precoVenda) {
+    public void setPrecoVenda(BigDecimal precoVenda) {
         this.precoVenda = precoVenda;
     }
 

@@ -7,6 +7,9 @@ import com.temnafesta.model.Produto;
 import java.util.List;
 
 public class ProdutoMapper {
+
+    private ProdutoMapper(){}
+
     public static Produto toEntity(ProdutoRequestDto dto) {
         Produto produto = new Produto();
         produto.setNome(dto.getNome());

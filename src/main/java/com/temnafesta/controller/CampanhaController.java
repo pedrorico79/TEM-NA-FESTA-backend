@@ -6,16 +6,15 @@ import com.temnafesta.dto.campanha.CampanhaResponseDto;
 import com.temnafesta.mapper.CampanhaMapper;
 import com.temnafesta.service.CampanhaService;
 import jakarta.validation.Valid;
-import org.springframework.data.repository.config.RepositoryConfigurationSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.net.ssl.CertPathTrustManagerParameters;
+
 import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/tem-na-festa/campanhas")
+@RequestMapping("/campanhas")
 public class CampanhaController {
 
     private final CampanhaService service;
@@ -39,7 +38,7 @@ public class CampanhaController {
     @PostMapping
     public ResponseEntity<CampanhaResponseDto> create(@RequestBody @Valid CampanhaRequestDto dto){
         CampanhaResponseDto created = CampanhaMapper.toResponse(service.create(CampanhaMapper.toEntityForCreate(dto)));
-        URI location = URI.create("/tem-na-festa/campanhas/" + created.getId());
+        URI location = URI.create("/campanhas/" + created.getId());
         return ResponseEntity.created(location).body(created);
     }
 

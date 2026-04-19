@@ -8,6 +8,8 @@ import java.util.List;
 
 public class EnderecoMapper {
 
+    private EnderecoMapper(){}
+
     public static EnderecoResponseDto toResponse(Endereco entity){
         EnderecoResponseDto dto = new EnderecoResponseDto();
         dto.setId(entity.getId());

@@ -1,6 +1,5 @@
 package com.temnafesta.controller;
 
-
 import com.temnafesta.dto.pedido.PedidoRequestDto;
 import com.temnafesta.dto.pedido.PedidoResponseDto;
 import com.temnafesta.mapper.PedidoMapper;
@@ -10,11 +9,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoController {
+
     private final PedidoService service;
 
     public PedidoController(PedidoService service) {
@@ -23,38 +24,31 @@ public class PedidoController {
 
     @PostMapping
     public ResponseEntity<PedidoResponseDto> criarPedido(@RequestBody @Valid PedidoRequestDto dto) {
-
         Pedido pedido = PedidoMapper.toEntity(dto);
 
         Pedido criado = service.criar(
                 pedido,
                 dto.getClienteId(),
                 dto.getUsuarioId(),
-                dto.getStatusProducaoId()
+                dto.getStatusProducao(),
+                dto.getCampanhaId()
         );
 
-        return ResponseEntity.status(201)
-                .body(PedidoMapper.toResponseDto(criado));
+        PedidoResponseDto response = service.buscarPorId(criado.getId());
+        URI location = URI.create("/pedidos/" + criado.getId());
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping
     public ResponseEntity<List<PedidoResponseDto>> listarPedidos() {
-
-        List<Pedido> pedidos = service.listar();
-
-        return ResponseEntity.ok(
-                PedidoMapper.toResponseDtoList(pedidos)
-        );
+        List<PedidoResponseDto> pedidos = service.listar();
+        if (pedidos.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(pedidos);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PedidoResponseDto> buscarPorId(@PathVariable Integer id) {
-
-        Pedido pedido = service.buscarPorId(id);
-
-        return ResponseEntity.ok(
-                PedidoMapper.toResponseDto(pedido)
-        );
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
@@ -69,12 +63,11 @@ public class PedidoController {
                 pedido,
                 dto.getClienteId(),
                 dto.getUsuarioId(),
-                dto.getStatusProducaoId()
+                dto.getStatusProducao(),
+                dto.getCampanhaId()
         );
 
-        return ResponseEntity.ok(
-                PedidoMapper.toResponseDto(atualizado)
-        );
+        return ResponseEntity.ok(service.buscarPorId(atualizado.getId()));
     }
 
     @DeleteMapping("/{id}")

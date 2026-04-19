@@ -1,5 +1,6 @@
 package com.temnafesta.dto.usuario;
 
+import com.temnafesta.model.Perfil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
@@ -25,7 +26,7 @@ public class UsuarioCriacaoDto {
 
   @Schema(description = "Perfil do usuário", example = "ADMIN")
   @NotNull
-  private String perfil;
+  private Perfil perfil;
 
   public String getNome() {
     return nome;
@@ -43,11 +44,11 @@ public class UsuarioCriacaoDto {
     this.email = email;
   }
 
-  public String getPerfil() {
+  public Perfil getPerfil() {
     return perfil;
   }
 
-  public void setPerfil(String perfil) {
+  public void setPerfil(Perfil perfil) {
     this.perfil = perfil;
   }
 

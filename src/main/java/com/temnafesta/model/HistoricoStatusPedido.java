@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "historico_status_pedido")
 public class HistoricoStatusPedido {
 
     @Id

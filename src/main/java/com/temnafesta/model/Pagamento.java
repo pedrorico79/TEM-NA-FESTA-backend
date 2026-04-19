@@ -1,8 +1,8 @@
 package com.temnafesta.model;
 
-
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,11 +13,14 @@ public class Pagamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Double valor;
+    @Column(nullable = false)
+    private BigDecimal valor;
 
+    @Column(nullable = false)
     private LocalDateTime dataPagamento;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private MetodoPagamento metodo;
 
     @ManyToOne
@@ -36,11 +39,11 @@ public class Pagamento {
         this.id = id;
     }
 
-    public Double getValor() {
+    public BigDecimal getValor() {
         return valor;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 

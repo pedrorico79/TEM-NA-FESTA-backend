@@ -1,10 +1,12 @@
 package com.temnafesta.dto.produto;
 
+import java.math.BigDecimal;
+
 public class ProdutoResponseDto {
     private Integer id;
     private String nome;
     private String descricao;
-    private Double precoVenda;
+    private BigDecimal precoVenda;
     private Boolean isAtivo;
 
     public Integer getId() {
@@ -31,11 +33,11 @@ public class ProdutoResponseDto {
         this.descricao = descricao;
     }
 
-    public Double getPrecoVenda() {
+    public BigDecimal getPrecoVenda() {
         return precoVenda;
     }
 
-    public void setPrecoVenda(Double precoVenda) {
+    public void setPrecoVenda(BigDecimal precoVenda) {
         this.precoVenda = precoVenda;
     }
 

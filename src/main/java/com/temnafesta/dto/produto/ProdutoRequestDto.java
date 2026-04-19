@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
+
 @Schema(description = "Dados para criação ou atualização de produto")
 public class ProdutoRequestDto {
     @Schema(description = "Nome do produto", example = "Bolo de Chocolate")
@@ -17,7 +19,7 @@ public class ProdutoRequestDto {
     @Schema(description = "Preço de venda do produto", example = "49.90")
     @NotNull
     @Positive
-    private Double precoVenda;
+    private BigDecimal precoVenda;
 
     @Schema(description = "Status do produto", example = "true")
     @NotNull
@@ -39,11 +41,11 @@ public class ProdutoRequestDto {
         this.descricao = descricao;
     }
 
-    public Double getPrecoVenda() {
+    public BigDecimal getPrecoVenda() {
         return precoVenda;
     }
 
-    public void setPrecoVenda(Double precoVenda) {
+    public void setPrecoVenda( BigDecimal precoVenda) {
         this.precoVenda = precoVenda;
     }
 

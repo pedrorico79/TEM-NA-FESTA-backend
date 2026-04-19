@@ -38,7 +38,7 @@ public class Cliente {
     private Endereco endereco;
 
     @Column(nullable = false)
-    private Boolean isAtivo;
+    private Boolean isAtivo = true;
 
     public Integer getId() {
         return id;
