@@ -4,7 +4,10 @@ import com.temnafesta.dto.usuario.*;
 import com.temnafesta.mapper.UsuarioMapper;
 import com.temnafesta.model.Usuario;
 import com.temnafesta.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/usuarios")
+@Tag(name = "Usuários", description = "Gerenciamento de usuários do sistema")
 public class UsuarioController {
 
     private final UsuarioService service;
@@ -31,6 +35,9 @@ public class UsuarioController {
         this.service = service;
     }
 
+    @Operation(summary = "Cria um novo usuário")
+    @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @PostMapping
     @SecurityRequirement(name = "Bearer")
     public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto dto) {
@@ -39,15 +46,15 @@ public class UsuarioController {
         return ResponseEntity.status(201).build();
     }
 
+    @Operation(summary = "Realiza login do usuário")
+    @ApiResponse(responseCode = "200", description = "Login realizado com sucesso")
+    @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
     @PostMapping("/login")
     public ResponseEntity<UsuarioSessaoDto> login(
             @RequestBody @Valid UsuarioLoginDto loginDto,
             HttpServletResponse response) {
+        UsuarioTokenDto autenticado = service.autenticar(loginDto);
 
-        // O service autentica e retorna o objeto com o Token JWT
-        UsuarioTokenDto autenticado = this.service.autenticar(loginDto);
-
-        // Configuração do Cookie HttpOnly para segurança XSS
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NOME, autenticado.getToken())
                 .httpOnly(true)
                 .secure(false) // Mudar para true em produção (HTTPS)
@@ -58,7 +65,6 @@ public class UsuarioController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        // Retorna os dados do usuário para o front, mas sem o token no JSON
         UsuarioSessaoDto sessao = new UsuarioSessaoDto();
         sessao.setUserId(autenticado.getUserId());
         sessao.setNome(autenticado.getNome());
@@ -67,6 +73,8 @@ public class UsuarioController {
         return ResponseEntity.ok(sessao);
     }
 
+    @Operation(summary = "Realiza logout do usuário")
+    @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NOME, "")
@@ -81,6 +89,9 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Lista todos os usuários")
+    @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
+    @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado")
     @GetMapping
     @SecurityRequirement(name = "Bearer")
     public ResponseEntity<List<UsuarioListarDto>> listar() {
@@ -91,6 +102,9 @@ public class UsuarioController {
         return ResponseEntity.ok(UsuarioMapper.toListarDtoList(usuarios));
     }
 
+    @Operation(summary = "Busca usuário por ID")
+    @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @GetMapping("/{id}")
     @SecurityRequirement(name = "Bearer")
     public ResponseEntity<UsuarioListarDto> buscarPorId(@PathVariable Integer id) {
@@ -98,6 +112,10 @@ public class UsuarioController {
         return ResponseEntity.ok(UsuarioMapper.toListarDto(usuario));
     }
 
+    @Operation(summary = "Atualiza um usuário existente")
+    @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @PutMapping("/{id}")
     @SecurityRequirement(name = "Bearer")
     public ResponseEntity<UsuarioListarDto> atualizar(
@@ -109,6 +127,10 @@ public class UsuarioController {
         return ResponseEntity.ok(UsuarioMapper.toListarDto(usuarioSalvo));
     }
 
+    @Operation(summary = "Atualiza senha do usuário")
+    @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @PatchMapping("/{id}/senha")
     @SecurityRequirement(name = "Bearer")
     public ResponseEntity<Void> atualizarSenha(
@@ -120,6 +142,9 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Remove um usuário")
+    @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @DeleteMapping("/{id}")
     @SecurityRequirement(name = "Bearer")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {

@@ -3,24 +3,33 @@ package com.temnafesta.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.tags.Tag;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import java.util.Base64;
 
 @Configuration
 public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
+        String logoBase64 = "";
+        try {
+            byte[] imageBytes = getClass()
+                    .getResourceAsStream("/static/images/logo.png")
+                    .readAllBytes();
+            logoBase64 = Base64.getEncoder().encodeToString(imageBytes);
+        } catch (Exception e) {
+            // sem logo se não encontrar
+        }
+
         return new OpenAPI()
                 .info(new Info()
                         .title("Tem na Festa API")
                         .version("1.0.0")
                         .description("""
-                                <img src='/images/logo.png' width='150'/>
+                                <img src='data:image/png;base64,%s' width='150'/>
 
                                 API desenvolvida para a microempresa **Tem na Festa – Chocolate**,
                                 com foco na organização das encomendas e na gestão dos pedidos.
@@ -39,23 +48,92 @@ public class SwaggerConfig {
                                 ## Objetivo
                                 Reduzir a sobrecarga da organização manual e melhorar a eficiência
                                 na organização dos pedidos da microempresa.
-                                """)
+                                """.formatted(logoBase64))
 
                 )
                 .externalDocs(new ExternalDocumentation()
                         .description("Documentação Geral do Projeto")
                         .url("https://bandteccom.sharepoint.com/:w:/s/Grupo3-1Semestre/IQAd6brXv5wrQaafqbpnFvm8ASw_-zbYWbATua5o_eBaybw?e=fMQnDx"))
-                .tags(List.of(
-                        new Tag().name("Usuários").description("Gerenciamento de usuários do sistema"),
-                        new Tag().name("Clientes").description("Cadastro e gerenciamento de clientes"),
-                        new Tag().name("Endereços").description("Endereços vinculados aos clientes"),
-                        new Tag().name("Pedidos").description("Gestão de pedidos de encomenda"),
-                        new Tag().name("Pedido-Produto").description("Itens (produtos) vinculados a um pedido"),
-                        new Tag().name("Produtos").description("Cadastro de produtos disponíveis"),
-                        new Tag().name("Cardápios").description("Cardápios agrupadores de produtos"),
-                        new Tag().name("Cardápio-Produto").description("Vínculo entre cardápios e produtos"),
-                        new Tag().name("Campanhas").description("Campanhas promocionais vinculadas a cardápios"),
-                        new Tag().name("Pagamentos").description("Pagamentos associados aos pedidos")
-                ));
+                ;
+    }
+
+    @Bean
+    public GroupedOpenApi usuarioApi() {
+        return GroupedOpenApi.builder()
+                .group("1 - Usuários")
+                .pathsToMatch("/usuarios/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi clienteApi() {
+        return GroupedOpenApi.builder()
+                .group("2 - Clientes")
+                .pathsToMatch("/clientes/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi enderecoApi() {
+        return GroupedOpenApi.builder()
+                .group("3 - Endereços")
+                .pathsToMatch("/enderecos/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi pedidoApi() {
+        return GroupedOpenApi.builder()
+                .group("4 - Pedidos")
+                .pathsToMatch("/pedidos/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi pedidoProdutoApi() {
+        return GroupedOpenApi.builder()
+                .group("5 - Pedido-Produto")
+                .pathsToMatch("/pedido-produto/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi produtoApi() {
+        return GroupedOpenApi.builder()
+                .group("6 - Produtos")
+                .pathsToMatch("/produtos/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi campanhaApi() {
+        return GroupedOpenApi.builder()
+                .group("7 - Campanhas")
+                .pathsToMatch("/campanhas/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi pagamentoApi() {
+        return GroupedOpenApi.builder()
+                .group("8 - Pagamentos")
+                .pathsToMatch("/pagamentos/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi allApi() {
+        return GroupedOpenApi.builder()
+                .group("0 - Todos")
+                .pathsToMatch("/**")
+                .build();
     }
 }
