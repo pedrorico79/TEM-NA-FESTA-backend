@@ -83,8 +83,16 @@ public class UsuarioController {
 
     @GetMapping
     @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<List<UsuarioListarDto>> listar() {
-        List<Usuario> usuarios = service.listar();
+    public ResponseEntity<List<UsuarioListarDto>> listar(
+            @RequestParam(required = false, defaultValue = "true") Boolean apenasAtivos
+    ) {
+        List<Usuario> usuarios;
+        if (apenasAtivos) {
+            usuarios = service.listarAtivos();
+        } else {
+            usuarios = service.listar();
+        }
+
         if (usuarios.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -120,10 +128,17 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/desativar")
     @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        service.deletar(id);
+    public ResponseEntity<Void> desativar(@PathVariable Integer id) {
+        service.desativar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/reativar")
+    @SecurityRequirement(name = "Bearer")
+    public ResponseEntity<Void> reativar(@PathVariable Integer id) {
+        service.reativar(id);
         return ResponseEntity.noContent().build();
     }
 }

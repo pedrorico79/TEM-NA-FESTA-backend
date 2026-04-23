@@ -26,7 +26,6 @@ public class UsuarioService {
     private final GerenciadorTokenJwt gerenciadorTokenJwt;
     private final AuthenticationManager authenticationManager;
 
-    // Injeção via construtor (Boa prática)
     public UsuarioService(UsuarioRepository usuarioRepository,
                           PasswordEncoder passwordEncoder,
                           GerenciadorTokenJwt gerenciadorTokenJwt,
@@ -75,17 +74,27 @@ public class UsuarioService {
     public List<Usuario> listar() {
         return usuarioRepository.findAll();
     }
+    public List<Usuario> listarAtivos() {
+        return usuarioRepository.findByIsAtivoTrue();
+    }
 
     public Usuario buscarPorId(Integer id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(id));
     }
 
-    public void deletar(Integer id) {
-        if (!usuarioRepository.existsById(id)) {
-            throw new UsuarioNaoEncontrado(id);
-        }
-        usuarioRepository.deleteById(id);
+    public void desativar(Integer id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                        .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+        usuario.setAtivo(false);
+        usuarioRepository.save(usuario);
+    }
+
+    public void reativar(Integer id){
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+        usuario.setAtivo(true);
+        usuarioRepository.save(usuario);
     }
 
     public Usuario atualizar(Integer id, Usuario usuarioAtualizado) {

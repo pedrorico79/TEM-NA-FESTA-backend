@@ -24,8 +24,16 @@ public class CampanhaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CampanhaResponseDto>> listarTudo(){
-        List<CampanhaResponseDto> campanhas = CampanhaMapper.toResponseDto(service.findAll());
+    public ResponseEntity<List<CampanhaResponseDto>> listarTudo(
+            @RequestParam(required = false, defaultValue = "true") Boolean apenasAtivas
+    ){
+        List<CampanhaResponseDto> campanhas;
+        if (apenasAtivas){
+            campanhas = CampanhaMapper.toResponseDto(service.listarAtivas());
+        } else {
+            campanhas = CampanhaMapper.toResponseDto(service.listarTodas());
+        }
+
         if (campanhas.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(campanhas);
     }
@@ -49,16 +57,22 @@ public class CampanhaController {
         return ResponseEntity.ok(CampanhaMapper.toResponse(service.update(id, CampanhaMapper.toEntityForUpdate(dto))));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete (@PathVariable Integer id){
-        service.deleteById(id);
+    @PatchMapping("/{id}/desativar")
+    public ResponseEntity<Void> desativar(@PathVariable Integer id){
+        service.desativar(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/ativa/{ativa}")
-    public ResponseEntity<List<CampanhaResponseDto>> findByAtiva (@PathVariable Boolean ativa) {
-        List<CampanhaResponseDto> result = CampanhaMapper.toResponseDto(service.findByAtiva(ativa));
-        if(result.isEmpty()) return ResponseEntity.noContent().build();
-        return ResponseEntity.ok(result);
+    @PatchMapping("/{id}/reativar")
+    public ResponseEntity<Void> reativar(@PathVariable Integer id){
+        service.reativar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/inativas")
+    public ResponseEntity<List<CampanhaResponseDto>> listarInativas() {
+        List<CampanhaResponseDto> campanhas = CampanhaMapper.toResponseDto(service.listarInativas());
+        if(campanhas.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(campanhas);
     }
 }
