@@ -64,7 +64,7 @@ public class ClienteService {
     public void desativar(Integer id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNaoEncontrado(id));
-        Boolean temPedidosAtivos = pedidoRepository.existsByClienteIdAndIsAtivoTrue(id);
+        Boolean temPedidosAtivos = pedidoRepository.existsPedidosAtivosParaCliente(id);
         if (temPedidosAtivos) {
             throw new ClienteComPedidosAtivosException(id);
         }

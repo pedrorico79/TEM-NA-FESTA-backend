@@ -17,15 +17,6 @@ public class CampanhaService {
         this.campanhaRepository = campanhaRepository;
     }
 
-    public List<Campanha> findAll() {
-        return campanhaRepository.findAll();
-    }
-
-    public Campanha findById(Integer id) {
-        return campanhaRepository.findById(id)
-                .orElseThrow(() -> new CampanhaNaoEncontrada(id));
-    }
-
     public Campanha create(Campanha campanha) {
         campanhaRepository.findByNomeIgnoreCase(campanha.getNome())
                 .ifPresent(c -> { throw new CampanhaDuplicadaException(campanha.getNome()); });
@@ -49,14 +40,34 @@ public class CampanhaService {
         return campanhaRepository.save(existente);
     }
 
-    public void deleteById(Integer id) {
-        if (!campanhaRepository.existsById(id)) {
-            throw new CampanhaNaoEncontrada(id);
-        }
-        campanhaRepository.deleteById(id);
+    public void desativar(Integer id) {
+        Campanha campanha = campanhaRepository.findById(id)
+                        .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+        campanha.setAtiva(false);
+        campanhaRepository.save(campanha);
     }
 
-    public List<Campanha> findByAtiva(Boolean ativa) {
-        return campanhaRepository.findByAtiva(ativa);
+    public void reativar(Integer id) {
+        Campanha campanha = campanhaRepository.findById(id)
+                .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+        campanha.setAtiva(true);
+        campanhaRepository.save(campanha);
+    }
+
+    public List<Campanha> listarAtivas() {
+        return campanhaRepository.findByAtiva(true);
+    }
+
+    public List<Campanha> listarTodas() {
+        return campanhaRepository.findAll();
+    }
+
+    public Campanha findById(Integer id) {
+        return campanhaRepository.findById(id)
+                .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+    }
+
+    public List<Campanha> listarInativas(){
+        return campanhaRepository.findByAtiva(false);
     }
 }

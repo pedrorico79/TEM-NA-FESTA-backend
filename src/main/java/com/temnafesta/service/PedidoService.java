@@ -56,8 +56,29 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
-    public List<PedidoResponseDto> listar() {
+    public List<PedidoResponseDto> listarTodos() {
         return pedidoRepository.findAll().stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<PedidoResponseDto> listarPedidosValidos() {
+        return pedidoRepository.findApenasPedidosValidos()
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<PedidoResponseDto> listarPedidosEmAndamento() {
+        return pedidoRepository.findPedidosEmAndamento()
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<PedidoResponseDto> listarPorStatus(StatusProducao status) {
+        return pedidoRepository.findByStatusProducao(status)
+                .stream()
                 .map(this::toDto)
                 .toList();
     }
@@ -94,10 +115,25 @@ public class PedidoService {
         return pedidoRepository.save(pedidoExistente);
     }
 
-    public void deletar(Integer id) {
+    public void cancelar(Integer id, Integer usuarioId) {
+
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new PedidoNaoEncontrado(id));
-        pedidoRepository.delete(pedido);
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new UsuarioNaoEncontrado(usuarioId));
+
+        pedido.setStatusProducao(StatusProducao.CANCELADO);
+
+        // add no historico
+        HistoricoStatusPedido historico = new HistoricoStatusPedido();
+        historico.setStatusProducao(StatusProducao.CANCELADO);
+        historico.setDataAlteracao(LocalDateTime.now());
+        historico.setPedido(pedido);
+        historico.setUsuario(usuario);
+
+        pedido.getHistoricoStatus().add(historico);
+        pedidoRepository.save(pedido);
     }
 
 

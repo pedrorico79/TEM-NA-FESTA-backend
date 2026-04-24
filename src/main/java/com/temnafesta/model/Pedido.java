@@ -44,14 +44,17 @@ public class Pedido {
     private Campanha campanha;
 
     @Column(nullable = false)
-    private Boolean isAtivo = true;
+    private Boolean isAtivo = true; // provavelmente não usaremos mais!!
 
+    // cascade all: salvar/atualizar/deletar pedido -> replica pra produtos
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoProduto> produtos = new ArrayList<>();
 
+    // ---
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HistoricoStatusPedido> historicoStatus = new ArrayList<>();
 
+    // cascades: salva/atualiza pagamentos junto com pedido. Não deleta pagamentos
     @OneToMany(mappedBy = "pedido", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Pagamento> pagamentos = new ArrayList<>();
 

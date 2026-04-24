@@ -31,7 +31,7 @@ public class SwaggerConfig {
                         .description("""
                                 <img src='data:image/png;base64,%s' width='150'/>
 
-                                API desenvolvida para a microempresa **Tem na Festa – Chocolate**,
+                                API desenvolvida para a microempresa **Tem na Festa**,
                                 com foco na organização das encomendas e na gestão dos pedidos.
 
                                 ## Contexto

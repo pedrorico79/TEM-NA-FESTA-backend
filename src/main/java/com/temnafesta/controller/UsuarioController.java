@@ -53,8 +53,11 @@ public class UsuarioController {
     public ResponseEntity<UsuarioSessaoDto> login(
             @RequestBody @Valid UsuarioLoginDto loginDto,
             HttpServletResponse response) {
-        UsuarioTokenDto autenticado = service.autenticar(loginDto);
 
+        // O service autentica e retorna o objeto com o Token JWT
+        UsuarioTokenDto autenticado = this.service.autenticar(loginDto);
+
+        // Configuração do Cookie HttpOnly para segurança XSS
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NOME, autenticado.getToken())
                 .httpOnly(true)
                 .secure(false) // Mudar para true em produção (HTTPS)
@@ -65,6 +68,7 @@ public class UsuarioController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
+        // Retorna os dados do usuário para o front, mas sem o token no JSON
         UsuarioSessaoDto sessao = new UsuarioSessaoDto();
         sessao.setUserId(autenticado.getUserId());
         sessao.setNome(autenticado.getNome());
@@ -94,8 +98,16 @@ public class UsuarioController {
     @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado")
     @GetMapping
     @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<List<UsuarioListarDto>> listar() {
-        List<Usuario> usuarios = service.listar();
+    public ResponseEntity<List<UsuarioListarDto>> listar(
+            @RequestParam(required = false, defaultValue = "true") Boolean apenasAtivos
+    ) {
+        List<Usuario> usuarios;
+        if (apenasAtivos) {
+            usuarios = service.listarAtivos();
+        } else {
+            usuarios = service.listar();
+        }
+
         if (usuarios.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -142,13 +154,17 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Remove um usuário")
-    @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso")
-    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/desativar")
     @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        service.deletar(id);
+    public ResponseEntity<Void> desativar(@PathVariable Integer id) {
+        service.desativar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/reativar")
+    @SecurityRequirement(name = "Bearer")
+    public ResponseEntity<Void> reativar(@PathVariable Integer id) {
+        service.reativar(id);
         return ResponseEntity.noContent().build();
     }
 }
