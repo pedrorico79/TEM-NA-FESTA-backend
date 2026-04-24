@@ -4,6 +4,7 @@ import com.temnafesta.dto.pedido.PedidoRequestDto;
 import com.temnafesta.dto.pedido.PedidoResponseDto;
 import com.temnafesta.mapper.PedidoMapper;
 import com.temnafesta.model.Pedido;
+import com.temnafesta.model.StatusProducao;
 import com.temnafesta.service.PedidoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -40,8 +41,29 @@ public class PedidoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PedidoResponseDto>> listarPedidos() {
-        List<PedidoResponseDto> pedidos = service.listar();
+    public ResponseEntity<List<PedidoResponseDto>> listarPedidos(
+            @RequestParam(defaultValue = "andamento") String filtro
+    ) {
+        List<PedidoResponseDto> pedidos;
+        if (filtro.equalsIgnoreCase("todos")) {
+            pedidos = service.listarTodos();
+
+        } else if (filtro.equalsIgnoreCase("validos")) {
+            pedidos = service.listarPedidosValidos();
+
+        } else {
+            pedidos = service.listarPedidosEmAndamento();
+        }
+
+        if (pedidos.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(pedidos);
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<PedidoResponseDto>> listarPorStatus(
+            @PathVariable StatusProducao status
+    ) {
+        List<PedidoResponseDto> pedidos = service.listarPorStatus(status);
         if (pedidos.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(pedidos);
     }
@@ -70,9 +92,12 @@ public class PedidoController {
         return ResponseEntity.ok(service.buscarPorId(atualizado.getId()));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPedido(@PathVariable Integer id) {
-        service.deletar(id);
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<Void> cancelarPedido(
+            @PathVariable Integer id,
+            @RequestParam Integer usuarioId
+    ) {
+        service.cancelar(id,usuarioId);
         return ResponseEntity.noContent().build();
     }
 }

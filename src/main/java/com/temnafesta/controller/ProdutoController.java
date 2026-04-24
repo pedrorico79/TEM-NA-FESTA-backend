@@ -32,9 +32,18 @@ public class ProdutoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProdutoResponseDto>> listar() {
+    public ResponseEntity<List<ProdutoResponseDto>> listar(
+            @RequestParam(required = false, defaultValue = "true") Boolean apenasAtivos
+    ) {
+        List<Produto> produtos;
+        if (apenasAtivos) {
+            produtos = service.listarAtivos();
+        } else {
+            produtos = service.listarTodos();
+        }
+
         return ResponseEntity.ok(
-                ProdutoMapper.toResponseDtoList(service.listar())
+                ProdutoMapper.toResponseDtoList(produtos)
         );
     }
 
@@ -58,9 +67,15 @@ public class ProdutoController {
         );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        service.deletar(id);
+    @PatchMapping("/{id}/desativar")
+    public ResponseEntity<Void> desativar(@PathVariable Integer id) {
+        service.desativar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/reativar")
+    public ResponseEntity<Void> reativar(@PathVariable Integer id) {
+        service.reativar(id);
         return ResponseEntity.noContent().build();
     }
 }
