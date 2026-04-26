@@ -83,12 +83,18 @@ public class ProdutoController {
         );
     }
 
+    @Operation(summary = "Desativa um produto")
+    @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable Integer id) {
         service.desativar(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Reativa um produto")
+    @ApiResponse(responseCode = "204", description = "Produto reativado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
     @PatchMapping("/{id}/reativar")
     public ResponseEntity<Void> reativar(@PathVariable Integer id) {
         service.reativar(id);

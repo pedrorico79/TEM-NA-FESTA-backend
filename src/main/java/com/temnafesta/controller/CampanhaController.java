@@ -73,18 +73,27 @@ public class CampanhaController {
         return ResponseEntity.ok(CampanhaMapper.toResponse(service.update(id, CampanhaMapper.toEntityForUpdate(dto))));
     }
 
+    @Operation(summary = "Desativa uma campanha")
+    @ApiResponse(responseCode = "204", description = "Campanha desativada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Campanha não encontrada")
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<Void> desativar(@PathVariable Integer id){
         service.desativar(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Reativa uma campanha")
+    @ApiResponse(responseCode = "204", description = "Campanha reativada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Campanha não encontrada")
     @PatchMapping("/{id}/reativar")
     public ResponseEntity<Void> reativar(@PathVariable Integer id){
         service.reativar(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Lista campanhas inativas")
+    @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
+    @ApiResponse(responseCode = "204", description = "Nenhuma campanha inativa encontrada")
     @GetMapping("/inativas")
     public ResponseEntity<List<CampanhaResponseDto>> listarInativas() {
         List<CampanhaResponseDto> campanhas = CampanhaMapper.toResponseDto(service.listarInativas());

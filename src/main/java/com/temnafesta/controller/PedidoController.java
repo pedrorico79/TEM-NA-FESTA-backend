@@ -69,6 +69,9 @@ public class PedidoController {
         return ResponseEntity.ok(pedidos);
     }
 
+    @Operation(summary = "Lista pedidos por status de produção")
+    @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
+    @ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado")
     @GetMapping("/status/{status}")
     public ResponseEntity<List<PedidoResponseDto>> listarPorStatus(
             @PathVariable StatusProducao status
@@ -109,6 +112,9 @@ public class PedidoController {
         return ResponseEntity.ok(service.buscarPorId(atualizado.getId()));
     }
 
+    @Operation(summary = "Cancela um pedido")
+    @ApiResponse(responseCode = "204", description = "Pedido cancelado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Pedido não encontrado")
     @PatchMapping("/{id}/cancelar")
     public ResponseEntity<Void> cancelarPedido(
             @PathVariable Integer id,

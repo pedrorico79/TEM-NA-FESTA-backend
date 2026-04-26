@@ -154,6 +154,9 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Desativa um usuário")
+    @ApiResponse(responseCode = "204", description = "Usuário desativado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @PatchMapping("/{id}/desativar")
     @SecurityRequirement(name = "Bearer")
     public ResponseEntity<Void> desativar(@PathVariable Integer id) {
@@ -161,6 +164,9 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Reativa um usuário")
+    @ApiResponse(responseCode = "204", description = "Usuário reativado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @PatchMapping("/{id}/reativar")
     @SecurityRequirement(name = "Bearer")
     public ResponseEntity<Void> reativar(@PathVariable Integer id) {
