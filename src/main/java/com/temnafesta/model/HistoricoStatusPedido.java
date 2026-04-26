@@ -16,6 +16,7 @@ public class HistoricoStatusPedido {
     @Column(name = "status_producao")
     private StatusProducao statusProducao;
 
+    @Column(nullable = false)
     private LocalDateTime dataAlteracao;
 
     private String observacao;

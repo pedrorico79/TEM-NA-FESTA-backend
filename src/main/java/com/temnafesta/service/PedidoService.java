@@ -1,6 +1,7 @@
 package com.temnafesta.service;
 
 import com.temnafesta.dto.pedido.PedidoResponseDto;
+import com.temnafesta.event.StatusPedidoAlteradoEvent;
 import com.temnafesta.exception.campanha.CampanhaNaoEncontrada;
 import com.temnafesta.exception.cliente.ClienteNaoEncontrado;
 import com.temnafesta.exception.pedido.PedidoNaoEncontrado;
@@ -8,6 +9,7 @@ import com.temnafesta.exception.usuario.UsuarioNaoEncontrado;
 import com.temnafesta.mapper.PedidoMapper;
 import com.temnafesta.model.*;
 import com.temnafesta.repository.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,17 +24,15 @@ public class PedidoService {
     private final UsuarioRepository usuarioRepository;
     private final CampanhaRepository campanhaRepository;
     private final PagamentoRepository pagamentoRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public PedidoService(PedidoRepository pedidoRepository,
-                         ClienteRepository clienteRepository,
-                         UsuarioRepository usuarioRepository,
-                         CampanhaRepository campanhaRepository,
-                         PagamentoRepository pagamentoRepository) {
+    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository, UsuarioRepository usuarioRepository, CampanhaRepository campanhaRepository, PagamentoRepository pagamentoRepository, ApplicationEventPublisher eventPublisher) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.usuarioRepository = usuarioRepository;
         this.campanhaRepository = campanhaRepository;
         this.pagamentoRepository = pagamentoRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public Pedido criar(Pedido pedido, Integer clienteId, Integer usuarioId,
@@ -95,6 +95,8 @@ public class PedidoService {
         Pedido pedidoExistente = pedidoRepository.findById(id)
                 .orElseThrow(() -> new PedidoNaoEncontrado(id));
 
+        StatusProducao statusAnterior = pedidoExistente.getStatusProducao();
+
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new ClienteNaoEncontrado(clienteId));
 
@@ -111,9 +113,17 @@ public class PedidoService {
         pedidoExistente.setUsuario(usuario);
         pedidoExistente.setStatusProducao(statusProducao);
         pedidoExistente.setCampanha(campanha);
+        Pedido salvo = pedidoRepository.save(pedidoExistente);
 
-        return pedidoRepository.save(pedidoExistente);
+        if (!statusAnterior.equals(statusProducao)) {
+            eventPublisher.publishEvent(
+                    new StatusPedidoAlteradoEvent(salvo, statusAnterior, pedidoExistente.getUsuario())
+            );
+        }
+
+        return salvo;
     }
+
 
     public void cancelar(Integer id, Integer usuarioId) {
 
