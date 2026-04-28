@@ -39,7 +39,6 @@ public class UsuarioController {
     @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @PostMapping
-    @SecurityRequirement(name = "Bearer")
     public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto dto) {
         Usuario novoUsuario = UsuarioMapper.toEntity(dto);
         this.service.criar(novoUsuario);

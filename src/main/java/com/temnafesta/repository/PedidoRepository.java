@@ -15,7 +15,7 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     // e o Status não seja CANCELADO nem ENTREGUE (puxa apenas NAO_INICIADO, EM_PRODUCAO, PRONTO)
     // -----> Não deixa desativar cliente se ele tem pedidos pendentes
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
-            "FROM Pedido p WHERE p.cliente.id = :cleinteId " +
+            "FROM Pedido p WHERE p.cliente.id = :clienteId " +
             "AND p.statusProducao NOT IN ('CANCELADO', 'ENTREGUE')")
     Boolean existsPedidosAtivosParaCliente(Integer clienteId);
 

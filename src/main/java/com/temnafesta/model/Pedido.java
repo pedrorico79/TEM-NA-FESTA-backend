@@ -43,8 +43,6 @@ public class Pedido {
     @JoinColumn(name = "campanha_id", nullable = false)
     private Campanha campanha;
 
-    @Column(nullable = false)
-    private Boolean isAtivo = true; // provavelmente não usaremos mais!!
 
     // cascade all: salvar/atualizar/deletar pedido -> replica pra produtos
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -129,14 +127,6 @@ public class Pedido {
 
     public void setCampanha(Campanha campanha) {
         this.campanha = campanha;
-    }
-
-    public Boolean getAtivo() {
-        return isAtivo;
-    }
-
-    public void setAtivo(Boolean ativo) {
-        isAtivo = ativo;
     }
 
     public List<PedidoProduto> getProdutos() {
