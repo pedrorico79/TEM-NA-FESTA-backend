@@ -2,31 +2,58 @@ package com.temnafesta.dto.lembrete;
 
 import com.temnafesta.model.Perfil;
 import com.temnafesta.model.Prioridade;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Schema(description = "Dados do lembrete")
 public class LembreteResponseDto {
 
+    @Schema(description = "ID do lembrete", example = "1")
     private Integer id;
+
+    @Schema(description = "Descrição do lembrete", example = "Ligar para o cliente")
     private String descricao;
+
+    @Schema(description = "Data de criação do lembrete", example = "2024-01-15")
     private LocalDate data_criacao;
+
+    @Schema(description = "Data limite do lembrete", example = "2024-12-31")
     private LocalDate data_limite;
+
+    @Schema(description = "Prioridade do lembrete", example = "ALTA")
     private Prioridade prioridade;
+
+    @Schema(description = "Dados do usuário vinculado ao lembrete")
     private UsuarioLembreteDto usuario;
 
 
+    @Schema(description = "Dados resumidos do usuário")
     public static class UsuarioLembreteDto {
 
 
+        @Schema(description = "ID do usuário", example = "1")
         private Integer id;
+
+        @Schema(description = "Nome do usuário", example = "João Silva")
         private String nome;
+
+        @Schema(description = "E-mail do usuário", example = "joao.silva@email.com")
         private String email;
+
+        @Schema(description = "Senha do usuário", example = "Senha@123")
         private String senha;
+
+        @Schema(description = "Perfil do usuário", example = "ADMIN")
         private Perfil perfil;
+
+        @Schema(description = "Status do usuário", example = "true")
         private Boolean isAtivo = true;
+
+        @Schema(description = "Data de criação do usuário", example = "2024-01-15T14:30:00")
         private LocalDateTime dataCriacao;
 
         public Integer getId() {

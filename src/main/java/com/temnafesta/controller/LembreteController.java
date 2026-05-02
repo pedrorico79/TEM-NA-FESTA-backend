@@ -3,6 +3,8 @@ package com.temnafesta.controller;
 import com.temnafesta.model.Lembrete;
 import com.temnafesta.service.ClienteService;
 import com.temnafesta.service.LembreteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,9 @@ public class LembreteController {
         this.lembreteService = lembreteService;
     }
 
+    @Operation(summary = "Cria um novo lembrete")
+    @ApiResponse(responseCode = "201", description = "Lembrete criado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @PostMapping
     public ResponseEntity<Lembrete> criar(@RequestBody Lembrete lembrete,
                                           @RequestParam Integer usuarioId) {
@@ -28,6 +33,10 @@ public class LembreteController {
     }
 
     // Atualizar
+    @Operation(summary = "Atualiza um lembrete existente")
+    @ApiResponse(responseCode = "200", description = "Lembrete atualizado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "404", description = "Lembrete não encontrado")
     @PutMapping("/{id}")
     public ResponseEntity<Lembrete> atualizar(@PathVariable Integer id,
                                               @RequestBody Lembrete lembreteAtualizado,
@@ -37,6 +46,8 @@ public class LembreteController {
     }
 
     // Listar todos
+    @Operation(summary = "Lista todos os lembretes")
+    @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @GetMapping
     public ResponseEntity<List<Lembrete>> listar() {
         List<Lembrete> lembretes = lembreteService.listarTodos();
@@ -44,6 +55,9 @@ public class LembreteController {
     }
 
     // Buscar por ID
+    @Operation(summary = "Busca lembrete por ID")
+    @ApiResponse(responseCode = "200", description = "Lembrete encontrado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Lembrete não encontrado")
     @GetMapping("/{id}")
     public ResponseEntity<Lembrete> buscarPorId(@PathVariable Integer id) {
         Lembrete lembrete = lembreteService.buscarPorId(id);
@@ -51,6 +65,9 @@ public class LembreteController {
     }
 
     // Deletar
+    @Operation(summary = "Remove um lembrete")
+    @ApiResponse(responseCode = "204", description = "Lembrete removido com sucesso")
+    @ApiResponse(responseCode = "404", description = "Lembrete não encontrado")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         lembreteService.deletar(id);

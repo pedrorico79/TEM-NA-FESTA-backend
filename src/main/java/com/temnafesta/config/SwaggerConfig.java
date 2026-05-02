@@ -96,8 +96,8 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi pedidoProdutoApi() {
         return GroupedOpenApi.builder()
-                .group("5 - Pedido-Produto")
-                .pathsToMatch("/pedido-produto/**")
+                .group("Pedido-Produto")
+                .pathsToMatch("/pedidos/*/produtos/**")
                 .addOpenApiMethodFilter(method -> true)
                 .build();
     }
@@ -125,6 +125,15 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("8 - Pagamentos")
                 .pathsToMatch("/pagamentos/**")
+                .addOpenApiMethodFilter(method -> true)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi lembreteApi() {
+        return GroupedOpenApi.builder()
+                .group("9 - Lembretes")
+                .pathsToMatch("/lembretes/**")
                 .addOpenApiMethodFilter(method -> true)
                 .build();
     }

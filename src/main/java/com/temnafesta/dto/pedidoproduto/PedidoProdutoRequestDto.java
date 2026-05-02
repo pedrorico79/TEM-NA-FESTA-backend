@@ -13,14 +13,11 @@ public class PedidoProdutoRequestDto {
     @Schema(description = "ID do pedido", example = "1")
     @NotNull
     @Positive
-<<<<<<< HEAD
     private Integer pedidoId;
 
     @Schema(description = "ID do produto", example = "1")
     @NotNull
     @Positive
-=======
->>>>>>> 2decda7de0c9f20812b400f4ceafdad2a210604f
     private Integer produtoId;
 
     @Schema(description = "Quantidade do produto no pedido", example = "2")
