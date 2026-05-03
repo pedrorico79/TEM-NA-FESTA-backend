@@ -2,6 +2,8 @@ package com.temnafesta.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 
 @Entity
 @Table(name="pedido_produto")
@@ -23,7 +25,7 @@ public class PedidoProduto {
     private Integer quantidade;
 
     @Column(name = "preco_unitario")
-    private Double precoUnitario;
+    private BigDecimal precoUnitario;
 
     public Integer getId() {
         return id;
@@ -57,11 +59,11 @@ public class PedidoProduto {
         this.quantidade = quantidade;
     }
 
-    public Double getPrecoUnitario() {
+    public BigDecimal getPrecoUnitario() {
         return precoUnitario;
     }
 
-    public void setPrecoUnitario(Double precoUnitario) {
+    public void setPrecoUnitario(BigDecimal precoUnitario) {
         this.precoUnitario = precoUnitario;
     }
 }

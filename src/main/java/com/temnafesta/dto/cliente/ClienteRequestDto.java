@@ -1,44 +1,35 @@
 package com.temnafesta.dto.cliente;
 
-import com.temnafesta.model.Endereco;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
-
+@Schema(description = "Dados para criação ou atualização de cliente")
 public class ClienteRequestDto {
 
+    @Schema(description = "Nome do cliente", example = "João Silva", minLength = 3, maxLength = 100)
     @NotBlank
     @Size(min = 3, max = 100)
     private String nome;
 
+    @Schema(description = "Telefone do cliente sem máscara", example = "11999999999")
     @NotBlank
     @Pattern(regexp = "^\\d{10,11}$", message = "Telefone deve ter 10 ou 11 dígitos")
     private String telefone;
 
+    @Schema(description = "WhatsApp do cliente sem máscara", example = "11999999999")
     @NotBlank
     @Pattern(regexp = "^\\d{10,11}$", message = "Telefone deve ter 10 ou 11 dígitos")
     private String whatsapp;
 
-    @NotBlank
-    @Pattern(
-            regexp = "^@?[A-Za-z0-9._]{1,30}$",
-            message = "Instagram inválido"
-    )
+    @Schema(description = "Instagram do cliente", example = "@joaosilva")
+    @Pattern(regexp = "^@?[A-Za-z0-9._]{1,30}$", message = "Instagram inválido")
     private String instagram;
 
-    @NotNull
-    @PastOrPresent
-    private LocalDate dataCadastro;
-
-    @NotBlank
+    @Schema(description = "Anotações do cliente", example = "Cliente VIP", maxLength = 500)
     @Size(max = 500)
     private String anotacoes;
 
+    @Schema(description = "ID do endereço do cliente", example = "1")
     @NotNull
     @Positive
     private Integer enderecoId;
@@ -73,14 +64,6 @@ public class ClienteRequestDto {
 
     public void setInstagram(String instagram) {
         this.instagram = instagram;
-    }
-
-    public LocalDate getDataCadastro() {
-        return dataCadastro;
-    }
-
-    public void setDataCadastro(LocalDate dataCadastro) {
-        this.dataCadastro = dataCadastro;
     }
 
     public String getAnotacoes() {

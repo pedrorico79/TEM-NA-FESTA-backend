@@ -1,9 +1,7 @@
 package com.temnafesta.model;
 
-
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,22 +15,21 @@ public class Usuario {
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String senha;
 
+    @Enumerated(EnumType.STRING)
+    private Perfil perfil;
+
     @Column(nullable = false)
-    private Boolean isAtivo;
+    private Boolean isAtivo = true;
 
     @CreationTimestamp
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
-
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "perfil_id", nullable = false)
-    private Perfil perfil;
 
     public Integer getId() {
         return id;
@@ -50,6 +47,14 @@ public class Usuario {
         this.nome = nome;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getSenha() {
         return senha;
     }
@@ -58,12 +63,12 @@ public class Usuario {
         this.senha = senha;
     }
 
-    public String getEmail() {
-        return email;
+    public Perfil getPerfil() {
+        return perfil;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPerfil(Perfil perfil) {
+        this.perfil = perfil;
     }
 
     public Boolean getAtivo() {
@@ -80,13 +85,5 @@ public class Usuario {
 
     public void setDataCriacao(LocalDateTime dataCriacao) {
         this.dataCriacao = dataCriacao;
-    }
-
-    public Perfil getPerfil() {
-        return perfil;
-    }
-
-    public void setPerfil(Perfil perfil) {
-        this.perfil = perfil;
     }
 }

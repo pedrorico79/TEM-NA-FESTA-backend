@@ -8,8 +8,7 @@ import java.util.List;
 
 public class PedidoProdutoMapper {
 
-    private PedidoProdutoMapper() {
-    }
+    private PedidoProdutoMapper() {}
 
     public static PedidoProduto toEntity(PedidoProdutoRequestDto dto) {
         if (dto == null) return null;

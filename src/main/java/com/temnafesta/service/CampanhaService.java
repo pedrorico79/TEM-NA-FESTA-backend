@@ -2,10 +2,8 @@ package com.temnafesta.service;
 
 import com.temnafesta.exception.campanha.CampanhaDuplicadaException;
 import com.temnafesta.exception.campanha.CampanhaNaoEncontrada;
-import com.temnafesta.mapper.CardapioMapper;
 import com.temnafesta.model.Campanha;
 import com.temnafesta.repository.CampanhaRepository;
-import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,28 +17,17 @@ public class CampanhaService {
         this.campanhaRepository = campanhaRepository;
     }
 
-    public List<Campanha> findAll() {
-        return campanhaRepository.findAll();
-    }
-
-    public Campanha findById(Integer id){
-        return campanhaRepository.findById(id)
-                .orElseThrow(() -> new CampanhaNaoEncontrada(id));
-    }
-
-    public Campanha create (Campanha campanha){
+    public Campanha create(Campanha campanha) {
         campanhaRepository.findByNomeIgnoreCase(campanha.getNome())
-                .ifPresent(c -> {throw new CampanhaDuplicadaException(campanha.getNome());
-                });
+                .ifPresent(c -> { throw new CampanhaDuplicadaException(campanha.getNome()); });
         return campanhaRepository.save(campanha);
     }
 
-    public Campanha update (Integer id, Campanha campanha){
-        if(!campanhaRepository.existsById(id)) {
+    public Campanha update(Integer id, Campanha campanha) {
+        if (!campanhaRepository.existsById(id)) {
             throw new CampanhaNaoEncontrada(id);
-
         }
-        if(campanhaRepository.existsByNomeIgnoreCaseAndIdNot(campanha.getNome(), id)){
+        if (campanhaRepository.existsByNomeIgnoreCaseAndIdNot(campanha.getNome(), id)) {
             throw new CampanhaDuplicadaException(campanha.getNome());
         }
 
@@ -51,17 +38,36 @@ public class CampanhaService {
         existente.setAtiva(campanha.getAtiva());
 
         return campanhaRepository.save(existente);
-
     }
 
-    public void deleteById(Integer id){
-        if(!campanhaRepository.existsById(id)){
-            throw new CampanhaNaoEncontrada(id);
-        }
-        campanhaRepository.deleteById(id);
+    public void desativar(Integer id) {
+        Campanha campanha = campanhaRepository.findById(id)
+                        .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+        campanha.setAtiva(false);
+        campanhaRepository.save(campanha);
     }
 
-    public List<Campanha> findByAtiva(Boolean ativa){
-        return campanhaRepository.findByAtiva(ativa);
+    public void reativar(Integer id) {
+        Campanha campanha = campanhaRepository.findById(id)
+                .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+        campanha.setAtiva(true);
+        campanhaRepository.save(campanha);
+    }
+
+    public List<Campanha> listarAtivas() {
+        return campanhaRepository.findByAtiva(true);
+    }
+
+    public List<Campanha> listarTodas() {
+        return campanhaRepository.findAll();
+    }
+
+    public Campanha findById(Integer id) {
+        return campanhaRepository.findById(id)
+                .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+    }
+
+    public List<Campanha> listarInativas(){
+        return campanhaRepository.findByAtiva(false);
     }
 }

@@ -20,7 +20,11 @@ public class ProdutoService {
         return repository.save(produto);
     }
 
-    public List<Produto> listar() {
+    public List<Produto> listarAtivos() {
+        return repository.findByIsAtivoTrue();
+    }
+
+    public List<Produto> listarTodos() {
         return repository.findAll();
     }
 
@@ -42,10 +46,17 @@ public class ProdutoService {
         return repository.save(produto);
     }
 
-    public void deletar(Integer id) {
+    public void desativar(Integer id) {
         Produto produto = repository.findById(id)
                 .orElseThrow(() -> new ProdutoNaoEncontrado(id));
+        produto.setAtivo(false);
+        repository.save(produto);
+    }
 
-        repository.delete(produto);
+    public void reativar(Integer id){
+        Produto produto = repository.findById(id)
+                .orElseThrow(() -> new ProdutoNaoEncontrado(id));
+        produto.setAtivo(true);
+        repository.save(produto);
     }
 }

@@ -23,7 +23,7 @@ public class Campanha {
     private LocalDate dataFim;
 
     @Column(nullable = false, name = "is_ativa")
-    private Boolean ativa = false;
+    private Boolean ativa = true;
 
     public Integer getId() {return id;}
     public void setId(Integer id) {this.id = id;}

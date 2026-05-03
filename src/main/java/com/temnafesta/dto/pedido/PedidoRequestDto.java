@@ -1,45 +1,59 @@
 package com.temnafesta.dto.pedido;
 
+import com.temnafesta.model.StatusProducao;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
+@Schema(description = "Dados para criação ou atualização de pedido")
 public class PedidoRequestDto {
 
+    @Schema(description = "Data e hora de entrega do pedido", example = "2024-12-31T18:00:00")
     @NotNull
     @FutureOrPresent
-    private LocalDate dataEntrega;
+    private LocalDateTime dataEntrega;
 
+    @Schema(description = "Valor total do pedido", example = "150.00")
     @NotNull
     @Positive
-    private Double valorTotal;
+    private BigDecimal valorTotal;
 
+    @Schema(description = "Observação do pedido", example = "Sem glúten")
     private String observacao;
 
+    @Schema(description = "ID do cliente", example = "1")
     @NotNull
     private Integer clienteId;
 
+    @Schema(description = "ID do usuário responsável", example = "1")
     @NotNull
     private Integer usuarioId;
 
+    @Schema(description = "Status de produção do pedido", example = "EM_PRODUCAO")
     @NotNull
-    private Integer statusProducaoId;
+    private StatusProducao statusProducao;
 
-    public LocalDate getDataEntrega() {
+    @Schema(description = "ID da campanha vinculada ao pedido", example = "1")
+    @NotNull
+    private Integer campanhaId;
+
+    public LocalDateTime getDataEntrega() {
         return dataEntrega;
     }
 
-    public void setDataEntrega(LocalDate dataEntrega) {
+    public void setDataEntrega(LocalDateTime dataEntrega) {
         this.dataEntrega = dataEntrega;
     }
 
-    public Double getValorTotal() {
+    public BigDecimal getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(Double valorTotal) {
+    public void setValorTotal(BigDecimal valorTotal) {
         this.valorTotal = valorTotal;
     }
 
@@ -67,11 +81,19 @@ public class PedidoRequestDto {
         this.usuarioId = usuarioId;
     }
 
-    public Integer getStatusProducaoId() {
-        return statusProducaoId;
+    public StatusProducao getStatusProducao() {
+        return statusProducao;
     }
 
-    public void setStatusProducaoId(Integer statusProducaoId) {
-        this.statusProducaoId = statusProducaoId;
+    public void setStatusProducao(StatusProducao statusProducao) {
+        this.statusProducao = statusProducao;
+    }
+
+    public Integer getCampanhaId() {
+        return campanhaId;
+    }
+
+    public void setCampanhaId(Integer campanhaId) {
+        this.campanhaId = campanhaId;
     }
 }
