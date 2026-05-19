@@ -32,7 +32,7 @@ public class ClienteController {
     public ResponseEntity<ClienteResponseDto> criar(@RequestBody @Valid ClienteRequestDto dto){
         Cliente cliente = ClienteMapper.toEntity(dto);
         Cliente criado = service.criar(cliente, dto.getEnderecoId());
-        return ResponseEntity.status(201).body(ClienteMapper.toResponseDto(criado));
+        return ResponseEntity.status(201).body(ClienteMapper.toResponse(criado));
     }
 
     @Operation(summary = "Lista todos os clientes")
@@ -48,7 +48,7 @@ public class ClienteController {
             clientes = service.listarTodos();
         }
 
-        List<ClienteResponseDto> clienteResponseDto = ClienteMapper.toResponseDtoList(clientes);
+        List<ClienteResponseDto> clienteResponseDto = ClienteMapper.toResponseList(clientes);
         return ResponseEntity.ok(clienteResponseDto);
     }
 
@@ -58,7 +58,7 @@ public class ClienteController {
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> buscarPorId(@PathVariable Integer id){
         Cliente cliente = service.buscarPorId(id);
-        return ResponseEntity.ok(ClienteMapper.toResponseDto(cliente));
+        return ResponseEntity.ok(ClienteMapper.toResponse(cliente));
     }
 
     @Operation(summary = "Atualiza um cliente existente")
@@ -69,7 +69,7 @@ public class ClienteController {
     public ResponseEntity<ClienteResponseDto> atualizar(@PathVariable Integer id, @RequestBody @Valid ClienteRequestDto dto){
         Cliente cliente = ClienteMapper.toEntity(dto);
         Cliente atualizado = service.atualizar(id, cliente, dto.getEnderecoId());
-        return ResponseEntity.ok(ClienteMapper.toResponseDto(atualizado));
+        return ResponseEntity.ok(ClienteMapper.toResponse(atualizado));
     }
 
     @Operation(summary = "Desativa um cliente")
