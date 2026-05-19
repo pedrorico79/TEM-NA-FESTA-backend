@@ -66,7 +66,10 @@ public class ClienteController {
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponseDto> atualizar(@PathVariable Integer id, @RequestBody @Valid ClienteRequestDto dto){
+    public ResponseEntity<ClienteResponseDto> atualizar(
+            @PathVariable Integer id,
+            @RequestBody @Valid ClienteRequestDto dto){
+
         Cliente cliente = ClienteMapper.toEntity(dto);
         Cliente atualizado = service.atualizar(id, cliente, dto.getEnderecoId());
         return ResponseEntity.ok(ClienteMapper.toResponse(atualizado));

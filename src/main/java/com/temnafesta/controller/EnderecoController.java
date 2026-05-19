@@ -59,7 +59,10 @@ public class EnderecoController {
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "404", description = "Endereço não encontrado")
     @PutMapping("/{id}")
-    public ResponseEntity<EnderecoResponseDto> atualizarPorId(@PathVariable Integer id, @RequestBody @Valid EnderecoRequestDto requestDto){
+    public ResponseEntity<EnderecoResponseDto> atualizarPorId(
+            @PathVariable Integer id,
+            @RequestBody @Valid EnderecoRequestDto requestDto) {
+
         Endereco entity = enderecoService.atualizar(id, requestDto);
         EnderecoResponseDto response = EnderecoMapper.toResponse(entity);
         return ResponseEntity.ok(response);
@@ -71,6 +74,6 @@ public class EnderecoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Integer id){
         enderecoService.deletar(id);
-        return ResponseEntity.status(204).build();
+        return ResponseEntity.noContent().build();
     }
 }

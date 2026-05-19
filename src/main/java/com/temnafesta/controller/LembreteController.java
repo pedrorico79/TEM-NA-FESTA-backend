@@ -28,6 +28,7 @@ public class LembreteController {
     @PostMapping
     public ResponseEntity<Lembrete> criar(@RequestBody Lembrete lembrete,
                                           @RequestParam Integer usuarioId) {
+
         Lembrete novo = lembreteService.criar(lembrete, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
@@ -41,6 +42,7 @@ public class LembreteController {
     public ResponseEntity<Lembrete> atualizar(@PathVariable Integer id,
                                               @RequestBody Lembrete lembreteAtualizado,
                                               @RequestParam Integer usuarioId) {
+
         Lembrete atualizado = lembreteService.atualizar(id, lembreteAtualizado, usuarioId);
         return ResponseEntity.ok(atualizado);
     }
