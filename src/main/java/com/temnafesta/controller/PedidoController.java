@@ -31,7 +31,7 @@ public class PedidoController {
     @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @PostMapping
-    public ResponseEntity<PedidoResponseDto> criarPedido(@RequestBody @Valid PedidoRequestDto dto) {
+    public ResponseEntity<PedidoResponseDto> criar(@RequestBody @Valid PedidoRequestDto dto) {
         Pedido pedido = PedidoMapper.toEntity(dto);
 
         Pedido criado = service.criar(
@@ -51,7 +51,7 @@ public class PedidoController {
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado")
     @GetMapping
-    public ResponseEntity<List<PedidoResponseDto>> listarPedidos(
+    public ResponseEntity<List<PedidoResponseDto>> listar(
             @RequestParam(defaultValue = "andamento") String filtro
     ) {
         List<PedidoResponseDto> pedidos;
@@ -94,7 +94,7 @@ public class PedidoController {
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "404", description = "Pedido não encontrado")
     @PutMapping("/{id}")
-    public ResponseEntity<PedidoResponseDto> atualizarPedido(
+    public ResponseEntity<PedidoResponseDto> atualizar(
             @PathVariable Integer id,
             @RequestBody @Valid PedidoRequestDto dto) {
 
@@ -116,7 +116,7 @@ public class PedidoController {
     @ApiResponse(responseCode = "204", description = "Pedido cancelado com sucesso")
     @ApiResponse(responseCode = "404", description = "Pedido não encontrado")
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<Void> cancelarPedido(
+    public ResponseEntity<Void> cancelar(
             @PathVariable Integer id,
             @RequestParam Integer usuarioId
     ) {
