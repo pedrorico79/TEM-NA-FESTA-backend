@@ -133,17 +133,23 @@ public class PedidoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(usuarioId));
 
+        StatusProducao statusAnterior = pedido.getStatusProducao();
+
+        if (statusAnterior.equals(StatusProducao.CANCELADO)) {
+            return;
+        }
+
         pedido.setStatusProducao(StatusProducao.CANCELADO);
 
-        // add no historico
-        HistoricoStatusPedido historico = new HistoricoStatusPedido();
-        historico.setStatusProducao(StatusProducao.CANCELADO);
-        historico.setDataAlteracao(LocalDateTime.now());
-        historico.setPedido(pedido);
-        historico.setUsuario(usuario);
+        Pedido salvo = pedidoRepository.save(pedido);
 
-        pedido.getHistoricoStatus().add(historico);
-        pedidoRepository.save(pedido);
+        eventPublisher.publishEvent(
+                new StatusPedidoAlteradoEvent(
+                        salvo,
+                        statusAnterior,
+                        usuario
+                )
+        );
     }
 
 
