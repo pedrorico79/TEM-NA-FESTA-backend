@@ -21,7 +21,7 @@ public class ClienteMapper {
         return cliente;
     }
 
-    public static ClienteResponseDto toResponseDto(Cliente cliente) {
+    public static ClienteResponseDto toResponse(Cliente cliente) {
 
         Endereco enderecoEntidade =
                 cliente.getEndereco();
@@ -48,9 +48,9 @@ public class ClienteMapper {
         return dto;
     }
 
-    public static List<ClienteResponseDto> toResponseDtoList(List<Cliente> clientes) {
+    public static List<ClienteResponseDto> toResponseList(List<Cliente> clientes) {
         return clientes.stream()
-                .map(ClienteMapper::toResponseDto)
+                .map(ClienteMapper::toResponse)
                 .toList();
     }
 }

@@ -7,7 +7,7 @@ import com.temnafesta.model.Usuario;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class UsuarioMapper {
+public class    UsuarioMapper {
 
     private UsuarioMapper(){}
 
