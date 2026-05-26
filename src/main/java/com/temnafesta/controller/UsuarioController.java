@@ -40,8 +40,7 @@ public class UsuarioController {
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @PostMapping
     public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto dto) {
-        Usuario novoUsuario = UsuarioMapper.toEntity(dto);
-        this.service.criar(novoUsuario);
+        this.service.criar(dto);
         return ResponseEntity.status(201).build();
     }
 
@@ -133,8 +132,8 @@ public class UsuarioController {
             @PathVariable Integer id,
             @RequestBody @Valid UsuarioAtualizacaoDto dto) {
 
-        Usuario dadosAtualizados = UsuarioMapper.toEntity(dto);
-        Usuario usuarioSalvo = this.service.atualizar(id, dadosAtualizados);
+        // Passamos o ID e o DTO para o service lidar com a regra de negócio
+        Usuario usuarioSalvo = this.service.atualizar(id, dto);
         return ResponseEntity.ok(UsuarioMapper.toListarDto(usuarioSalvo));
     }
 

@@ -24,9 +24,9 @@ public class UsuarioCriacaoDto {
           message = "Senha muito fraca")
   private String senha;
 
-  @Schema(description = "Perfil do usuário", example = "ADMIN")
+  @Schema(description = "ID do Perfil do usuário", example = "1")
   @NotNull
-  private Perfil perfil;
+  private Integer perfilId;
 
   public String getNome() {
     return nome;
@@ -44,19 +44,19 @@ public class UsuarioCriacaoDto {
     this.email = email;
   }
 
-  public Perfil getPerfil() {
-    return perfil;
-  }
-
-  public void setPerfil(Perfil perfil) {
-    this.perfil = perfil;
-  }
-
   public String getSenha() {
     return senha;
   }
 
   public void setSenha(String senha) {
     this.senha = senha;
+  }
+
+  public Integer getPerfilId() {
+    return perfilId;
+  }
+
+  public void setPerfilId(Integer perfilId) {
+    this.perfilId = perfilId;
   }
 }
