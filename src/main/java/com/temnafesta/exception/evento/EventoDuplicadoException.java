@@ -1,4 +1,4 @@
-package com.temnafesta.exception.campanha;
+package com.temnafesta.exception.evento;
 
 
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,7 @@
 package com.temnafesta.service;
 
-import com.temnafesta.exception.campanha.CampanhaDuplicadaException;
-import com.temnafesta.exception.campanha.CampanhaNaoEncontrada;
+import com.temnafesta.exception.evento.EventoDuplicadoException;
+import com.temnafesta.exception.evento.EventoNaoEncontradoException;
 import com.temnafesta.model.Evento;
 import com.temnafesta.repository.EventoRepository;
 import org.springframework.stereotype.Service;
@@ -19,16 +19,16 @@ public class EventoService {
 
     public Evento criar(Evento evento) {
         eventoRepository.findByNomeIgnoreCase(evento.getNome())
-                .ifPresent(c -> { throw new CampanhaDuplicadaException(evento.getNome()); });
+                .ifPresent(c -> { throw new EventoDuplicadoException(evento.getNome()); });
         return eventoRepository.save(evento);
     }
 
     public Evento atualizar(Integer id, Evento evento) {
         if (!eventoRepository.existsById(id)) {
-            throw new CampanhaNaoEncontrada(id);
+            throw new EventoNaoEncontradoException(id);
         }
         if (eventoRepository.existsByNomeIgnoreCaseAndIdNot(evento.getNome(), id)) {
-            throw new CampanhaDuplicadaException(evento.getNome());
+            throw new EventoDuplicadoException(evento.getNome());
         }
 
         Evento existente = eventoRepository.findById(id).get();
@@ -42,14 +42,14 @@ public class EventoService {
 
     public void desativar(Integer id) {
         Evento evento = eventoRepository.findById(id)
-                        .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+                        .orElseThrow(() -> new EventoNaoEncontradoException(id));
         evento.setAtiva(false);
         eventoRepository.save(evento);
     }
 
     public void reativar(Integer id) {
         Evento evento = eventoRepository.findById(id)
-                .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+                .orElseThrow(() -> new EventoNaoEncontradoException(id));
         evento.setAtiva(true);
         eventoRepository.save(evento);
     }
@@ -64,7 +64,7 @@ public class EventoService {
 
     public Evento buscarPorId(Integer id) {
         return eventoRepository.findById(id)
-                .orElseThrow(() -> new CampanhaNaoEncontrada(id));
+                .orElseThrow(() -> new EventoNaoEncontradoException(id));
     }
 
     public List<Evento> listarInativas(){
