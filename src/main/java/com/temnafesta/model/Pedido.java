@@ -41,7 +41,7 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "campanha_id", nullable = false)
-    private Campanha campanha;
+    private Evento evento;
 
 
     // cascade all: salvar/atualizar/deletar pedido -> replica pra produtos
@@ -121,12 +121,12 @@ public class Pedido {
         this.usuario = usuario;
     }
 
-    public Campanha getCampanha() {
-        return campanha;
+    public Evento getCampanha() {
+        return evento;
     }
 
-    public void setCampanha(Campanha campanha) {
-        this.campanha = campanha;
+    public void setCampanha(Evento evento) {
+        this.evento = evento;
     }
 
     public List<PedidoProduto> getProdutos() {
