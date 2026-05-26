@@ -19,19 +19,20 @@ public class EventoService {
 
     public Evento criar(Evento evento) {
         eventoRepository.findByNomeIgnoreCase(evento.getNome())
-                .ifPresent(c -> { throw new EventoDuplicadoException(evento.getNome()); });
+                .ifPresent(
+                        c -> { throw new EventoDuplicadoException(evento.getNome()); }
+                );
         return eventoRepository.save(evento);
     }
 
     public Evento atualizar(Integer id, Evento evento) {
-        if (!eventoRepository.existsById(id)) {
-            throw new EventoNaoEncontradoException(id);
-        }
         if (eventoRepository.existsByNomeIgnoreCaseAndIdNot(evento.getNome(), id)) {
             throw new EventoDuplicadoException(evento.getNome());
         }
 
-        Evento existente = eventoRepository.findById(id).get();
+        Evento existente = eventoRepository.findById(id)
+                .orElseThrow(() -> new EventoNaoEncontradoException(id));
+
         existente.setNome(evento.getNome());
         existente.setDataInicio(evento.getDataInicio());
         existente.setDataFim(evento.getDataFim());
