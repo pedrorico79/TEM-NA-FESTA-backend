@@ -1,11 +1,15 @@
 package com.temnafesta.service;
 
+import com.temnafesta.dto.usuario.UsuarioAtualizacaoDto;
+import com.temnafesta.dto.usuario.UsuarioCriacaoDto;
 import com.temnafesta.dto.usuario.UsuarioLoginDto;
 import com.temnafesta.dto.usuario.UsuarioTokenDto;
 import com.temnafesta.exception.usuario.UsuarioJaExiste;
 import com.temnafesta.exception.usuario.UsuarioNaoEncontrado;
 import com.temnafesta.mapper.UsuarioMapper;
+import com.temnafesta.model.Perfil;
 import com.temnafesta.model.Usuario;
+import com.temnafesta.repository.PerfilRepository;
 import com.temnafesta.repository.UsuarioRepository;
 import com.temnafesta.security.GerenciadorTokenJwt;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,28 +29,30 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final GerenciadorTokenJwt gerenciadorTokenJwt;
     private final AuthenticationManager authenticationManager;
+    private final PerfilRepository perfilRepository;
 
     public UsuarioService(UsuarioRepository usuarioRepository,
                           PasswordEncoder passwordEncoder,
                           GerenciadorTokenJwt gerenciadorTokenJwt,
-                          AuthenticationManager authenticationManager) {
+                          AuthenticationManager authenticationManager, PerfilRepository perfilRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.gerenciadorTokenJwt = gerenciadorTokenJwt;
         this.authenticationManager = authenticationManager;
+        this.perfilRepository = perfilRepository;
     }
 
-    public void criar(Usuario novoUsuario) {
+    public void criar(UsuarioCriacaoDto dto) {
+        // 1. Busca o perfil pelo ID que veio do JSON
+        Perfil perfil = perfilRepository.findById(dto.getPerfilId())
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
 
-        if (usuarioRepository.existsByEmail(novoUsuario.getEmail())) {
-            throw new UsuarioJaExiste(novoUsuario.getEmail());
-        }
+        // 2. Agora sim, chama o Mapper passando os dois!
+        Usuario novoUsuario = UsuarioMapper.toEntity(dto, perfil);
 
-        // Criptografa a senha antes de salvar
-        String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
-        novoUsuario.setSenha(senhaCriptografada);
-
-        this.usuarioRepository.save(novoUsuario);
+        // 3. Criptografa a senha e salva
+        novoUsuario.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
+        usuarioRepository.save(novoUsuario);
     }
 
     public UsuarioTokenDto autenticar(UsuarioLoginDto loginDto) {
@@ -97,26 +103,25 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
-    public Usuario atualizar(Integer id, Usuario usuarioAtualizado) {
+    public Usuario atualizar(Integer id, UsuarioAtualizacaoDto dto) {
+        // 1. Verifica se o usuário existe
         Usuario usuarioExistente = usuarioRepository.findById(id)
-                .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        if (!usuarioExistente.getEmail().equals(usuarioAtualizado.getEmail())
-                && usuarioRepository.existsByEmail(usuarioAtualizado.getEmail())) {
-            throw new UsuarioJaExiste(usuarioAtualizado.getEmail());
-        }
-        usuarioExistente.setNome(usuarioAtualizado.getNome());
-        usuarioExistente.setEmail(usuarioAtualizado.getEmail());
-        usuarioExistente.setAtivo(usuarioAtualizado.getAtivo());
+        // 2. Busca o novo perfil pelo ID
+        Perfil perfil = perfilRepository.findById(dto.getPerfilId())
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
 
-        // Só atualiza a senha se ela for enviada e criptografa
-        if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isBlank()) {
-            usuarioExistente.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
-        }
+        // 3. Chama o Mapper
+        Usuario dadosAtualizados = UsuarioMapper.toEntity(dto, perfil);
 
-        usuarioExistente.setPerfil(usuarioAtualizado.getPerfil());
+        // 4. Mantém o ID original e a Senha (já que atualização de dados não costuma alterar a senha)
+        dadosAtualizados.setId(usuarioExistente.getId());
+        dadosAtualizados.setSenha(usuarioExistente.getSenha());
+        dadosAtualizados.setDataCriacao(usuarioExistente.getDataCriacao());
 
-        return usuarioRepository.save(usuarioExistente);
+        // 5. Salva no banco
+        return usuarioRepository.save(dadosAtualizados);
     }
 
     public void atualizarSenha(Integer id, String novaSenha) {

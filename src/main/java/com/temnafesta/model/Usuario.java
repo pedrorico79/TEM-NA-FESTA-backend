@@ -21,7 +21,8 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "perfil_id", nullable = false)
     private Perfil perfil;
 
     @Column(nullable = false)

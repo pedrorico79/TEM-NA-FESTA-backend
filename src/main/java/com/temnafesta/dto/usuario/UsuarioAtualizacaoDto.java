@@ -24,9 +24,9 @@ public class UsuarioAtualizacaoDto {
     @NotNull
     private Boolean ativo;
 
-    @Schema(description = "Perfil do usuário", example = "ADMIN")
+    @Schema(description = "ID do Perfil do usuário", example = "1")
     @NotNull
-    private Perfil perfil;
+    private Integer perfilId;
 
     public Boolean getAtivo() {
         return ativo;
@@ -52,11 +52,11 @@ public class UsuarioAtualizacaoDto {
         this.nome = nome;
     }
 
-    public Perfil getPerfil() {
-        return perfil;
+    public Integer getPerfilId() {
+        return perfilId;
     }
 
-    public void setPerfil(Perfil perfil) {
-        this.perfil = perfil;
+    public void setPerfilId(Integer perfilId) {
+        this.perfilId = perfilId;
     }
 }
