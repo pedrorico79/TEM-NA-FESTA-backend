@@ -14,6 +14,12 @@ public class UsuarioTokenDto {
   @Schema(description = "E-mail do usuário", example = "joao.silva@email.com")
   private String email;
 
+  @Schema(description = "ID do Perfil", example = "1")
+  private Integer perfilId;
+
+  @Schema(description = "Nome do Perfil", example = "ADMIN")
+  private String perfilNome;
+
   @Schema(description = "Token de acesso JWT", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
   private String token;
 
@@ -47,5 +53,21 @@ public class UsuarioTokenDto {
 
   public void setToken(String token) {
     this.token = token;
+  }
+
+  public Integer getPerfilId() {
+    return perfilId;
+  }
+
+  public void setPerfilId(Integer perfilId) {
+    this.perfilId = perfilId;
+  }
+
+  public String getPerfilNome() {
+    return perfilNome;
+  }
+
+  public void setPerfilNome(String perfilNome) {
+    this.perfilNome = perfilNome;
   }
 }

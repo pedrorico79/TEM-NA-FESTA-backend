@@ -38,6 +38,14 @@ public class UsuarioMapper {
         dto.setNome(entity.getNome());
         dto.setEmail(entity.getEmail());
 
+        if (entity.getPerfil() != null) {
+            UsuarioListarDto.PerfilUsuarioDto perfilDto = new UsuarioListarDto.PerfilUsuarioDto();
+            perfilDto.setId(entity.getPerfil().getId());
+            perfilDto.setNome(entity.getPerfil().getNome());
+
+            dto.setPerfilUsuarioDto(perfilDto);
+        }
+
         return dto;
     }
 
@@ -62,6 +70,13 @@ public class UsuarioMapper {
         dto.setNome(entity.getNome());
         dto.setEmail(entity.getEmail());
 
+        if (entity.getPerfil() != null) {
+            UsuarioSessaoDto.PerfilSessaoDto perfilDto = new UsuarioSessaoDto.PerfilSessaoDto();
+            perfilDto.setPerfilId(entity.getPerfil().getId());
+            perfilDto.setNome(entity.getPerfil().getNome());
+            dto.setPerfilSessaoDto(perfilDto);
+        }
+
         return dto;
     }
 
@@ -76,6 +91,11 @@ public class UsuarioMapper {
         dto.setEmail(entity.getEmail());
         dto.setNome(entity.getNome());
         dto.setToken(token);
+
+        if (entity.getPerfil() != null) {
+            dto.setPerfilId(entity.getPerfil().getId());
+            dto.setPerfilNome(entity.getPerfil().getNome());
+        }
 
         return dto;
     }

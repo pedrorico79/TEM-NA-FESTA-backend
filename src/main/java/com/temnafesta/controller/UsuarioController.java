@@ -52,13 +52,11 @@ public class UsuarioController {
             @RequestBody @Valid UsuarioLoginDto loginDto,
             HttpServletResponse response) {
 
-        // O service autentica e retorna o objeto com o Token JWT
         UsuarioTokenDto autenticado = this.service.autenticar(loginDto);
 
-        // Configuração do Cookie HttpOnly para segurança XSS
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NOME, autenticado.getToken())
                 .httpOnly(true)
-                .secure(false) // Mudar para true em produção (HTTPS)
+                .secure(false)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(Duration.ofSeconds(jwtValidity))
@@ -66,11 +64,20 @@ public class UsuarioController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        // Retorna os dados do usuário para o front, mas sem o token no JSON
+        // Monta os dados básicos da sessão
         UsuarioSessaoDto sessao = new UsuarioSessaoDto();
         sessao.setUserId(autenticado.getUserId());
         sessao.setNome(autenticado.getNome());
         sessao.setEmail(autenticado.getEmail());
+
+        // Monta o objeto aninhado com os dados que vieram do token
+        if (autenticado.getPerfilId() != null) {
+            UsuarioSessaoDto.PerfilSessaoDto perfilDto = new UsuarioSessaoDto.PerfilSessaoDto();
+            perfilDto.setPerfilId(autenticado.getPerfilId());
+            perfilDto.setNome(autenticado.getPerfilNome());
+
+            sessao.setPerfilSessaoDto(perfilDto);
+        }
 
         return ResponseEntity.ok(sessao);
     }
