@@ -102,7 +102,8 @@ public class EventoController {
     @ApiResponse(responseCode = "204", description = "Nenhum evento inativa encontrada")
     @GetMapping("/inativas")
     public ResponseEntity<List<EventoResponseDto>> listarInativas() {
-        List<EventoResponseDto> eventos = EventoMapper.toResponseDto(service.listarInativas());
+        List<EventoResponseDto> eventos = EventoMapper.toResponseDto(
+                service.listarInativas());
         if(eventos.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(eventos);
     }

@@ -43,7 +43,7 @@ public class SwaggerConfig {
                                 - Cadastro de clientes e endereços
                                 - Organização de pedidos por data de retirada
                                 - Visualização das quantidades de produção
-                                - Gerenciamento de cardápios e campanhas
+                                - Gerenciamento de cardápios e eventos
 
                                 ## Objetivo
                                 Reduzir a sobrecarga da organização manual e melhorar a eficiência
@@ -115,7 +115,7 @@ public class SwaggerConfig {
     public GroupedOpenApi campanhaApi() {
         return GroupedOpenApi.builder()
                 .group("7 - Campanhas")
-                .pathsToMatch("/campanhas/**")
+                .pathsToMatch("/eventos/**")
                 .addOpenApiMethodFilter(method -> true)
                 .build();
     }

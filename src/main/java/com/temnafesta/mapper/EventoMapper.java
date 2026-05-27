@@ -1,7 +1,7 @@
 package com.temnafesta.mapper;
 
-import com.temnafesta.dto.campanha.CampanhaRequestDto;
-import com.temnafesta.dto.campanha.CampanhaResponseDto;
+import com.temnafesta.dto.evento.EventoRequestDto;
+import com.temnafesta.dto.evento.EventoResponseDto;
 import com.temnafesta.model.Evento;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public class EventoMapper {
 
     }
 
-    public static Evento toEntityForCreate(CampanhaRequestDto dto) {
+    public static Evento toEntityForCreate(EventoRequestDto dto) {
         Evento evento = new Evento();
         evento.setNome(dto.getNome());
         evento.setDataInicio(dto.getDataInicio());
@@ -20,7 +20,7 @@ public class EventoMapper {
         evento.setAtiva(false); // sempre começa inativa
         return evento;
     }
-    public static Evento toEntityForUpdate(CampanhaRequestDto dto) {
+    public static Evento toEntityForUpdate(EventoRequestDto dto) {
         Evento evento = new Evento();
         evento.setNome(dto.getNome());
         evento.setDataInicio(dto.getDataInicio());
@@ -31,8 +31,8 @@ public class EventoMapper {
 
 
 
-    public static CampanhaResponseDto toResponse (Evento evento){
-        CampanhaResponseDto dto = new CampanhaResponseDto();
+    public static EventoResponseDto toResponse (Evento evento){
+        EventoResponseDto dto = new EventoResponseDto();
         dto.setId(evento.getId());
         dto.setNome(evento.getNome());
         dto.setDataInicio(evento.getDataInicio());
@@ -41,7 +41,7 @@ public class EventoMapper {
         return dto;
     }
 
-    public static List<CampanhaResponseDto> toResponseDto(List<Evento> eventos){
+    public static List<EventoResponseDto> toResponseDto(List<Evento> eventos){
         return eventos.stream()
                 .map(EventoMapper::toResponse)
                 .toList();
