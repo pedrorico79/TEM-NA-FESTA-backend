@@ -62,6 +62,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -101,7 +106,71 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<!-- Informações sobre o Plugin -->
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.14</version>
+				<!-- ========================== -->
+
+				<!-- Executions: Define as fases do ciclo de vida do Maven em que o plugin será executado e quais metas serão acionadas. -->
+				<executions>
+
+					<!-- prepare-agent: Prepara o agente do JaCoCo para coletar dados de cobertura durante a execução dos testes. -->
+					<!-- É executado no início do ciclo de vida -->
+					<execution>
+						<id>prepare-agent</id>
+						<goals><goal>prepare-agent</goal></goals>
+					</execution>
+
+					<!-- report: Gera o relatório de cobertura após a execução dos testes. -->
+					<!-- podemos acessar o relatório em target/site/jacoco/index.html -->
+					<!-- É executado na fase de verificação que ocorre após a execução dos testes -->
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals><goal>report</goal></goals>
+					</execution>
+
+					<!-- check: Verifica se a cobertura de código atende aos critérios definidos. -->
+					<execution>
+						<id>check</id>
+						<phase>verify</phase>
+						<goals><goal>check</goal></goals>
+						<!-- Configuração para definir os critérios de cobertura -->
+						<configuration>
+							<!-- Includes: Especifica quais classes ou pacotes devem ser incluídos na verificação de cobertura. -->
+							<!-- Poderíamos ter usado <exclude> para excluir classes ou pacotes específicos. -->
+							<includes>
+								<include>school/sptech/*</include>
+							</includes>
+
+							<!-- Rules: Define as regras de cobertura que devem ser atendidas. -->
+							<rules>
+								<rule>
+									<!-- Element: Especifica o nível de cobertura a ser verificado, como classe, pacote, projeto, etc. -->
+									<element>BUNDLE</element>
+									<!-- Limits: Define os limites de cobertura que devem ser atendidos para o elemento especificado. -->
+									<limits>
+										<limit>
+											<!-- Counter: Especifica o tipo de cobertura a ser verificada, como instruções, branches, linhas, etc. -->
+											<counter>BRANCH</counter>
+											<!-- Value e Minimum: Define o valor mínimo de cobertura que deve ser atendido para o tipo de cobertura especificado. -->
+											<!-- Nesse caso, estamos exigindo que a cobertura de branches seja de pelo menos 70%. -->
+											<value>COVEREDRATIO</value>
+											<minimum>0.7</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
+
+
 	</build>
 
 </project>
