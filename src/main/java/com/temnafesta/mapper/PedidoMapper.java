@@ -51,10 +51,10 @@ public class PedidoMapper {
         statusDto.setNome(pedido.getStatusProducao().name());
 
         PedidoResponseDto.CampanhaPedidoDto campanhaDto = null;
-        if (pedido.getCampanha() != null) {
+        if (pedido.getEvento() != null) {
             campanhaDto = new PedidoResponseDto.CampanhaPedidoDto();
-            campanhaDto.setId(pedido.getCampanha().getId());
-            campanhaDto.setNome(pedido.getCampanha().getNome());
+            campanhaDto.setId(pedido.getEvento().getId());
+            campanhaDto.setNome(pedido.getEvento().getNome());
         }
 
         BigDecimal valorTotal = pedido.getValorTotal();

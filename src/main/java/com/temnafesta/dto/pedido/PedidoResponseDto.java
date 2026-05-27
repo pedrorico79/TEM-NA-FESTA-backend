@@ -230,12 +230,12 @@ public class PedidoResponseDto {
         }
     }
 
-    @Schema(description = "Dados resumidos da campanha")
+    @Schema(description = "Dados resumidos de evento")
     public static class CampanhaPedidoDto {
-        @Schema(description = "ID da campanha", example = "1")
+        @Schema(description = "ID do evento", example = "1")
         private Integer id;
 
-        @Schema(description = "Nome da campanha", example = "Páscoa 2024")
+        @Schema(description = "Nome do evento", example = "Páscoa 2024")
         private String nome;
 
         public Integer getId() {
