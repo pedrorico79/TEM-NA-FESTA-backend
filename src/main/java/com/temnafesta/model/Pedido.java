@@ -40,7 +40,7 @@ public class Pedido {
     private Usuario usuario;
 
     @ManyToOne
-    @JoinColumn(name = "campanha_id", nullable = false)
+    @JoinColumn(name = "evento_id", nullable = false)
     private Evento evento;
 
 
@@ -121,11 +121,11 @@ public class Pedido {
         this.usuario = usuario;
     }
 
-    public Evento getCampanha() {
+    public Evento getEvento() {
         return evento;
     }
 
-    public void setCampanha(Evento evento) {
+    public void setEvento(Evento evento) {
         this.evento = evento;
     }
 
