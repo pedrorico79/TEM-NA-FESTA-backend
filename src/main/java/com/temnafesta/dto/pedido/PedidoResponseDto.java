@@ -218,8 +218,20 @@ public class PedidoResponseDto {
 
     @Schema(description = "Dados resumidos do status de produção")
     public static class StatusPedidoDto {
+
+        @Schema(description = "ID do status do pedido", example = "1")
+        private Integer id;
+
         @Schema(description = "Nome do status de produção", example = "EM_PRODUCAO")
         private String nome;
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
 
         public String getNome() {
             return nome;

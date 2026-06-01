@@ -12,8 +12,8 @@ public class HistoricoStatusPedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status_producao")
+    @ManyToOne
+    @JoinColumn(name = "status_producao_id")
     private StatusProducao statusProducao;
 
     @Column(nullable = false)

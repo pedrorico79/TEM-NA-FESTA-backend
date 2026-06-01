@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
-
 @Entity
 @Table(name="pedido_produto")
 public class PedidoProduto {
@@ -67,3 +66,5 @@ public class PedidoProduto {
         this.precoUnitario = precoUnitario;
     }
 }
+
+

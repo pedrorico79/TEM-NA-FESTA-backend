@@ -38,7 +38,7 @@ public class PedidoController {
                 pedido,
                 dto.getClienteId(),
                 dto.getUsuarioId(),
-                dto.getStatusProducao(),
+                dto.getStatusProducaoId(),
                 dto.getCampanhaId()
         );
 
@@ -72,14 +72,17 @@ public class PedidoController {
     @Operation(summary = "Lista pedidos por status de produção")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado")
-    @GetMapping("/status/{status}")
+    @GetMapping("/status/{statusId}")
     public ResponseEntity<List<PedidoResponseDto>> listarPorStatus(
-            @PathVariable StatusProducao status
+            @PathVariable Integer statusId
     ) {
-        List<PedidoResponseDto> pedidos = service.listarPorStatus(status);
-        if (pedidos.isEmpty()) return ResponseEntity.noContent().build();
+        List<PedidoResponseDto> pedidos = service.listarPorStatus(statusId);
+        if (pedidos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(pedidos);
     }
+
 
     @Operation(summary = "Busca pedido por ID")
     @ApiResponse(responseCode = "200", description = "Pedido encontrado com sucesso")
@@ -105,12 +108,13 @@ public class PedidoController {
                 pedido,
                 dto.getClienteId(),
                 dto.getUsuarioId(),
-                dto.getStatusProducao(),
+                dto.getStatusProducaoId(), // agora o DTO deve ter o campo statusProducaoId
                 dto.getCampanhaId()
         );
 
         return ResponseEntity.ok(service.buscarPorId(atualizado.getId()));
     }
+
 
     @Operation(summary = "Cancela um pedido")
     @ApiResponse(responseCode = "204", description = "Pedido cancelado com sucesso")

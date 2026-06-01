@@ -31,6 +31,10 @@ public class Pagamento {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    @ManyToOne
+    @JoinColumn(name = "metodo_pagamento_id", nullable = false)
+    private MetodoPagamento metodoPagamento;
+
     public Integer getId() {
         return id;
     }

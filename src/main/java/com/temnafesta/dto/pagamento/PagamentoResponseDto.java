@@ -1,7 +1,5 @@
 package com.temnafesta.dto.pagamento;
 
-import com.temnafesta.model.MetodoPagamento;
-import com.temnafesta.model.StatusProducao;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -19,14 +17,15 @@ public class PagamentoResponseDto {
     @Schema(description = "Data e hora do pagamento", example = "2024-01-15T14:30:00")
     private LocalDateTime dataPagamento;
 
-    @Schema(description = "Método de pagamento", example = "PIX")
-    private MetodoPagamento metodo;
+    @Schema(description = "Método de pagamento", example = "Pix")
+    private MetodoPagamentoDto metodoPagamento;
 
     @Schema(description = "Dados do pedido vinculado ao pagamento")
     private PedidoDto pedido;
 
     @Schema(description = "Dados do usuário vinculado ao pagamento")
     private UsuarioDto usuario;
+
 
     @Schema(description = "Dados resumidos do pedido")
     public static class PedidoDto {
@@ -36,31 +35,29 @@ public class PagamentoResponseDto {
         @Schema(description = "Valor total do pedido", example = "150.00")
         private BigDecimal valorTotal;
 
-        @Schema(description = "Status de produção do pedido", example = "EM_PRODUCAO")
-        private StatusProducao statusProducao;
+        private Integer statusProducaoId;
+        private String statusProducaoNome;
 
-        public Integer getId() {
-            return id;
+        public Integer getId() { return id; }
+        public void setId(Integer id) { this.id = id; }
+
+        public BigDecimal getValorTotal() { return valorTotal; }
+        public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
+
+        public String getStatusProducaoNome() {
+            return statusProducaoNome;
         }
 
-        public void setId(Integer id) {
-            this.id = id;
+        public void setStatusProducaoNome(String statusProducaoNome) {
+            this.statusProducaoNome = statusProducaoNome;
         }
 
-        public BigDecimal getValorTotal() {
-            return valorTotal;
+        public Integer getStatusProducaoId() {
+            return statusProducaoId;
         }
 
-        public void setValorTotal(BigDecimal valorTotal) {
-            this.valorTotal = valorTotal;
-        }
-
-        public StatusProducao getStatusProducao() {
-            return statusProducao;
-        }
-
-        public void setStatusProducao(StatusProducao statusProducao) {
-            this.statusProducao = statusProducao;
+        public void setStatusProducaoId(Integer statusProducaoId) {
+            this.statusProducaoId = statusProducaoId;
         }
     }
 
@@ -72,68 +69,59 @@ public class PagamentoResponseDto {
         @Schema(description = "Nome do usuário", example = "João Silva")
         private String nome;
 
-        public Integer getId() {
-            return id;
-        }
+        public Integer getId() { return id; }
+        public void setId(Integer id) { this.id = id; }
 
-        public void setId(Integer id) {
-            this.id = id;
-        }
-
-        public String getNome() {
-            return nome;
-        }
-
-        public void setNome(String nome) {
-            this.nome = nome;
-        }
+        public String getNome() { return nome; }
+        public void setNome(String nome) { this.nome = nome; }
     }
 
-    public Integer getId() {
-        return id;
+    @Schema(description = "Dados resumidos do método de pagamento")
+    public static class MetodoPagamentoDto {
+        @Schema(description = "ID do método de pagamento", example = "1")
+        private Integer id;
+
+        @Schema(description = "Nome do método de pagamento", example = "Pix")
+        private String nome;
+
+        public Integer getId() { return id; }
+        public void setId(Integer id) { this.id = id; }
+
+        public String getNome() { return nome; }
+        public void setNome(String nome) { this.nome = nome; }
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    @Schema(description = "Dados resumidos do status de produção")
+    public static class StatusProducaoDto {
+        @Schema(description = "ID do status de produção", example = "2")
+        private Integer id;
+
+        @Schema(description = "Nome do status de produção", example = "Em Produção")
+        private String nome;
+
+        public Integer getId() { return id; }
+        public void setId(Integer id) { this.id = id; }
+
+        public String getNome() { return nome; }
+        public void setNome(String nome) { this.nome = nome; }
     }
 
-    public BigDecimal getValor() {
-        return valor;
-    }
 
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public LocalDateTime getDataPagamento() {
-        return dataPagamento;
-    }
+    public BigDecimal getValor() { return valor; }
+    public void setValor(BigDecimal valor) { this.valor = valor; }
 
-    public void setDataPagamento(LocalDateTime dataPagamento) {
-        this.dataPagamento = dataPagamento;
-    }
+    public LocalDateTime getDataPagamento() { return dataPagamento; }
+    public void setDataPagamento(LocalDateTime dataPagamento) { this.dataPagamento = dataPagamento; }
 
-    public MetodoPagamento getMetodo() {
-        return metodo;
-    }
+    public MetodoPagamentoDto getMetodoPagamento() { return metodoPagamento; }
+    public void setMetodoPagamento(MetodoPagamentoDto metodoPagamento) { this.metodoPagamento = metodoPagamento; }
 
-    public void setMetodo(MetodoPagamento metodo) {
-        this.metodo = metodo;
-    }
+    public PedidoDto getPedido() { return pedido; }
+    public void setPedido(PedidoDto pedido) { this.pedido = pedido; }
 
-    public PedidoDto getPedido() {
-        return pedido;
-    }
-
-    public void setPedido(PedidoDto pedido) {
-        this.pedido = pedido;
-    }
-
-    public UsuarioDto getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(UsuarioDto usuario) {
-        this.usuario = usuario;
-    }
+    public UsuarioDto getUsuario() { return usuario; }
+    public void setUsuario(UsuarioDto usuario) { this.usuario = usuario; }
 }

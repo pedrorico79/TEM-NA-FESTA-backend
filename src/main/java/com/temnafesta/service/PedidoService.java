@@ -2,6 +2,7 @@ package com.temnafesta.service;
 
 import com.temnafesta.dto.pedido.PedidoResponseDto;
 import com.temnafesta.event.StatusPedidoAlteradoEvent;
+import com.temnafesta.model.StatusProducao;
 import com.temnafesta.exception.campanha.CampanhaNaoEncontrada;
 import com.temnafesta.exception.cliente.ClienteNaoEncontrado;
 import com.temnafesta.exception.pedido.PedidoNaoEncontrado;
@@ -24,19 +25,21 @@ public class PedidoService {
     private final UsuarioRepository usuarioRepository;
     private final CampanhaRepository campanhaRepository;
     private final PagamentoRepository pagamentoRepository;
+    private final StatusProducaoRepository statusProducaoRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository, UsuarioRepository usuarioRepository, CampanhaRepository campanhaRepository, PagamentoRepository pagamentoRepository, ApplicationEventPublisher eventPublisher) {
+    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository, UsuarioRepository usuarioRepository, CampanhaRepository campanhaRepository, PagamentoRepository pagamentoRepository, StatusProducaoRepository statusProducaoRepository, ApplicationEventPublisher eventPublisher) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.usuarioRepository = usuarioRepository;
         this.campanhaRepository = campanhaRepository;
         this.pagamentoRepository = pagamentoRepository;
+        this.statusProducaoRepository = statusProducaoRepository;
         this.eventPublisher = eventPublisher;
     }
 
     public Pedido criar(Pedido pedido, Integer clienteId, Integer usuarioId,
-                        StatusProducao statusProducao, Integer campanhaId) {
+                        Integer statusProducaoId, Integer campanhaId) {
 
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new ClienteNaoEncontrado(clienteId));
@@ -47,6 +50,9 @@ public class PedidoService {
         Campanha campanha = campanhaRepository.findById(campanhaId)
                 .orElseThrow(() -> new CampanhaNaoEncontrada(campanhaId));
 
+        StatusProducao statusProducao = statusProducaoRepository.findById(statusProducaoId)
+                .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
+
         pedido.setCliente(cliente);
         pedido.setUsuario(usuario);
         pedido.setStatusProducao(statusProducao);
@@ -55,6 +61,7 @@ public class PedidoService {
 
         return pedidoRepository.save(pedido);
     }
+
 
     public List<PedidoResponseDto> listarTodos() {
         return pedidoRepository.findAll().stream()
@@ -76,12 +83,16 @@ public class PedidoService {
                 .toList();
     }
 
-    public List<PedidoResponseDto> listarPorStatus(StatusProducao status) {
+    public List<PedidoResponseDto> listarPorStatus(Integer statusId) {
+        StatusProducao status = statusProducaoRepository.findById(statusId)
+                .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
+
         return pedidoRepository.findByStatusProducao(status)
                 .stream()
                 .map(this::toDto)
                 .toList();
     }
+
 
     public PedidoResponseDto buscarPorId(Integer id) {
         Pedido pedido = pedidoRepository.findById(id)
@@ -90,7 +101,7 @@ public class PedidoService {
     }
 
     public Pedido atualizar(Integer id, Pedido pedidoAtualizado, Integer clienteId,
-                            Integer usuarioId, StatusProducao statusProducao, Integer campanhaId) {
+                            Integer usuarioId, Integer statusProducaoId, Integer campanhaId) {
 
         Pedido pedidoExistente = pedidoRepository.findById(id)
                 .orElseThrow(() -> new PedidoNaoEncontrado(id));
@@ -106,6 +117,9 @@ public class PedidoService {
         Campanha campanha = campanhaRepository.findById(campanhaId)
                 .orElseThrow(() -> new CampanhaNaoEncontrada(campanhaId));
 
+        StatusProducao statusProducao = statusProducaoRepository.findById(statusProducaoId)
+                .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
+
         pedidoExistente.setDataEntrega(pedidoAtualizado.getDataEntrega());
         pedidoExistente.setValorTotal(pedidoAtualizado.getValorTotal());
         pedidoExistente.setObservacao(pedidoAtualizado.getObservacao());
@@ -113,9 +127,10 @@ public class PedidoService {
         pedidoExistente.setUsuario(usuario);
         pedidoExistente.setStatusProducao(statusProducao);
         pedidoExistente.setCampanha(campanha);
+
         Pedido salvo = pedidoRepository.save(pedidoExistente);
 
-        if (!statusAnterior.equals(statusProducao)) {
+        if (!statusAnterior.getId().equals(statusProducao.getId())) {
             eventPublisher.publishEvent(
                     new StatusPedidoAlteradoEvent(salvo, statusAnterior, pedidoExistente.getUsuario())
             );
@@ -123,6 +138,7 @@ public class PedidoService {
 
         return salvo;
     }
+
 
 
     public void cancelar(Integer id, Integer usuarioId) {
@@ -135,11 +151,16 @@ public class PedidoService {
 
         StatusProducao statusAnterior = pedido.getStatusProducao();
 
-        if (statusAnterior.equals(StatusProducao.CANCELADO)) {
+        // Busca o status CANCELADO na tabela status_producao
+        StatusProducao statusCancelado = statusProducaoRepository.findByNome("CANCELADO")
+                .orElseThrow(() -> new RuntimeException("Status CANCELADO não encontrado"));
+
+        // Compara por ID (mais seguro do que equals em entidades)
+        if (statusAnterior != null && statusAnterior.getId().equals(statusCancelado.getId())) {
             return;
         }
 
-        pedido.setStatusProducao(StatusProducao.CANCELADO);
+        pedido.setStatusProducao(statusCancelado);
 
         Pedido salvo = pedidoRepository.save(pedido);
 
@@ -151,6 +172,7 @@ public class PedidoService {
                 )
         );
     }
+
 
 
     private PedidoResponseDto toDto(Pedido pedido) {

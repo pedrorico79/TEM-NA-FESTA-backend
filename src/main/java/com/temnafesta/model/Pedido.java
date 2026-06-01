@@ -25,8 +25,8 @@ public class Pedido {
     @Column(nullable = false)
     private BigDecimal valorTotal;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status_atual", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "status_producao_id")
     private StatusProducao statusProducao;
 
     private String observacao;

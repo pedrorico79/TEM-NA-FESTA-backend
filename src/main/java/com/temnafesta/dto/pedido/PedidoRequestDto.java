@@ -35,7 +35,7 @@ public class PedidoRequestDto {
 
     @Schema(description = "Status de produção do pedido", example = "EM_PRODUCAO")
     @NotNull
-    private StatusProducao statusProducao;
+    private Integer statusProducaoId;
 
     @Schema(description = "ID da campanha vinculada ao pedido", example = "1")
     @NotNull
@@ -81,12 +81,12 @@ public class PedidoRequestDto {
         this.usuarioId = usuarioId;
     }
 
-    public StatusProducao getStatusProducao() {
-        return statusProducao;
+    public Integer getStatusProducaoId() {
+        return statusProducaoId;
     }
 
-    public void setStatusProducao(StatusProducao statusProducao) {
-        this.statusProducao = statusProducao;
+    public void setStatusProducaoId(Integer statusProducaoId) {
+        this.statusProducaoId = statusProducaoId;
     }
 
     public Integer getCampanhaId() {

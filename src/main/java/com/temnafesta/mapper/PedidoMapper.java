@@ -47,8 +47,10 @@ public class PedidoMapper {
         usuarioDto.setId(usuarioEntidade.getId());
         usuarioDto.setNome(usuarioEntidade.getNome());
 
+        StatusProducao statusEntidade = pedido.getStatusProducao();
         PedidoResponseDto.StatusPedidoDto statusDto = new PedidoResponseDto.StatusPedidoDto();
-        statusDto.setNome(pedido.getStatusProducao().name());
+        statusDto.setId(statusEntidade.getId());
+        statusDto.setNome(statusEntidade.getNome());
 
         PedidoResponseDto.CampanhaPedidoDto campanhaDto = null;
         if (pedido.getCampanha() != null) {
@@ -75,4 +77,5 @@ public class PedidoMapper {
 
         return dto;
     }
+
 }
