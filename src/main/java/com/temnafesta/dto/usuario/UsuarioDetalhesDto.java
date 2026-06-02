@@ -21,8 +21,7 @@ public class UsuarioDetalhesDto implements UserDetails {
     this.email = usuario.getEmail();
     this.senha = usuario.getSenha();
     this.ativo = usuario.getAtivo();
-    // O valor vem do Enum (ex: ADMIN) e guardamos na String
-    this.perfil = usuario.getPerfil().name();
+    this.perfil = usuario.getPerfil().getNome();
   }
 
   public String getNome() {

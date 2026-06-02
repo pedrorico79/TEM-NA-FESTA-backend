@@ -3,7 +3,7 @@ package com.temnafesta.service;
 import com.temnafesta.dto.pedido.PedidoResponseDto;
 import com.temnafesta.event.StatusPedidoAlteradoEvent;
 import com.temnafesta.model.StatusProducao;
-import com.temnafesta.exception.campanha.CampanhaNaoEncontrada;
+import com.temnafesta.exception.evento.EventoNaoEncontradoException;
 import com.temnafesta.exception.cliente.ClienteNaoEncontrado;
 import com.temnafesta.exception.pedido.PedidoNaoEncontrado;
 import com.temnafesta.exception.usuario.UsuarioNaoEncontrado;
@@ -23,16 +23,16 @@ public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
-    private final CampanhaRepository campanhaRepository;
+    private final EventoRepository eventoRepository;
     private final PagamentoRepository pagamentoRepository;
     private final StatusProducaoRepository statusProducaoRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository, UsuarioRepository usuarioRepository, CampanhaRepository campanhaRepository, PagamentoRepository pagamentoRepository, StatusProducaoRepository statusProducaoRepository, ApplicationEventPublisher eventPublisher) {
+    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository, UsuarioRepository usuarioRepository, EventoRepository eventoRepository, PagamentoRepository pagamentoRepository, StatusProducaoRepository statusProducaoRepository, ApplicationEventPublisher eventPublisher) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.usuarioRepository = usuarioRepository;
-        this.campanhaRepository = campanhaRepository;
+        this.eventoRepository = eventoRepository;
         this.pagamentoRepository = pagamentoRepository;
         this.statusProducaoRepository = statusProducaoRepository;
         this.eventPublisher = eventPublisher;
@@ -47,8 +47,8 @@ public class PedidoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(usuarioId));
 
-        Campanha campanha = campanhaRepository.findById(campanhaId)
-                .orElseThrow(() -> new CampanhaNaoEncontrada(campanhaId));
+        Evento evento = eventoRepository.findById(campanhaId)
+                .orElseThrow(() -> new EventoNaoEncontradoException(campanhaId));
 
         StatusProducao statusProducao = statusProducaoRepository.findById(statusProducaoId)
                 .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
@@ -56,7 +56,7 @@ public class PedidoService {
         pedido.setCliente(cliente);
         pedido.setUsuario(usuario);
         pedido.setStatusProducao(statusProducao);
-        pedido.setCampanha(campanha);
+        pedido.setEvento(evento);
         pedido.setDataPedido(LocalDateTime.now());
 
         return pedidoRepository.save(pedido);
@@ -114,8 +114,8 @@ public class PedidoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(usuarioId));
 
-        Campanha campanha = campanhaRepository.findById(campanhaId)
-                .orElseThrow(() -> new CampanhaNaoEncontrada(campanhaId));
+        Evento evento = eventoRepository.findById(campanhaId)
+                .orElseThrow(() -> new EventoNaoEncontradoException(campanhaId));
 
         StatusProducao statusProducao = statusProducaoRepository.findById(statusProducaoId)
                 .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
@@ -126,8 +126,7 @@ public class PedidoService {
         pedidoExistente.setCliente(cliente);
         pedidoExistente.setUsuario(usuario);
         pedidoExistente.setStatusProducao(statusProducao);
-        pedidoExistente.setCampanha(campanha);
-
+        pedidoExistente.setEvento(evento);
         Pedido salvo = pedidoRepository.save(pedidoExistente);
 
         if (!statusAnterior.getId().equals(statusProducao.getId())) {
@@ -138,7 +137,6 @@ public class PedidoService {
 
         return salvo;
     }
-
 
 
     public void cancelar(Integer id, Integer usuarioId) {

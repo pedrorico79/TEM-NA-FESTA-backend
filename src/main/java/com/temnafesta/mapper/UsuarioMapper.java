@@ -7,7 +7,7 @@ import com.temnafesta.model.Usuario;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class    UsuarioMapper {
+public class UsuarioMapper {
 
     private UsuarioMapper(){}
 
@@ -15,18 +15,14 @@ public class    UsuarioMapper {
      * Converte o DTO de criação para a Entity.
      * Note que não setamos dataCriacao nem isAtivo, pois a Entity já cuida disso.
      */
-    public static Usuario toEntity(UsuarioCriacaoDto dto) {
+    public static Usuario toEntity(UsuarioCriacaoDto dto, Perfil perfil) {
         if (dto == null) return null;
 
         Usuario usuario = new Usuario();
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
         usuario.setSenha(dto.getSenha());
-
-        // Converte a String do DTO para o Enum da sua Entity
-        if (dto.getPerfil() != null) {
-            usuario.setPerfil(dto.getPerfil());
-        }
+        usuario.setPerfil(perfil); // Seta o perfil buscado pelo Service
 
         return usuario;
     }
@@ -41,6 +37,14 @@ public class    UsuarioMapper {
         dto.setId(entity.getId());
         dto.setNome(entity.getNome());
         dto.setEmail(entity.getEmail());
+
+        if (entity.getPerfil() != null) {
+            UsuarioListarDto.PerfilUsuarioDto perfilDto = new UsuarioListarDto.PerfilUsuarioDto();
+            perfilDto.setId(entity.getPerfil().getId());
+            perfilDto.setNome(entity.getPerfil().getNome());
+
+            dto.setPerfilUsuarioDto(perfilDto);
+        }
 
         return dto;
     }
@@ -66,6 +70,13 @@ public class    UsuarioMapper {
         dto.setNome(entity.getNome());
         dto.setEmail(entity.getEmail());
 
+        if (entity.getPerfil() != null) {
+            UsuarioSessaoDto.PerfilSessaoDto perfilDto = new UsuarioSessaoDto.PerfilSessaoDto();
+            perfilDto.setPerfilId(entity.getPerfil().getId());
+            perfilDto.setNome(entity.getPerfil().getNome());
+            dto.setPerfilSessaoDto(perfilDto);
+        }
+
         return dto;
     }
 
@@ -81,15 +92,23 @@ public class    UsuarioMapper {
         dto.setNome(entity.getNome());
         dto.setToken(token);
 
+        if (entity.getPerfil() != null) {
+            dto.setPerfilId(entity.getPerfil().getId());
+            dto.setPerfilNome(entity.getPerfil().getNome());
+        }
+
         return dto;
     }
 
-    public static Usuario toEntity(UsuarioAtualizacaoDto dto) {
+    public static Usuario toEntity(UsuarioAtualizacaoDto dto, Perfil perfil) {
+        if (dto == null) return null;
+
         Usuario usuario = new Usuario();
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
         usuario.setAtivo(dto.getAtivo());
-        usuario.setPerfil(dto.getPerfil());
+        usuario.setPerfil(perfil);
+
         return usuario;
     }
 }
