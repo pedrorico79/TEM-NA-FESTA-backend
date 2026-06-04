@@ -22,8 +22,11 @@ public class Evento {
     @Column(nullable = false)
     private LocalDate dataFim;
 
-    @Column(nullable = false, name = "is_ativa")
-    private Boolean ativa = true;
+    @Column(nullable = false, name = "is_ativo")
+    private Boolean isAtivo = true;
+
+    @Column(nullable = false, name = "is_deletado")
+    private Boolean isDeletado = false;
 
     public Integer getId() {return id;}
     public void setId(Integer id) {this.id = id;}
@@ -37,6 +40,14 @@ public class Evento {
     public LocalDate getDataFim() {return dataFim;}
     public void setDataFim(LocalDate dataFim) {this.dataFim = dataFim;}
 
-    public Boolean getAtiva() {return ativa;}
-    public void setAtiva(Boolean ativa) {this.ativa = ativa;}
+    public Boolean getIsAtivo() {return isAtivo;}
+    public void setIsAtivo(Boolean ativo) {this.isAtivo = ativo;}
+
+    public Boolean getIsDeletado() {
+        return isDeletado;
+    }
+
+    public void setIsDeletado(Boolean deletado) {
+        isDeletado = deletado;
+    }
 }

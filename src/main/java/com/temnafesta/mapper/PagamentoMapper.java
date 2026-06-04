@@ -15,7 +15,6 @@ public class PagamentoMapper {
     public static Pagamento toEntity(PagamentoRequestDto dto) {
         Pagamento pagamento = new Pagamento();
         pagamento.setValor(dto.getValor());
-        pagamento.setMetodo(dto.getMetodo());
 
         return pagamento;
     }
@@ -36,8 +35,7 @@ public class PagamentoMapper {
         usuarioDto.setId(pagamento.getUsuario().getId());
         usuarioDto.setNome(pagamento.getUsuario().getNome());
 
-        // 🔧 Corrigido: agora MetodoPagamento é entidade
-        MetodoPagamento metodoEntidade = pagamento.getMetodo();
+        MetodoPagamento metodoEntidade = pagamento.getMetodoPagamento();
         PagamentoResponseDto.MetodoPagamentoDto metodoDto = null;
         if (metodoEntidade != null) {
             metodoDto = new PagamentoResponseDto.MetodoPagamentoDto();

@@ -36,31 +36,38 @@ public class EventoService {
         existente.setNome(evento.getNome());
         existente.setDataInicio(evento.getDataInicio());
         existente.setDataFim(evento.getDataFim());
-        existente.setAtiva(evento.getAtiva());
+        existente.setIsAtivo(evento.getIsAtivo());
 
         return eventoRepository.save(existente);
     }
 
-    public void desativar(Integer id) {
-        Evento evento = eventoRepository.findById(id)
-                        .orElseThrow(() -> new EventoNaoEncontradoException(id));
-        evento.setAtiva(false);
-        eventoRepository.save(evento);
-    }
+//    public void desativar(Integer id) {
+//        Evento evento = eventoRepository.findById(id)
+//                        .orElseThrow(() -> new EventoNaoEncontradoException(id));
+//        evento.setAtivo(false);
+//        eventoRepository.save(evento);
+//    }
+//
+//    public void reativar(Integer id) {
+//        Evento evento = eventoRepository.findById(id)
+//                .orElseThrow(() -> new EventoNaoEncontradoException(id));
+//        evento.setAtivo(true);
+//        eventoRepository.save(evento);
+//    }
 
-    public void reativar(Integer id) {
+    public void toggleAtivo(Integer id) {
         Evento evento = eventoRepository.findById(id)
                 .orElseThrow(() -> new EventoNaoEncontradoException(id));
-        evento.setAtiva(true);
+        evento.setIsAtivo(!evento.getIsAtivo());
         eventoRepository.save(evento);
     }
 
-    public List<Evento> listarAtivas() {
-        return eventoRepository.findByAtiva(true);
+    public List<Evento> listarAtivos() {
+        return eventoRepository.findByIsAtivoAndIsDeletadoFalse(true);
     }
 
-    public List<Evento> listarTodas() {
-        return eventoRepository.findAll();
+    public List<Evento> listarTodos() {
+        return eventoRepository.findByIsDeletadoFalse();
     }
 
     public Evento buscarPorId(Integer id) {
@@ -68,7 +75,15 @@ public class EventoService {
                 .orElseThrow(() -> new EventoNaoEncontradoException(id));
     }
 
-    public List<Evento> listarInativas(){
-        return eventoRepository.findByAtiva(false);
+//    public List<Evento> listarInativas(){
+//        return eventoRepository.findByAtiva(false);
+//    }
+
+    public void deletar(Integer id) {
+        Evento evento = eventoRepository.findById(id)
+                .orElseThrow(() -> new EventoNaoEncontradoException(id));
+        evento.setIsDeletado(true);
+        evento.setIsAtivo(false);
+        eventoRepository.save(evento);
     }
 }

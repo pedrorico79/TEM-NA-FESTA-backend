@@ -4,6 +4,8 @@ package com.temnafesta.service;
 import com.temnafesta.exception.produto.ProdutoNaoEncontrado;
 import com.temnafesta.model.Produto;
 import com.temnafesta.repository.ProdutoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,18 +22,23 @@ public class ProdutoService {
         return repository.save(produto);
     }
 
-    public List<Produto> listarAtivos() {
-        return repository.findByIsAtivoTrue();
+//    public List<Produto> listarAtivos() {
+//        return repository.findByIsAtivoTrue();
+//    }
+//
+//    public List<Produto> listarTodos() {
+//        return repository.findByIsDeletadoFalse();
+//    }
+
+    public Page<Produto> listar(String nome, Pageable pageable) {
+        String filtro = nome != null ? nome : "";
+        return repository.findByIsDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable);
     }
 
-    public List<Produto> listarTodos() {
-        return repository.findAll();
-    }
-
-    public Produto buscarPorId(Integer id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ProdutoNaoEncontrado(id));
-    }
+//    public Produto buscarPorId(Integer id) {
+//        return repository.findById(id)
+//                .orElseThrow(() -> new ProdutoNaoEncontrado(id));
+//    }
 
     public Produto atualizar(Integer id, Produto produtoAtualizado) {
 
@@ -46,17 +53,32 @@ public class ProdutoService {
         return repository.save(produto);
     }
 
-    public void desativar(Integer id) {
+//    public void desativar(Integer id) {
+//        Produto produto = repository.findById(id)
+//                .orElseThrow(() -> new ProdutoNaoEncontrado(id));
+//        produto.setAtivo(false);
+//        repository.save(produto);
+//    }
+//
+//    public void reativar(Integer id){
+//        Produto produto = repository.findById(id)
+//                .orElseThrow(() -> new ProdutoNaoEncontrado(id));
+//        produto.setAtivo(true);
+//        repository.save(produto);
+//    }
+
+    public void toggleAtivo(Integer id) {
         Produto produto = repository.findById(id)
                 .orElseThrow(() -> new ProdutoNaoEncontrado(id));
-        produto.setAtivo(false);
+        produto.setAtivo(!produto.getAtivo());
         repository.save(produto);
     }
 
-    public void reativar(Integer id){
+    public void deletar(Integer id) {
         Produto produto = repository.findById(id)
                 .orElseThrow(() -> new ProdutoNaoEncontrado(id));
-        produto.setAtivo(true);
+        produto.setDeletado(true);
+        produto.setAtivo(false);
         repository.save(produto);
     }
 }

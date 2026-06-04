@@ -47,6 +47,8 @@ public class PedidoController {
         return ResponseEntity.created(location).body(response);
     }
 
+
+    // ============================ ADAPTAR CONFORME PLANILHA
     @Operation(summary = "Lista todos os pedidos")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado")
@@ -69,6 +71,8 @@ public class PedidoController {
         return ResponseEntity.ok(pedidos);
     }
 
+
+    // ======= ADAPTAR PARA COUNT BY STATUS CONFORME PLANILHA
     @Operation(summary = "Lista pedidos por status de produção")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado")

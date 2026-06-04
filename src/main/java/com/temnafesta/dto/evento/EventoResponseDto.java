@@ -22,6 +22,9 @@ public class EventoResponseDto {
     @Schema(description = "Status do evento", example = "true")
     private Boolean ativa = false;
 
+    @Schema(description = "Marca de exclusão lógica do evento", example = "false")
+    private Boolean isDeletado = false;
+
     public Integer getId() {
         return id;
     }
@@ -60,5 +63,13 @@ public class EventoResponseDto {
 
     public void setAtiva(Boolean ativa) {
         this.ativa = ativa;
+    }
+
+    public Boolean getIsDeletado() {
+        return isDeletado;
+    }
+
+    public void setIsDeletado(Boolean isDeletado) {
+        this.isDeletado = isDeletado;
     }
 }

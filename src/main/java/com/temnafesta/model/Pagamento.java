@@ -19,10 +19,6 @@ public class Pagamento {
     @Column(nullable = false)
     private LocalDateTime dataPagamento;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MetodoPagamento metodo;
-
     @ManyToOne
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
@@ -59,14 +55,6 @@ public class Pagamento {
         this.dataPagamento = dataPagamento;
     }
 
-    public MetodoPagamento getMetodo() {
-        return metodo;
-    }
-
-    public void setMetodo(MetodoPagamento metodo) {
-        this.metodo = metodo;
-    }
-
     public Pedido getPedido() {
         return pedido;
     }
@@ -81,5 +69,13 @@ public class Pagamento {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public MetodoPagamento getMetodoPagamento() {
+        return metodoPagamento;
+    }
+
+    public void setMetodoPagamento(MetodoPagamento metodoPagamento) {
+        this.metodoPagamento = metodoPagamento;
     }
 }

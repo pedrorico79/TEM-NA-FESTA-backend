@@ -21,6 +21,9 @@ public class ProdutoResponseDto {
     @Schema(description = "Status do produto", example = "true")
     private Boolean isAtivo;
 
+    @Schema(description = "Se o produto foi deletado", example = "false")
+    private Boolean isDeletado;
+
     public Integer getId() {
         return id;
     }
@@ -59,5 +62,13 @@ public class ProdutoResponseDto {
 
     public void setAtivo(Boolean ativo) {
         isAtivo = ativo;
+    }
+
+    public Boolean getIsDeletado() {
+        return isDeletado;
+    }
+
+    public void setIsDeletado(Boolean isDeletado) {
+        this.isDeletado = isDeletado;
     }
 }

@@ -37,8 +37,11 @@ public class Cliente {
     @JoinColumn(name = "endereco_id", nullable = false)
     private Endereco endereco;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "is_ativo")
     private Boolean isAtivo = true;
+
+    @Column(nullable = false, name = "is_deletado")
+    private Boolean isDeletado = false;
 
     public Integer getId() {
         return id;
@@ -104,11 +107,19 @@ public class Cliente {
         this.endereco = endereco;
     }
 
-    public Boolean getAtivo() {
+    public Boolean getIsAtivo() {
         return isAtivo;
     }
 
-    public void setAtivo(Boolean ativo) {
+    public void setIsAtivo(Boolean ativo) {
         isAtivo = ativo;
+    }
+
+    public Boolean getIsDeletado() {
+        return isDeletado;
+    }
+
+    public void setIsDeletado(Boolean deletado) {
+        isDeletado = deletado;
     }
 }

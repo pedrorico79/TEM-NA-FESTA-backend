@@ -12,5 +12,6 @@ public interface EventoRepository extends JpaRepository<Evento, Integer> {
 
     boolean existsByNomeIgnoreCaseAndIdNot(String nome, Integer id);
 
-    List<Evento> findByAtiva(Boolean ativa);
+    List<Evento> findByIsAtivoAndIsDeletadoFalse(Boolean ativo);
+    List<Evento> findByIsDeletadoFalse();
 }

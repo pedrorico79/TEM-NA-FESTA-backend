@@ -26,6 +26,7 @@ public class ProdutoMapper {
         dto.setDescricao(produto.getDescricao());
         dto.setPrecoVenda(produto.getPrecoVenda());
         dto.setAtivo(produto.getAtivo());
+        dto.setIsDeletado(produto.getDeletado());
         return dto;
     }
 

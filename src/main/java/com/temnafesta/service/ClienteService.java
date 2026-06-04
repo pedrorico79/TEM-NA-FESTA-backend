@@ -9,6 +9,8 @@ import com.temnafesta.model.Endereco;
 import com.temnafesta.repository.ClienteRepository;
 import com.temnafesta.repository.EnderecoRepository;
 import com.temnafesta.repository.PedidoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +30,7 @@ public class ClienteService {
         this.pedidoRepository = pedidoRepository;
     }
 
-    public Cliente criar(Cliente cliente, Integer enderecoId){
+    public Cliente criar(Cliente cliente, Integer enderecoId) {
 
         Endereco enderecoEntidade = enderecoRepository.findById(enderecoId)
                 .orElseThrow(() -> new EnderecoNaoEncontrado(enderecoId));
@@ -36,20 +38,17 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-    public List<Cliente> listarAtivos(){
-        return clienteRepository.findByIsAtivoTrue();
+    public Page<Cliente> listar(String busca, Pageable pageable) {
+        String filtro = busca != null ? busca : "";
+        return clienteRepository.findByIsDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable);
     }
 
-    public List<Cliente> listarTodos(){
-        return clienteRepository.findAll();
-    }
-
-    public Cliente buscarPorId(Integer id){
+    public Cliente buscarPorId(Integer id) {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNaoEncontrado(id));
     }
 
-    public Cliente atualizar(Integer id, Cliente clienteAtualizado, Integer enderecoId){
+    public Cliente atualizar(Integer id, Cliente clienteAtualizado, Integer enderecoId) {
         if (!clienteRepository.existsById(id)) {
             throw new ClienteNaoEncontrado(id);
         }
@@ -61,22 +60,24 @@ public class ClienteService {
         return clienteRepository.save(clienteAtualizado);
     }
 
-    public void desativar(Integer id) {
+    public void toggleAtivo(Integer id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNaoEncontrado(id));
-        Boolean temPedidosAtivos = pedidoRepository.existsPedidosAtivosParaCliente(id);
-        if (temPedidosAtivos) {
-            throw new ClienteComPedidosAtivosException(id);
+
+        if (cliente.getIsAtivo()) {
+            Boolean temPedidosAtivos = pedidoRepository.existsPedidosAtivosParaCliente(id);
+            if (temPedidosAtivos) throw new ClienteComPedidosAtivosException(id);
         }
 
-        cliente.setAtivo(false);
+        cliente.setIsAtivo(!cliente.getIsAtivo());
         clienteRepository.save(cliente);
     }
 
-    public void reativar(Integer id){
+    public void deletar(Integer id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNaoEncontrado(id));
-        cliente.setAtivo(Boolean.TRUE);
+        cliente.setIsDeletado(true);
+        cliente.setIsAtivo(false);
         clienteRepository.save(cliente);
     }
 }

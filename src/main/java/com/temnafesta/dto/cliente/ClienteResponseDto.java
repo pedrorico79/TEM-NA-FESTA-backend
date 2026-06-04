@@ -31,6 +31,12 @@ public class ClienteResponseDto {
     @Schema(description = "Endereço do cliente")
     private EnderecoClienteDto endereco;
 
+    @Schema(description = "Status do cliente", example = "true")
+    private Boolean isAtivo;
+
+    @Schema(description = "Se o cliente foi deletado", example = "false")
+    private Boolean isDeletado;
+
     @Schema(description = "Dados resumidos do endereço do cliente")
     public static class EnderecoClienteDto{
         @Schema(description = "ID do endereço", example = "1")
@@ -151,5 +157,21 @@ public class ClienteResponseDto {
 
     public void setEndereco(EnderecoClienteDto endereco) {
         this.endereco = endereco;
+    }
+
+    public Boolean getIsAtivo() {
+        return isAtivo;
+    }
+
+    public void setIsAtivo(Boolean ativo) {
+        isAtivo = ativo;
+    }
+
+    public Boolean getIsDeletado() {
+        return isDeletado;
+    }
+
+    public void setIsDeletado(Boolean deletado) {
+        isDeletado = deletado;
     }
 }
