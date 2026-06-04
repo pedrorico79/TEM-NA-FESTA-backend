@@ -16,18 +16,18 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     // -----> Não deixa desativar cliente se ele tem pedidos pendentes
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
             "FROM Pedido p WHERE p.cliente.id = :clienteId " +
-            "AND p.statusProducao NOT IN ('CANCELADO', 'ENTREGUE')")
+            "AND p.statusProducao.nome NOT IN ('CANCELADO', 'ENTREGUE')")
     Boolean existsPedidosAtivosParaCliente(Integer clienteId);
 
 
 
     // Pedidos Não cancelados ( válidos)
-    @Query("SELECT p FROM Pedido p WHERE p.statusProducao <> 'CANCELADO'")
+    @Query("SELECT p FROM Pedido p WHERE p.statusProducao.nome <> 'CANCELADO'")
     List<Pedido> findApenasPedidosValidos();
 
 
     // Pedidos em andamento ( não cancelados nem entregues)
-    @Query("SELECT p FROM Pedido p WHERE p.statusProducao NOT IN ('CANCELADO', 'ENTREGUE')")
+    @Query("SELECT p FROM Pedido p WHERE p.statusProducao.nome NOT IN ('CANCELADO', 'ENTREGUE')")
     List<Pedido> findPedidosEmAndamento();
 
 

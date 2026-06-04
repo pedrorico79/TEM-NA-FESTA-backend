@@ -8,9 +8,12 @@ import com.temnafesta.mapper.PagamentoMapper;
 import com.temnafesta.model.Pagamento;
 import com.temnafesta.model.Pedido;
 import com.temnafesta.model.Usuario;
+import com.temnafesta.model.MetodoPagamento;
 import com.temnafesta.repository.PagamentoRepository;
 import com.temnafesta.repository.PedidoRepository;
 import com.temnafesta.repository.UsuarioRepository;
+import com.temnafesta.repository.MetodoPagamentoRepository;
+import com.temnafesta.exception.metodopagamento.MetodoPagamentoNaoEncontrado;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,13 +25,16 @@ public class PagamentoService {
     private final PagamentoRepository pagamentoRepository;
     private final PedidoRepository pedidoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final MetodoPagamentoRepository metodoPagamentoRepository;
 
     public PagamentoService(PagamentoRepository pagamentoRepository,
                             PedidoRepository pedidoRepository,
-                            UsuarioRepository usuarioRepository) {
+                            UsuarioRepository usuarioRepository,
+                            MetodoPagamentoRepository metodoPagamentoRepository) {
         this.pagamentoRepository = pagamentoRepository;
         this.pedidoRepository = pedidoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.metodoPagamentoRepository = metodoPagamentoRepository;
     }
 
     public Pagamento criar(PagamentoRequestDto dto) {
@@ -41,6 +47,10 @@ public class PagamentoService {
         Pagamento pagamento = PagamentoMapper.toEntity(dto);
         pagamento.setPedido(pedido);
         pagamento.setUsuario(usuario);
+        // buscar o MetodoPagamento por id e setar na entidade
+        MetodoPagamento metodo = metodoPagamentoRepository.findById(dto.getMetodoPagamentoId())
+                .orElseThrow(() -> new MetodoPagamentoNaoEncontrado(dto.getMetodoPagamentoId()));
+        pagamento.setMetodoPagamento(metodo);
         pagamento.setDataPagamento(LocalDateTime.now());
 
         return pagamentoRepository.save(pagamento);

@@ -98,6 +98,8 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+
+    // ======================================== Colocar lista paginada
     @Operation(summary = "Lista todos os usuários")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado")
@@ -118,16 +120,17 @@ public class UsuarioController {
         }
         return ResponseEntity.ok(UsuarioMapper.toListarDtoList(usuarios));
     }
+    // ========================================
 
-    @Operation(summary = "Busca usuário por ID")
-    @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso")
-    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    @GetMapping("/{id}")
-    @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<UsuarioListarDto> buscarPorId(@PathVariable Integer id) {
-        Usuario usuario = service.buscarPorId(id);
-        return ResponseEntity.ok(UsuarioMapper.toListarDto(usuario));
-    }
+//    @Operation(summary = "Busca usuário por ID")
+//    @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+//    @GetMapping("/{id}")
+//    @SecurityRequirement(name = "Bearer")
+//    public ResponseEntity<UsuarioListarDto> buscarPorId(@PathVariable Integer id) {
+//        Usuario usuario = service.buscarPorId(id);
+//        return ResponseEntity.ok(UsuarioMapper.toListarDto(usuario));
+//    }
 
     @Operation(summary = "Atualiza um usuário existente")
     @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso")
@@ -159,23 +162,27 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Desativa um usuário")
-    @ApiResponse(responseCode = "204", description = "Usuário desativado com sucesso")
-    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    @PatchMapping("/{id}/desativar")
-    @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<Void> desativar(@PathVariable Integer id) {
-        service.desativar(id);
-        return ResponseEntity.noContent().build();
-    }
+//    @Operation(summary = "Desativa um usuário")
+//    @ApiResponse(responseCode = "204", description = "Usuário desativado com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+//    @PatchMapping("/{id}/desativar")
+//    @SecurityRequirement(name = "Bearer")
+//    public ResponseEntity<Void> desativar(@PathVariable Integer id) {
+//        service.desativar(id);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    @Operation(summary = "Reativa um usuário")
+//    @ApiResponse(responseCode = "204", description = "Usuário reativado com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+//    @PatchMapping("/{id}/reativar")
+//    @SecurityRequirement(name = "Bearer")
+//    public ResponseEntity<Void> reativar(@PathVariable Integer id) {
+//        service.reativar(id);
+//        return ResponseEntity.noContent().build();
+//    }
 
-    @Operation(summary = "Reativa um usuário")
-    @ApiResponse(responseCode = "204", description = "Usuário reativado com sucesso")
-    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    @PatchMapping("/{id}/reativar")
-    @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<Void> reativar(@PathVariable Integer id) {
-        service.reativar(id);
-        return ResponseEntity.noContent().build();
-    }
+
+
+    // ================ CRIAR SOFT DELETE COM @DeleteMapping ===========
 }

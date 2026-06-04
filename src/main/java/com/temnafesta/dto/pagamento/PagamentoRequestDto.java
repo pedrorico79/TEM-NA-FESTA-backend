@@ -1,6 +1,5 @@
 package com.temnafesta.dto.pagamento;
 
-import com.temnafesta.model.MetodoPagamento;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -15,9 +14,9 @@ public class PagamentoRequestDto {
     @Positive
     private BigDecimal valor;
 
-    @Schema(description = "Método de pagamento", example = "PIX")
+    @Schema(description = "ID do método de pagamento", example = "1")
     @NotNull
-    private MetodoPagamento metodo;
+    private Integer metodoPagamentoId;
 
     @Schema(description = "ID do pedido", example = "1")
     @NotNull
@@ -35,12 +34,12 @@ public class PagamentoRequestDto {
         this.valor = valor;
     }
 
-    public MetodoPagamento getMetodo() {
-        return metodo;
+    public Integer getMetodoPagamentoId() {
+        return metodoPagamentoId;
     }
 
-    public void setMetodo(MetodoPagamento metodo) {
-        this.metodo = metodo;
+    public void setMetodoPagamentoId(Integer metodoPagamentoId) {
+        this.metodoPagamentoId = metodoPagamentoId;
     }
 
     public Integer getPedidoId() {
