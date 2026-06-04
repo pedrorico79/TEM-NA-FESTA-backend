@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,34 +31,30 @@ public class ClienteController {
     @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @PostMapping
-    public ResponseEntity<ClienteResponseDto> criar(@RequestBody @Valid ClienteRequestDto dto){
+    public ResponseEntity<ClienteResponseDto> criar(@RequestBody @Valid ClienteRequestDto dto) {
         Cliente cliente = ClienteMapper.toEntity(dto);
         Cliente criado = service.criar(cliente, dto.getEnderecoId());
         return ResponseEntity.status(201).body(ClienteMapper.toResponse(criado));
     }
 
-    @Operation(summary = "Lista todos os clientes")
+    @Operation(summary = "Lista clientes com busca paginada")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @GetMapping
-    public ResponseEntity<List<ClienteResponseDto>> listar(
-            @RequestParam(required = false, defaultValue = "true") Boolean apenasAtivos
-    ){
-        List<Cliente> clientes;
-        if (apenasAtivos) {
-            clientes = service.listarAtivos();
-        } else {
-            clientes = service.listarTodos();
-        }
-
-        List<ClienteResponseDto> clienteResponseDto = ClienteMapper.toResponseList(clientes);
-        return ResponseEntity.ok(clienteResponseDto);
+    public ResponseEntity<Page<ClienteResponseDto>> listar(
+            @RequestParam(required = false) String busca,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                service.listar(busca, pageable)
+                        .map(ClienteMapper::toResponse)
+        );
     }
 
     @Operation(summary = "Busca cliente por ID")
     @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteResponseDto> buscarPorId(@PathVariable Integer id){
+    public ResponseEntity<ClienteResponseDto> buscarPorId(@PathVariable Integer id) {
         Cliente cliente = service.buscarPorId(id);
         return ResponseEntity.ok(ClienteMapper.toResponse(cliente));
     }
@@ -68,28 +66,28 @@ public class ClienteController {
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> atualizar(
             @PathVariable Integer id,
-            @RequestBody @Valid ClienteRequestDto dto){
+            @RequestBody @Valid ClienteRequestDto dto) {
 
         Cliente cliente = ClienteMapper.toEntity(dto);
         Cliente atualizado = service.atualizar(id, cliente, dto.getEnderecoId());
         return ResponseEntity.ok(ClienteMapper.toResponse(atualizado));
     }
 
-    @Operation(summary = "Desativa um cliente")
-    @ApiResponse(responseCode = "204", description = "Cliente desativado com sucesso")
+    @Operation(summary = "Ativa ou desativa um cliente")
+    @ApiResponse(responseCode = "204", description = "Status atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
-    @PatchMapping("/{id}/desativar")
-    public ResponseEntity<Void> desativar(@PathVariable Integer id){
-        service.desativar(id);
+    @PatchMapping("/{id}/ativo")
+    public ResponseEntity<Void> toggleAtivo(@PathVariable Integer id) {
+        service.toggleAtivo(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Reativa um cliente")
-    @ApiResponse(responseCode = "204", description = "Cliente reativado com sucesso")
+    @Operation(summary = "Remove um cliente")
+    @ApiResponse(responseCode = "204", description = "Cliente removido com sucesso")
     @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
-    @PatchMapping("/{id}/reativar")
-    public ResponseEntity<Void> reativar(@PathVariable Integer id){
-        service.reativar(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+        service.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

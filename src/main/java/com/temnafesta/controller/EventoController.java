@@ -35,22 +35,22 @@ public class EventoController {
     ){
         List<EventoResponseDto> eventos;
         if (apenasAtivas){
-            eventos = EventoMapper.toResponseDto(service.listarAtivas());
+            eventos = EventoMapper.toResponseDto(service.listarAtivos());
         } else {
-            eventos = EventoMapper.toResponseDto(service.listarTodas());
+            eventos = EventoMapper.toResponseDto(service.listarTodos());
         }
 
         if (eventos.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(eventos);
     }
 
-    @Operation(summary = "Busca evento por ID")
-    @ApiResponse(responseCode = "200", description = "Evento encontrada com sucesso")
-    @ApiResponse(responseCode = "404", description = "Evento não encontrada")
-    @GetMapping("/{id}")
-    public ResponseEntity<EventoResponseDto> ProcurarPorId(@PathVariable Integer id){
-        return ResponseEntity.ok(EventoMapper.toResponse(service.buscarPorId(id)));
-    }
+//    @Operation(summary = "Busca evento por ID")
+//    @ApiResponse(responseCode = "200", description = "Evento encontrada com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Evento não encontrada")
+//    @GetMapping("/{id}")
+//    public ResponseEntity<EventoResponseDto> ProcurarPorId(@PathVariable Integer id){
+//        return ResponseEntity.ok(EventoMapper.toResponse(service.buscarPorId(id)));
+//    }
 
     @Operation(summary = "Cria um novo evento")
     @ApiResponse(responseCode = "201", description = "Evento criada com sucesso")
@@ -79,32 +79,57 @@ public class EventoController {
                 ));
     }
 
-    @Operation(summary = "Desativa um evento")
-    @ApiResponse(responseCode = "204", description = "Evento desativado com sucesso")
-    @ApiResponse(responseCode = "404", description = "Evento não encontrada")
-    @PatchMapping("/{id}/desativar")
-    public ResponseEntity<Void> desativar(@PathVariable Integer id){
-        service.desativar(id);
-        return ResponseEntity.noContent().build();
-    }
 
-    @Operation(summary = "Reativa um evento")
-    @ApiResponse(responseCode = "204", description = "Evento reativado com sucesso")
+//    // ======================================== \/ \/ ========================================
+//    @Operation(summary = "Desativa um evento")
+//    @ApiResponse(responseCode = "204", description = "Evento desativado com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Evento não encontrada")
+//    @PatchMapping("/{id}/desativar")
+//    public ResponseEntity<Void> desativar(@PathVariable Integer id){
+//        service.desativar(id);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    // ======================================== TUDO ISSO AQUI DEVE VIRAR APENAS 1 METODO COM PATCH
+//    // PATCH eventos/{id} com body de campo is_ativo
+//
+//    @Operation(summary = "Reativa um evento")
+//    @ApiResponse(responseCode = "204", description = "Evento reativado com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Evento não encontrado")
+//    @PatchMapping("/{id}/reativar")
+//    public ResponseEntity<Void> reativar(@PathVariable Integer id){
+//        service.reativar(id);
+//        return ResponseEntity.noContent().build();
+//    }
+//    // ======================================== /\ /\ ========================================
+
+    @Operation(summary = "Ativa ou desativa um evento")
+    @ApiResponse(responseCode = "204", description = "Status atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Evento não encontrado")
-    @PatchMapping("/{id}/reativar")
-    public ResponseEntity<Void> reativar(@PathVariable Integer id){
-        service.reativar(id);
+    @PatchMapping("/{id}/ativo")
+    public ResponseEntity<Void> toggleAtivo(@PathVariable Integer id) {
+        service.toggleAtivo(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Lista eventos inativos")
-    @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
-    @ApiResponse(responseCode = "204", description = "Nenhum evento inativa encontrada")
-    @GetMapping("/inativas")
-    public ResponseEntity<List<EventoResponseDto>> listarInativas() {
-        List<EventoResponseDto> eventos = EventoMapper.toResponseDto(
-                service.listarInativas());
-        if(eventos.isEmpty()) return ResponseEntity.noContent().build();
-        return ResponseEntity.ok(eventos);
+    @Operation(summary = "Remove um evento")
+    @ApiResponse(responseCode = "204", description = "Evento removido com sucesso")
+    @ApiResponse(responseCode = "404", description = "Evento não encontrado")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
+
+
+//    @Operation(summary = "Lista eventos inativos")
+//    @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
+//    @ApiResponse(responseCode = "204", description = "Nenhum evento inativa encontrada")
+//    @GetMapping("/inativas")
+//    public ResponseEntity<List<EventoResponseDto>> listarInativas() {
+//        List<EventoResponseDto> eventos = EventoMapper.toResponseDto(
+//                service.listarInativas());
+//        if(eventos.isEmpty()) return ResponseEntity.noContent().build();
+//        return ResponseEntity.ok(eventos);
+//    }
 }

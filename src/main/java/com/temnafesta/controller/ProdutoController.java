@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,21 +40,34 @@ public class ProdutoController {
                 .body(ProdutoMapper.toResponseDto(criado));
     }
 
-    @Operation(summary = "Lista todos os produtos")
+//    @Operation(summary = "Lista todos os produtos")
+//    @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
+//    @GetMapping
+//    public ResponseEntity<List<ProdutoResponseDto>> listar(
+//            @RequestParam(required = false, defaultValue = "true") Boolean apenasAtivos
+//    ) {
+//        List<Produto> produtos;
+//        if (apenasAtivos) {
+//            produtos = service.listarAtivos();
+//        } else {
+//            produtos = service.listarTodos();
+//        }
+//
+//        return ResponseEntity.ok(
+//                ProdutoMapper.toResponseDtoList(produtos)
+//        );
+//    }
+
+    @Operation(summary = "Lista produtos com busca paginada")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @GetMapping
-    public ResponseEntity<List<ProdutoResponseDto>> listar(
-            @RequestParam(required = false, defaultValue = "true") Boolean apenasAtivos
+    public ResponseEntity<Page<ProdutoResponseDto>> listar(
+            @RequestParam(required = false) String nome,
+            Pageable pageable
     ) {
-        List<Produto> produtos;
-        if (apenasAtivos) {
-            produtos = service.listarAtivos();
-        } else {
-            produtos = service.listarTodos();
-        }
-
         return ResponseEntity.ok(
-                ProdutoMapper.toResponseDtoList(produtos)
+                service.listar(nome, pageable)
+                        .map(ProdutoMapper::toResponseDto)
         );
     }
 
@@ -83,26 +98,44 @@ public class ProdutoController {
         );
     }
 
-    // ======================================== \/ \/ ========================================
-    @Operation(summary = "Desativa um produto")
-    @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso")
+//    // ======================================== \/ \/ ========================================
+//    @Operation(summary = "Desativa um produto")
+//    @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+//    @PatchMapping("/{id}/desativar")
+//    public ResponseEntity<Void> desativar(@PathVariable Integer id) {
+//        service.desativar(id);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    // ======================================== TUDO ISSO AQUI DEVE VIRAR APENAS 1 METODO COM PATCH
+//    // PATCH produtos/{id} com body de campo is_ativo
+//
+//    @Operation(summary = "Reativa um produto")
+//    @ApiResponse(responseCode = "204", description = "Produto reativado com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+//    @PatchMapping("/{id}/reativar")
+//    public ResponseEntity<Void> reativar(@PathVariable Integer id) {
+//        service.reativar(id);
+//        return ResponseEntity.noContent().build();
+//    }
+//    // ======================================== /\ /\ ========================================
+
+    @Operation(summary = "Ativa ou desativa um produto")
+    @ApiResponse(responseCode = "204", description = "Status atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
-    @PatchMapping("/{id}/desativar")
-    public ResponseEntity<Void> desativar(@PathVariable Integer id) {
-        service.desativar(id);
+    @PatchMapping("/{id}/ativo")
+    public ResponseEntity<Void> toggleAtivo(@PathVariable Integer id) {
+        service.toggleAtivo(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ======================================== TUDO ISSO AQUI DEVE VIRAR APENAS 1 METODO COM PATCH
-    // PATCH produtos/{id} com body de campo is_ativo
-
-    @Operation(summary = "Reativa um produto")
-    @ApiResponse(responseCode = "204", description = "Produto reativado com sucesso")
+    @Operation(summary = "Remove um produto")
+    @ApiResponse(responseCode = "204", description = "Produto removido com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
-    @PatchMapping("/{id}/reativar")
-    public ResponseEntity<Void> reativar(@PathVariable Integer id) {
-        service.reativar(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+        service.deletar(id);
         return ResponseEntity.noContent().build();
     }
-    // ======================================== /\ /\ ========================================
 }

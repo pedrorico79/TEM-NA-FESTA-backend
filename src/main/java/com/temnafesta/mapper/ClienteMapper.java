@@ -44,6 +44,8 @@ public class ClienteMapper {
         dto.setDataCadastro(cliente.getDataCadastro());
         dto.setAnotacoes(cliente.getAnotacoes());
         dto.setEndereco(enderecoDto);
+        dto.setIsAtivo(cliente.getIsAtivo());
+        dto.setIsDeletado(cliente.getIsDeletado());
 
         return dto;
     }

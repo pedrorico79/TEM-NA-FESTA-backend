@@ -24,6 +24,9 @@ public class Produto {
     @Column(name = "is_ativo")
     private Boolean isAtivo;
 
+    @Column(nullable = false)
+    private Boolean isDeletado = false;
+
     public Integer getId() {
         return id;
     }
@@ -62,5 +65,13 @@ public class Produto {
 
     public void setAtivo(Boolean ativo) {
         isAtivo = ativo;
+    }
+
+    public Boolean getDeletado() {
+        return isDeletado;
+    }
+
+    public void setDeletado(Boolean deletado) {
+        isDeletado = deletado;
     }
 }
