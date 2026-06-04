@@ -56,15 +56,15 @@ public class ProdutoController {
         );
     }
 
-    @Operation(summary = "Busca produto por ID")
-    @ApiResponse(responseCode = "200", description = "Produto encontrado com sucesso")
-    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
-    @GetMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDto> buscar(@PathVariable Integer id) {
-        return ResponseEntity.ok(
-                ProdutoMapper.toResponseDto(service.buscarPorId(id))
-        );
-    }
+//    @Operation(summary = "Busca produto por ID")
+//    @ApiResponse(responseCode = "200", description = "Produto encontrado com sucesso")
+//    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+//    @GetMapping("/{id}")
+//    public ResponseEntity<ProdutoResponseDto> buscar(@PathVariable Integer id) {
+//        return ResponseEntity.ok(
+//                ProdutoMapper.toResponseDto(service.buscarPorId(id))
+//        );
+//    }
 
     @Operation(summary = "Atualiza um produto existente")
     @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso")
@@ -83,6 +83,7 @@ public class ProdutoController {
         );
     }
 
+    // ======================================== \/ \/ ========================================
     @Operation(summary = "Desativa um produto")
     @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
@@ -92,6 +93,9 @@ public class ProdutoController {
         return ResponseEntity.noContent().build();
     }
 
+    // ======================================== TUDO ISSO AQUI DEVE VIRAR APENAS 1 METODO COM PATCH
+    // PATCH produtos/{id} com body de campo is_ativo
+
     @Operation(summary = "Reativa um produto")
     @ApiResponse(responseCode = "204", description = "Produto reativado com sucesso")
     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
@@ -100,4 +104,5 @@ public class ProdutoController {
         service.reativar(id);
         return ResponseEntity.noContent().build();
     }
+    // ======================================== /\ /\ ========================================
 }
