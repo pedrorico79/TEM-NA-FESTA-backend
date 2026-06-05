@@ -4,7 +4,10 @@ import com.temnafesta.model.Pedido;
 import com.temnafesta.model.StatusProducao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
@@ -34,4 +37,13 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     // Pedidos concluidos (passar parametro -> entregue)
     List<Pedido> findByStatusProducao(StatusProducao status);
 
+    Long countByDataPedidoBetween(LocalDateTime localDateTime, LocalDateTime localDateTime1);
+
+    // Pedidos por status status entrege e periodo
+    @Query("SELECT COUNT(p) FROM Pedido p WHERE p.statusProducao.id = :statusId AND p.dataPedido BETWEEN :de AND :ate")
+    Long countByStatusEPeriodo(@Param("statusId") Integer statusId, @Param("de") LocalDateTime de, @Param("ate") LocalDateTime ate);
+
+    // Faturamento por periodo
+    @Query("SELECT SUM(p.valorTotal) FROM Pedido p WHERE p.statusProducao.id = :statusId AND p.dataPedido BETWEEN :de AND :ate")
+    BigDecimal somarFaturamentoNoPeriodo(@Param("statusId") Integer statusId, @Param("de") LocalDateTime de, @Param("ate") LocalDateTime ate);
 }
