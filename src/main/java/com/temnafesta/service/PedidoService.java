@@ -1,5 +1,6 @@
 package com.temnafesta.service;
 
+import com.temnafesta.dto.countPedidos.CountPedidosResponseDto;
 import com.temnafesta.dto.pedido.PedidoResponseDto;
 import com.temnafesta.event.StatusPedidoAlteradoEvent;
 import com.temnafesta.model.StatusProducao;
@@ -11,11 +12,15 @@ import com.temnafesta.mapper.PedidoMapper;
 import com.temnafesta.model.*;
 import com.temnafesta.repository.*;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class PedidoService {
@@ -168,6 +173,76 @@ public class PedidoService {
                         statusAnterior,
                         usuario
                 )
+        );
+    }
+
+    public Page<PedidoResponseDto> listarProximasRetiradas(Integer dias, Integer page) {
+
+        LocalDateTime agora = LocalDateTime.now();
+
+        LocalDateTime limite = agora.plusDays(dias);
+
+        Pageable pageable = PageRequest.of(
+                page,
+                10,
+                Sort.by("dataEntrega").ascending()
+        );
+        return pedidoRepository
+                .buscarProximasRetiradas(
+                        agora,
+                        limite,
+                        pageable
+                )
+                .map(this::toDto);
+    }
+
+    public CountPedidosResponseDto contarPedidos(Integer dias) {
+
+        if (dias == null || dias <= 0) {
+            throw new IllegalArgumentException(
+                    "O parâmetro dias deve ser maior que zero."
+            );
+        }
+
+        LocalDateTime agora = LocalDateTime.now();
+        LocalDateTime limite = agora.plusDays(dias);
+
+        List<Pedido> pedidos =
+                pedidoRepository.countPedidos(
+                        agora,
+                        limite
+                );
+
+        long total = pedidos.size();
+
+        long aguardandoInicio = pedidos.stream()
+                .filter(p ->
+                        "Aguardando Início".equalsIgnoreCase(
+                                p.getStatusProducao().getNome()
+                        )
+                )
+                .count();
+
+        long pagamentoPendente = pedidos.stream()
+                .filter(p -> {
+
+                    BigDecimal valorPago =
+                            pagamentoRepository
+                                    .somarPagamentosPorPedido(
+                                            p.getId()
+                                    );
+
+                    return valorPago.compareTo(
+                            p.getValorTotal()
+                    ) < 0;
+
+                })
+                .count();
+
+        return new CountPedidosResponseDto(
+                total,
+                aguardandoInicio,
+                pagamentoPendente
         );
     }
 
