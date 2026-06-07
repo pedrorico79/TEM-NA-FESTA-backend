@@ -1,9 +1,13 @@
 package com.temnafesta.service;
 
 import com.temnafesta.dto.relatorio.kpi.KpiResponseDto;
+import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoProjection;
+import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoResponseDto;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaProjection;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
 import com.temnafesta.repository.PedidoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -71,6 +75,23 @@ public class RelatorioService {
         return resultado.stream()
                 .map(p -> new PedidosPorSemanaResponseDto(p.getRotulo(), p.getQuantidade()))
                 .toList();
+    }
+
+    public Page<PedidosPeriodoResponseDto> retornarPedidosPeriodo(LocalDate de, LocalDate ate, Pageable pageable) {
+        Page<PedidosPeriodoProjection> pedidosPaginados = pedidoRepository.buscarPedidosPeriodoPaginado(
+                de.atStartOfDay(),
+                ate.atTime(23, 59, 59),
+                pageable
+        );
+
+        return pedidosPaginados.map(p -> new PedidosPeriodoResponseDto(
+                p.getId(),
+                p.getDataPedido(),
+                p.getClienteNome(),
+                p.getEventoNome(),
+                p.getValorTotal(),
+                p.getStatusNome()
+        ));
     }
 
 }

@@ -1,8 +1,10 @@
 package com.temnafesta.repository;
 
+import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoProjection;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaProjection;
 import com.temnafesta.model.Pedido;
 import com.temnafesta.model.StatusProducao;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -65,5 +67,23 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     List<PedidosPorSemanaProjection> buscarPedidosAgrupadosPorSemana(
             @Param("de") LocalDateTime de,
             @Param("ate") LocalDateTime ate
+    );
+
+
+
+    // Retorna os pedidos paginados por periodo
+    @Query(value = "SELECT p.id AS id, p.data_pedido AS dataPedido, c.nome AS clienteNome, " +
+            "e.nome AS eventoNome, p.valor_total AS valorTotal, s.nome AS statusNome " +
+            "FROM pedido p " +
+            "INNER JOIN cliente c ON p.cliente_id = c.id " +
+            "INNER JOIN evento e ON p.evento_id = e.id " +
+            "INNER JOIN status_producao s ON p.status_producao_id = s.id " +
+            "WHERE p.data_pedido BETWEEN :de AND :ate",
+            countQuery = "SELECT COUNT(*) FROM pedido p WHERE p.data_pedido BETWEEN :de AND :ate",
+            nativeQuery = true)
+    Page<PedidosPeriodoProjection> buscarPedidosPeriodoPaginado(
+            @Param("de") java.time.LocalDateTime de,
+            @Param("ate") java.time.LocalDateTime ate,
+            org.springframework.data.domain.Pageable pageable
     );
 }
