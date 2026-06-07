@@ -1,12 +1,14 @@
 package com.temnafesta.service;
 
 import com.temnafesta.dto.relatorio.kpi.KpiResponseDto;
+import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
 import com.temnafesta.repository.PedidoRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class RelatorioService {
@@ -53,6 +55,16 @@ public class RelatorioService {
                 taxaConclusao,
                 faturamento,
                 dias
+        );
+    }
+
+    public List<PedidosPorSemanaResponseDto> retornarPedidosPorSemana(
+            LocalDate de,
+            LocalDate ate
+    ) {
+        return pedidoRepository.buscarPedidosAgrupadosPorSemana(
+                de.atStartOfDay(),
+                ate.atTime(23, 59, 59)
         );
     }
 

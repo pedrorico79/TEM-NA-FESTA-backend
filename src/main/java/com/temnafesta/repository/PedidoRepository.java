@@ -1,5 +1,6 @@
 package com.temnafesta.repository;
 
+import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
 import com.temnafesta.model.Pedido;
 import com.temnafesta.model.StatusProducao;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +22,6 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
             "FROM Pedido p WHERE p.cliente.id = :clienteId " +
             "AND p.statusProducao.nome NOT IN ('CANCELADO', 'ENTREGUE')")
     Boolean existsPedidosAtivosParaCliente(Integer clienteId);
-
 
 
     // Pedidos Não cancelados ( válidos)
@@ -46,4 +46,17 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     // Faturamento por periodo
     @Query("SELECT SUM(p.valorTotal) FROM Pedido p WHERE p.statusProducao.id = :statusId AND p.dataPedido BETWEEN :de AND :ate")
     BigDecimal somarFaturamentoNoPeriodo(@Param("statusId") Integer statusId, @Param("de") LocalDateTime de, @Param("ate") LocalDateTime ate);
+
+
+    // Retorna a quantidade de pedidos agrupado por rotulos como "Sem 19" para o grafico de pedidos por semana do relatorio consumir
+    @Query("SELECT new br.com.suaempresa.dto.ReportSemanalResponseDto(" +
+            "CONCAT('Sem ', WEEK(p.dataPedido)), COUNT(p)) " +
+            "FROM Pedido p " +
+            "WHERE p.dataPedido BETWEEN :de AND :ate " +
+            "GROUP BY WEEK(p.dataPedido) " +
+            "ORDER BY WEEK(p.dataPedido) ASC")
+    List<PedidosPorSemanaResponseDto> buscarPedidosAgrupadosPorSemana(
+            @Param("de") LocalDateTime de,
+            @Param("ate") LocalDateTime ate
+    );
 }

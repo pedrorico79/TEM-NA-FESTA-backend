@@ -1,4 +1,4 @@
-package com.temnafesta.dto.relatorio.kpi.pedidosporsemana;
+package com.temnafesta.dto.relatorio.pedidosporsemana;
 
 public record PedidosPorSemanaResponseDto(
         String rotulo,
