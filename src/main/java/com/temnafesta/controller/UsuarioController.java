@@ -184,5 +184,14 @@ public class UsuarioController {
 
 
 
-    // ================ CRIAR SOFT DELETE COM @DeleteMapping ===========
-}
+    @Operation(summary = "Remove um usuário (soft delete)")
+    @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "Bearer")
+    public ResponseEntity<Void> deletar(
+            @PathVariable Integer id
+    ) {
+        service.desativar(id);
+        return ResponseEntity.noContent().build();
+    }}
