@@ -32,7 +32,7 @@ public class ProdutoService {
 
     public Page<Produto> listar(String nome, Pageable pageable) {
         String filtro = nome != null ? nome : "";
-        return repository.findByIsDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable);
+        return repository.findByIsDeletadoFalseAndNomeContainingIgnoreCaseOrderByIsAtivoDesc(filtro, pageable);
     }
 
 //    public Produto buscarPorId(Integer id) {

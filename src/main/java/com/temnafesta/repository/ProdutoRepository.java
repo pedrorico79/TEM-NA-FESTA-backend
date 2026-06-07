@@ -14,4 +14,6 @@ public interface ProdutoRepository extends JpaRepository <Produto, Integer>{
     List<Produto> findByIsDeletadoFalse();
 
     Page<Produto> findByIsDeletadoFalseAndNomeContainingIgnoreCase(String nome, Pageable pageable);
+
+    Page<Produto> findByIsDeletadoFalseAndNomeContainingIgnoreCaseOrderByIsAtivoDesc(String nome, Pageable pageable);
 }
