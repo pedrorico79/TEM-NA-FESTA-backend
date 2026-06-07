@@ -21,7 +21,7 @@ public class RelatorioService {
             LocalDate de,
             LocalDate ate
     ) {
-        Long dias = ChronoUnit.DAYS.between(de, ate);
+        Long dias = ChronoUnit.DAYS.between(de, ate); // intervalo entre as datas
         Integer statusEntregueProducao = 4; // alterar com base no Id correspondente no bd.
 
         Long totalPedidos = pedidoRepository.countByDataPedidoBetween(
@@ -55,4 +55,5 @@ public class RelatorioService {
                 dias
         );
     }
+
 }
