@@ -16,7 +16,7 @@ public interface UsuarioRepository extends JpaRepository <Usuario, Integer> {
     List<Usuario> findByIsAtivoTrue();
     List<Usuario> findByIsAtivoFalse();
 
-    Page<Usuario> findByNomeContainingIgnoreCaseAndIsAtivoTrue(
+    Page<Usuario> findByNomeContainingIgnoreCaseAndIsDeletadoFalse(
             String nome,
             Pageable pageable
     );

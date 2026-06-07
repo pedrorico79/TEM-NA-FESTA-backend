@@ -145,9 +145,16 @@ public class UsuarioService {
         Pageable pageable = PageRequest.of(page, 10);
 
         return usuarioRepository
-                .findByNomeContainingIgnoreCaseAndIsAtivoTrue(
+                .findByNomeContainingIgnoreCaseAndIsDeletadoFalse(
                         nome,
                         pageable
                 );
+    }
+
+    public void sofDelete(Integer id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+        usuario.setDeletado(true);
+        usuarioRepository.save(usuario);
     }
 }

@@ -193,7 +193,7 @@ public class UsuarioController {
     public ResponseEntity<Void> deletar(
             @PathVariable Integer id
     ) {
-        service.desativar(id);
+        service.sofDelete(id);
         return ResponseEntity.noContent().build();
     }
 

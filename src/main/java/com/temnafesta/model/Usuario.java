@@ -28,6 +28,9 @@ public class Usuario {
     @Column(nullable = false)
     private Boolean isAtivo = true;
 
+    @Column(nullable = false)
+    private Boolean isDeletado = false;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
@@ -86,5 +89,13 @@ public class Usuario {
 
     public void setDataCriacao(LocalDateTime dataCriacao) {
         this.dataCriacao = dataCriacao;
+    }
+
+    public Boolean getDeletado() {
+        return isDeletado;
+    }
+
+    public void setDeletado(Boolean deletado) {
+        isDeletado = deletado;
     }
 }
