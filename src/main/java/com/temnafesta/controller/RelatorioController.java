@@ -1,9 +1,12 @@
 package com.temnafesta.controller;
 
 import com.temnafesta.dto.relatorio.kpi.KpiResponseDto;
+import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoResponseDto;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
 import com.temnafesta.service.RelatorioService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,4 +50,18 @@ public class RelatorioController {
         return ResponseEntity.ok(dadosGrafico);
 
     }
+
+    @GetMapping("/pedidos-periodo")
+    public ResponseEntity<Page<PedidosPeriodoResponseDto>> obterPedidosPeriodo(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate,
+            Pageable pageable
+    ){
+        Page<PedidosPeriodoResponseDto> pedidos = relatorioService
+                .retornarPedidosPeriodo(de, ate, pageable);
+
+        if (pedidos.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(pedidos);
+    }
+
 }
