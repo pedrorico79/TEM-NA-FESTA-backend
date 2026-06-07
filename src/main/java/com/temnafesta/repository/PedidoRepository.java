@@ -2,9 +2,11 @@ package com.temnafesta.repository;
 
 import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoProjection;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaProjection;
+import com.temnafesta.dto.relatorio.produtosmaisvendidos.MaisVendidosProjection;
 import com.temnafesta.model.Pedido;
 import com.temnafesta.model.StatusProducao;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -49,10 +51,6 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     @Query("SELECT SUM(p.valorTotal) FROM Pedido p WHERE p.statusProducao.id = :statusId AND p.dataPedido BETWEEN :de AND :ate")
     BigDecimal somarFaturamentoNoPeriodo(@Param("statusId") Integer statusId, @Param("de") LocalDateTime de, @Param("ate") LocalDateTime ate);
 
-    //com.temnafesta.dto.relatorio.pedidosporsemana;
-    //
-    //public record PedidosPorSemanaResponseDto
-
     // Retorna a quantidade de pedidos agrupado por rotulos como "Sem 19" para o grafico de pedidos por semana do relatorio consumir
     @Query(value =
             "SELECT CONCAT('Sem ', t.semana) AS rotulo, t.quantidade " +
@@ -84,6 +82,9 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     Page<PedidosPeriodoProjection> buscarPedidosPeriodoPaginado(
             @Param("de") java.time.LocalDateTime de,
             @Param("ate") java.time.LocalDateTime ate,
-            org.springframework.data.domain.Pageable pageable
+            Pageable pageable
     );
+
+
+
 }
