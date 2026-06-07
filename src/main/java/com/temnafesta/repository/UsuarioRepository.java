@@ -1,6 +1,8 @@
 package com.temnafesta.repository;
 
 import com.temnafesta.model.Usuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.w3c.dom.stylesheets.LinkStyle;
 
@@ -13,4 +15,10 @@ public interface UsuarioRepository extends JpaRepository <Usuario, Integer> {
 
     List<Usuario> findByIsAtivoTrue();
     List<Usuario> findByIsAtivoFalse();
+
+    Page<Usuario> findByNomeContainingIgnoreCaseAndIsAtivoTrue(
+            String nome,
+            Pageable pageable
+    );
+
 }

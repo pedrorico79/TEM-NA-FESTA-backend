@@ -12,6 +12,9 @@ import com.temnafesta.model.Usuario;
 import com.temnafesta.repository.PerfilRepository;
 import com.temnafesta.repository.UsuarioRepository;
 import com.temnafesta.security.GerenciadorTokenJwt;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -132,5 +135,19 @@ public class UsuarioService {
         usuario.setSenha(senhaCriptografada);
 
         usuarioRepository.save(usuario);
+    }
+
+    public Page<Usuario> buscarPorNome(
+            String nome,
+            Integer page
+    ) {
+
+        Pageable pageable = PageRequest.of(page, 10);
+
+        return usuarioRepository
+                .findByNomeContainingIgnoreCaseAndIsAtivoTrue(
+                        nome,
+                        pageable
+                );
     }
 }
