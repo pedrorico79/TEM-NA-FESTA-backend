@@ -3,6 +3,7 @@ package com.temnafesta.controller;
 import com.temnafesta.dto.relatorio.kpi.KpiResponseDto;
 import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoResponseDto;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
+import com.temnafesta.dto.relatorio.produtosmaisvendidos.ProdutoMaisVendidosResponseDto;
 import com.temnafesta.service.RelatorioService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
@@ -64,4 +65,16 @@ public class RelatorioController {
         return ResponseEntity.ok(pedidos);
     }
 
+    @GetMapping("/produtos-mais-vendidos")
+    public ResponseEntity<Page<ProdutoMaisVendidosResponseDto>> obterProdutosMaisVendidos(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate,
+            Pageable pageable
+    ){
+        Page<ProdutoMaisVendidosResponseDto> maisVendidos = relatorioService
+                .retornarProdutosMaisVendidos(de, ate, pageable);
+
+        if (maisVendidos.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(maisVendidos);
+    }
 }

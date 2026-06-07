@@ -5,7 +5,10 @@ import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoProjection;
 import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoResponseDto;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaProjection;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
+import com.temnafesta.dto.relatorio.produtosmaisvendidos.MaisVendidosProjection;
+import com.temnafesta.dto.relatorio.produtosmaisvendidos.ProdutoMaisVendidosResponseDto;
 import com.temnafesta.repository.PedidoRepository;
+import com.temnafesta.repository.ProdutoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,9 +22,11 @@ import java.util.List;
 public class RelatorioService {
 
     private final PedidoRepository pedidoRepository;
+    private final ProdutoRepository produtoRepository;
 
-    public RelatorioService(PedidoRepository pedidoRepository) {
+    public RelatorioService(PedidoRepository pedidoRepository, ProdutoRepository produtoRepository) {
         this.pedidoRepository = pedidoRepository;
+        this.produtoRepository = produtoRepository;
     }
 
     public KpiResponseDto obterKpis(
@@ -77,7 +82,11 @@ public class RelatorioService {
                 .toList();
     }
 
-    public Page<PedidosPeriodoResponseDto> retornarPedidosPeriodo(LocalDate de, LocalDate ate, Pageable pageable) {
+    public Page<PedidosPeriodoResponseDto> retornarPedidosPeriodo(
+            LocalDate de,
+            LocalDate ate,
+            Pageable pageable
+    ) {
         Page<PedidosPeriodoProjection> pedidosPaginados = pedidoRepository.buscarPedidosPeriodoPaginado(
                 de.atStartOfDay(),
                 ate.atTime(23, 59, 59),
@@ -91,6 +100,25 @@ public class RelatorioService {
                 p.getEventoNome(),
                 p.getValorTotal(),
                 p.getStatusNome()
+        ));
+    }
+
+    public Page<ProdutoMaisVendidosResponseDto> retornarProdutosMaisVendidos(
+            LocalDate de,
+            LocalDate ate,
+            Pageable pageable
+    ) {
+        Page<MaisVendidosProjection> maisVendidosPaginados = produtoRepository.buscarProdutosMaisVendidosPaginado(
+                de.atStartOfDay(),
+                ate.atTime(23, 59, 59),
+                pageable
+        );
+
+        return maisVendidosPaginados.map(p -> new ProdutoMaisVendidosResponseDto(
+                p.getItem(),
+                p.getQtdeVendida(),
+                p.getFaturamento(),
+                p.getPorcentagemDoTotal()
         ));
     }
 
