@@ -1,6 +1,7 @@
 package com.temnafesta.service;
 
 import com.temnafesta.dto.relatorio.kpi.KpiResponseDto;
+import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaProjection;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
 import com.temnafesta.repository.PedidoRepository;
 import org.springframework.stereotype.Service;
@@ -62,10 +63,14 @@ public class RelatorioService {
             LocalDate de,
             LocalDate ate
     ) {
-        return pedidoRepository.buscarPedidosAgrupadosPorSemana(
+        List<PedidosPorSemanaProjection> resultado = pedidoRepository.buscarPedidosAgrupadosPorSemana(
                 de.atStartOfDay(),
                 ate.atTime(23, 59, 59)
         );
+
+        return resultado.stream()
+                .map(p -> new PedidosPorSemanaResponseDto(p.getRotulo(), p.getQuantidade()))
+                .toList();
     }
 
 }

@@ -1,6 +1,6 @@
 package com.temnafesta.repository;
 
-import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
+import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaProjection;
 import com.temnafesta.model.Pedido;
 import com.temnafesta.model.StatusProducao;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -47,15 +47,22 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     @Query("SELECT SUM(p.valorTotal) FROM Pedido p WHERE p.statusProducao.id = :statusId AND p.dataPedido BETWEEN :de AND :ate")
     BigDecimal somarFaturamentoNoPeriodo(@Param("statusId") Integer statusId, @Param("de") LocalDateTime de, @Param("ate") LocalDateTime ate);
 
+    //com.temnafesta.dto.relatorio.pedidosporsemana;
+    //
+    //public record PedidosPorSemanaResponseDto
 
     // Retorna a quantidade de pedidos agrupado por rotulos como "Sem 19" para o grafico de pedidos por semana do relatorio consumir
-    @Query("SELECT new br.com.suaempresa.dto.ReportSemanalResponseDto(" +
-            "CONCAT('Sem ', WEEK(p.dataPedido)), COUNT(p)) " +
-            "FROM Pedido p " +
-            "WHERE p.dataPedido BETWEEN :de AND :ate " +
-            "GROUP BY WEEK(p.dataPedido) " +
-            "ORDER BY WEEK(p.dataPedido) ASC")
-    List<PedidosPorSemanaResponseDto> buscarPedidosAgrupadosPorSemana(
+    @Query(value =
+            "SELECT CONCAT('Sem ', t.semana) AS rotulo, t.quantidade " +
+                    "FROM ( " +
+                    "  SELECT WEEK(p.data_pedido) AS semana, COUNT(p.id) AS quantidade " +
+                    "  FROM pedido p " +
+                    "  WHERE p.data_pedido BETWEEN :de AND :ate " +
+                    "  GROUP BY WEEK(p.data_pedido) " +
+                    ") t " +
+                    "ORDER BY t.semana ASC",
+            nativeQuery = true)
+    List<PedidosPorSemanaProjection> buscarPedidosAgrupadosPorSemana(
             @Param("de") LocalDateTime de,
             @Param("ate") LocalDateTime ate
     );
