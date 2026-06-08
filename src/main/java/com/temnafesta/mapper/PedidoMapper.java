@@ -5,6 +5,7 @@ import com.temnafesta.dto.pedido.PedidoResponseDto;
 import com.temnafesta.model.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class PedidoMapper {
 
@@ -74,6 +75,19 @@ public class PedidoMapper {
         dto.setUsuario(usuarioDto);
         dto.setStatusProducao(statusDto);
         dto.setCampanha(campanhaDto);
+
+        List<PedidoResponseDto.ItemPedidoResponseDto> itens = pedido.getProdutos().stream()
+                .map(item -> {
+                    PedidoResponseDto.ItemPedidoResponseDto itemDto = new PedidoResponseDto.ItemPedidoResponseDto();
+                    itemDto.setProdutoId(item.getProduto().getId());
+                    itemDto.setNomeProduto(item.getProduto().getNome());
+                    itemDto.setQuantidade(item.getQuantidade());
+                    itemDto.setPrecoUnitario(item.getPrecoUnitario());
+                    return itemDto;
+                })
+                .toList();
+
+        dto.setItens(itens);
 
         return dto;
     }
