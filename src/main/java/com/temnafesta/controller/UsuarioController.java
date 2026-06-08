@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -184,5 +185,38 @@ public class UsuarioController {
 
 
 
-    // ================ CRIAR SOFT DELETE COM @DeleteMapping ===========
+    @Operation(summary = "Remove um usuário (soft delete)")
+    @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "Bearer")
+    public ResponseEntity<Void> deletar(
+            @PathVariable Integer id
+    ) {
+        service.sofDelete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/buscar")
+    @SecurityRequirement(name = "Bearer")
+    @Operation(summary = "Lista usuários por nome com paginação")
+    @ApiResponse(responseCode = "200", description = "Usuários encontrados")
+    @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado")
+    public ResponseEntity<Page<UsuarioListarDto>> buscarPorNome(
+            @RequestParam String nome,
+            @RequestParam(defaultValue = "0") Integer page
+    ) {
+
+        Page<Usuario> usuarios =
+                service.buscarPorNome(nome, page);
+
+        if (usuarios.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        Page<UsuarioListarDto> resposta =
+                usuarios.map(UsuarioMapper::toListarDto);
+
+        return ResponseEntity.ok(resposta);
+    }
 }

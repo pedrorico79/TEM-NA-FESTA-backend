@@ -10,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDateTime;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,6 +31,7 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     Boolean existsPedidosAtivosParaCliente(Integer clienteId);
 
 
+
     // Pedidos Não cancelados ( válidos)
     @Query("SELECT p FROM Pedido p WHERE p.statusProducao.nome <> 'CANCELADO'")
     List<Pedido> findApenasPedidosValidos();
@@ -40,6 +44,31 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
 
     // Pedidos concluidos (passar parametro -> entregue)
     List<Pedido> findByStatusProducao(StatusProducao status);
+
+    @Query("""
+    SELECT p
+    FROM Pedido p
+    WHERE p.dataEntrega BETWEEN :inicio AND :fim
+      AND p.statusProducao.nome NOT IN ('CANCELADO', 'ENTREGUE')
+    ORDER BY p.dataEntrega ASC
+""")
+    Page<Pedido> buscarProximasRetiradas(
+            LocalDateTime inicio,
+            LocalDateTime fim,
+            Pageable pageable
+    );
+
+
+    @Query("""
+    SELECT p
+    FROM Pedido p
+    WHERE p.dataEntrega BETWEEN :inicio AND :fim
+      AND p.statusProducao.nome NOT IN ('CANCELADO', 'ENTREGUE')
+""")
+    List<Pedido> countPedidos(
+            LocalDateTime inicio,
+            LocalDateTime fim
+    );
 
     Long countByDataPedidoBetween(LocalDateTime localDateTime, LocalDateTime localDateTime1);
 
