@@ -1,5 +1,6 @@
 package com.temnafesta.controller;
 
+import com.temnafesta.dto.relatorio.compativoeventos.EventoComparativoResponseDto;
 import com.temnafesta.dto.relatorio.kpi.KpiResponseDto;
 import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoResponseDto;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
@@ -76,5 +77,18 @@ public class RelatorioController {
 
         if (maisVendidos.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(maisVendidos);
+    }
+
+    @Operation(summary = "Obtém os dados comparativos entre tipos de eventos para o gráfico e tabela")
+    @GetMapping("/comparativo-eventos")
+    public ResponseEntity<List<EventoComparativoResponseDto>> obterComparativoEventos(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate) {
+
+        List<EventoComparativoResponseDto> dados = relatorioService
+                .retornarComparativoEventos(de, ate);
+
+        if (dados.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(dados);
     }
 }

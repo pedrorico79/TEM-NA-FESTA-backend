@@ -1,5 +1,7 @@
 package com.temnafesta.service;
 
+import com.temnafesta.dto.relatorio.compativoeventos.EventoComparativoResponseDto;
+import com.temnafesta.dto.relatorio.compativoeventos.EventosComparativoProjection;
 import com.temnafesta.dto.relatorio.kpi.KpiResponseDto;
 import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoProjection;
 import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoResponseDto;
@@ -7,6 +9,7 @@ import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaProjection;
 import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaResponseDto;
 import com.temnafesta.dto.relatorio.produtosmaisvendidos.MaisVendidosProjection;
 import com.temnafesta.dto.relatorio.produtosmaisvendidos.ProdutoMaisVendidosResponseDto;
+import com.temnafesta.repository.EventoRepository;
 import com.temnafesta.repository.PedidoRepository;
 import com.temnafesta.repository.ProdutoRepository;
 import org.springframework.data.domain.Page;
@@ -23,10 +26,12 @@ public class RelatorioService {
 
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
+    private final EventoRepository eventoRepository;
 
-    public RelatorioService(PedidoRepository pedidoRepository, ProdutoRepository produtoRepository) {
+    public RelatorioService(PedidoRepository pedidoRepository, ProdutoRepository produtoRepository, EventoRepository eventoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.produtoRepository = produtoRepository;
+        this.eventoRepository = eventoRepository;
     }
 
     public KpiResponseDto obterKpis(
@@ -122,4 +127,23 @@ public class RelatorioService {
         ));
     }
 
+    public List<EventoComparativoResponseDto> retornarComparativoEventos(
+            LocalDate de,
+            LocalDate ate
+    ) {
+        List<EventosComparativoProjection> resultados = eventoRepository.buscarComparativoEventos(
+                de.atStartOfDay(),
+                ate.atTime(23, 59, 59)
+        );
+
+        return resultados.stream()
+                .map(e -> new EventoComparativoResponseDto(
+                        e.getEvento(),
+                        e.getPedidosTotais(),
+                        e.getVendasObtidas(),
+                        e.getFaturamento(),
+                        e.getTicketMedio()
+                ))
+                .toList();
+    }
 }
