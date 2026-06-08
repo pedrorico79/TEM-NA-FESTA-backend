@@ -1,19 +1,23 @@
 package com.temnafesta.service;
 
 import com.temnafesta.dto.countPedidos.CountPedidosResponseDto;
+import com.temnafesta.dto.pedido.ItemPedidoDto;
 import com.temnafesta.dto.pedido.PedidoResponseDto;
 import com.temnafesta.event.StatusPedidoAlteradoEvent;
 import com.temnafesta.model.StatusProducao;
 import com.temnafesta.exception.evento.EventoNaoEncontradoException;
 import com.temnafesta.exception.cliente.ClienteNaoEncontrado;
 import com.temnafesta.exception.pedido.PedidoNaoEncontrado;
+import com.temnafesta.exception.produto.ProdutoNaoEncontrado;
 import com.temnafesta.exception.usuario.UsuarioNaoEncontrado;
 import com.temnafesta.mapper.PedidoMapper;
+import com.temnafesta.mapper.ItemPedidoMapper;
 import com.temnafesta.model.*;
 import com.temnafesta.repository.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,20 +35,55 @@ public class PedidoService {
     private final EventoRepository eventoRepository;
     private final PagamentoRepository pagamentoRepository;
     private final StatusProducaoRepository statusProducaoRepository;
+    private final ProdutoRepository produtoRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository, UsuarioRepository usuarioRepository, EventoRepository eventoRepository, PagamentoRepository pagamentoRepository, StatusProducaoRepository statusProducaoRepository, ApplicationEventPublisher eventPublisher) {
+    public PedidoService(PedidoRepository pedidoRepository,
+                         ClienteRepository clienteRepository,
+                         UsuarioRepository usuarioRepository,
+                         EventoRepository eventoRepository,
+                         PagamentoRepository pagamentoRepository,
+                         StatusProducaoRepository statusProducaoRepository,
+                         ProdutoRepository produtoRepository,
+                         ApplicationEventPublisher eventPublisher) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.usuarioRepository = usuarioRepository;
         this.eventoRepository = eventoRepository;
         this.pagamentoRepository = pagamentoRepository;
         this.statusProducaoRepository = statusProducaoRepository;
+        this.produtoRepository = produtoRepository;
         this.eventPublisher = eventPublisher;
     }
 
-    public Pedido criar(Pedido pedido, Integer clienteId, Integer usuarioId,
-                        Integer statusProducaoId, Integer campanhaId) {
+//    public Pedido criar(Pedido pedido, Integer clienteId, Integer usuarioId,
+//                        Integer statusProducaoId, Integer campanhaId) {
+//
+//        Cliente cliente = clienteRepository.findById(clienteId)
+//                .orElseThrow(() -> new ClienteNaoEncontrado(clienteId));
+//
+//        Usuario usuario = usuarioRepository.findById(usuarioId)
+//                .orElseThrow(() -> new UsuarioNaoEncontrado(usuarioId));
+//
+//        Evento evento = eventoRepository.findById(campanhaId)
+//                .orElseThrow(() -> new EventoNaoEncontradoException(campanhaId));
+//
+//        StatusProducao statusProducao = statusProducaoRepository.findById(statusProducaoId)
+//                .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
+//
+//        pedido.setCliente(cliente);
+//        pedido.setUsuario(usuario);
+//        pedido.setStatusProducao(statusProducao);
+//        pedido.setEvento(evento);
+//        pedido.setDataPedido(LocalDateTime.now());
+//
+//        return pedidoRepository.save(pedido);
+//    }
+
+    @Transactional
+    public Pedido criarComProdutos(Pedido pedido, Integer clienteId, Integer usuarioId,
+                                   Integer statusProducaoId, Integer eventoId,
+                                   List<ItemPedidoDto> itens) {
 
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new ClienteNaoEncontrado(clienteId));
@@ -52,8 +91,8 @@ public class PedidoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(usuarioId));
 
-        Evento evento = eventoRepository.findById(campanhaId)
-                .orElseThrow(() -> new EventoNaoEncontradoException(campanhaId));
+        Evento evento = eventoRepository.findById(eventoId)
+                .orElseThrow(() -> new EventoNaoEncontradoException(eventoId));
 
         StatusProducao statusProducao = statusProducaoRepository.findById(statusProducaoId)
                 .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
@@ -63,6 +102,24 @@ public class PedidoService {
         pedido.setStatusProducao(statusProducao);
         pedido.setEvento(evento);
         pedido.setDataPedido(LocalDateTime.now());
+
+        BigDecimal valorTotal = BigDecimal.ZERO;
+
+        for (ItemPedidoDto item : itens) {
+            Produto produto = produtoRepository.findById(item.getProdutoId())
+                    .orElseThrow(() -> new ProdutoNaoEncontrado(item.getProdutoId()));
+
+            ItemPedido itemPedido = ItemPedidoMapper.toEntity(item);
+            itemPedido.setProduto(produto);
+            itemPedido.setPedido(pedido);
+            pedido.getProdutos().add(itemPedido);
+
+            BigDecimal subtotal = BigDecimal.valueOf(item.getQuantidade())
+                    .multiply(item.getPrecoUnitario());
+            valorTotal = valorTotal.add(subtotal);
+        }
+
+        pedido.setValorTotal(valorTotal);
 
         return pedidoRepository.save(pedido);
     }

@@ -1,26 +1,37 @@
 package com.temnafesta.mapper;
 
+import com.temnafesta.dto.pedido.ItemPedidoDto;
 import com.temnafesta.dto.pedidoproduto.PedidoProdutoRequestDto;
 import com.temnafesta.dto.pedidoproduto.PedidoProdutoResponseDto;
-import com.temnafesta.model.PedidoProduto;
+import com.temnafesta.model.ItemPedido;
 
 import java.util.List;
 
-public class PedidoProdutoMapper {
+public class ItemPedidoMapper {
 
-    private PedidoProdutoMapper() {}
+    private ItemPedidoMapper() {}
 
-    public static PedidoProduto toEntity(PedidoProdutoRequestDto dto) {
+    public static ItemPedido toEntity(PedidoProdutoRequestDto dto) {
         if (dto == null) return null;
 
-        PedidoProduto entity = new PedidoProduto();
+        ItemPedido entity = new ItemPedido();
         entity.setQuantidade(dto.getQuantidade());
         entity.setPrecoUnitario(dto.getPrecoUnitario());
 
         return entity;
     }
 
-    public static PedidoProdutoResponseDto toResponseDto(PedidoProduto entity) {
+    public static ItemPedido toEntity(ItemPedidoDto dto) {
+        if (dto == null) return null;
+
+        ItemPedido entity = new ItemPedido();
+        entity.setQuantidade(dto.getQuantidade());
+        entity.setPrecoUnitario(dto.getPrecoUnitario());
+
+        return entity;
+    }
+
+    public static PedidoProdutoResponseDto toResponseDto(ItemPedido entity) {
         if (entity == null) return null;
 
         PedidoProdutoResponseDto dto = new PedidoProdutoResponseDto();
@@ -53,9 +64,9 @@ public class PedidoProdutoMapper {
         return dto;
     }
 
-    public static List<PedidoProdutoResponseDto> toResponseDtoList(List<PedidoProduto> entities) {
+    public static List<PedidoProdutoResponseDto> toResponseDtoList(List<ItemPedido> entities) {
         return entities.stream()
-                .map(PedidoProdutoMapper::toResponseDto)
+                .map(ItemPedidoMapper::toResponseDto)
                 .toList();
     }
 }

@@ -44,12 +44,13 @@ public class PedidoController {
     public ResponseEntity<PedidoResponseDto> criar(@RequestBody @Valid PedidoRequestDto dto) {
         Pedido pedido = PedidoMapper.toEntity(dto);
 
-        Pedido criado = service.criar(
+        Pedido criado = service.criarComProdutos(
                 pedido,
                 dto.getClienteId(),
                 dto.getUsuarioId(),
                 dto.getStatusProducaoId(),
-                dto.getCampanhaId()
+                dto.getCampanhaId(),
+                dto.getProdutos()
         );
 
         PedidoResponseDto response = service.buscarPorId(criado.getId());
