@@ -16,7 +16,7 @@ public interface ProdutoRepository extends JpaRepository <Produto, Integer>{
     List<Produto> findByIsAtivoFalse();
     List<Produto> findByIsDeletadoFalse();
 
-    Page<Produto> findByIsDeletadoFalseAndNomeContainingIgnoreCase(String nome, Pageable pageable);
+    Page<Produto> findByIsDeletadoFalseAndNomeContainingIgnoreCaseOrderByIsAtivoDesc(String nome, Pageable pageable);
 
     // Busca produtos mais vendidos paginado
     @Query(value = "SELECT " +
