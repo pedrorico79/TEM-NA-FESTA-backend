@@ -18,11 +18,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,56 +86,46 @@ class ClienteServiceTest {
             );
 
             verify(enderecoRepository).findById(1);
-
             verify(clienteRepository, never()).save(any());
         }
     }
 
     @Nested
-    @DisplayName("Testes do método listarAtivos")
-    class ListarAtivos {
+    @DisplayName("Testes do método listar")
+    class Listar {
 
         @Test
-        @DisplayName("Deve listar clientes ativos")
-        void deveListarClientesAtivos() {
+        @DisplayName("Deve listar clientes com filtro de busca")
+        void deveListarClientesComFiltro() {
 
-            Cliente cliente1 = new Cliente();
-            Cliente cliente2 = new Cliente();
+            Pageable pageable = PageRequest.of(0, 10);
+            Page<Cliente> page = new PageImpl<>(List.of(new Cliente(), new Cliente()));
 
-            List<Cliente> clientes = List.of(cliente1, cliente2);
+            when(clienteRepository.findByIsDeletadoFalseAndNomeContainingIgnoreCase("João", pageable))
+                    .thenReturn(page);
 
-            when(clienteRepository.findByIsAtivoTrue())
-                    .thenReturn(clientes);
+            Page<Cliente> resultado = clienteService.listar("João", pageable);
 
-            List<Cliente> resultado = clienteService.listarAtivos();
+            assertEquals(2, resultado.getTotalElements());
 
-            assertEquals(2, resultado.size());
-
-            verify(clienteRepository).findByIsAtivoTrue();
+            verify(clienteRepository).findByIsDeletadoFalseAndNomeContainingIgnoreCase("João", pageable);
         }
-    }
-
-    @Nested
-    @DisplayName("Testes do método listarTodos")
-    class ListarTodos {
 
         @Test
-        @DisplayName("Deve listar todos os clientes")
-        void deveListarTodosClientes() {
+        @DisplayName("Deve listar clientes sem filtro quando busca for nula")
+        void deveListarClientesSemFiltroQuandoBuscaForNula() {
 
-            Cliente cliente1 = new Cliente();
-            Cliente cliente2 = new Cliente();
+            Pageable pageable = PageRequest.of(0, 10);
+            Page<Cliente> page = new PageImpl<>(List.of(new Cliente()));
 
-            List<Cliente> clientes = List.of(cliente1, cliente2);
+            when(clienteRepository.findByIsDeletadoFalseAndNomeContainingIgnoreCase("", pageable))
+                    .thenReturn(page);
 
-            when(clienteRepository.findAll())
-                    .thenReturn(clientes);
+            Page<Cliente> resultado = clienteService.listar(null, pageable);
 
-            List<Cliente> resultado = clienteService.listarTodos();
+            assertEquals(1, resultado.getTotalElements());
 
-            assertEquals(2, resultado.size());
-
-            verify(clienteRepository).findAll();
+            verify(clienteRepository).findByIsDeletadoFalseAndNomeContainingIgnoreCase("", pageable);
         }
     }
 
@@ -222,7 +215,6 @@ class ClienteServiceTest {
             );
 
             verify(clienteRepository).existsById(1);
-
             verify(enderecoRepository, never()).findById(any());
             verify(clienteRepository, never()).save(any());
         }
@@ -246,22 +238,21 @@ class ClienteServiceTest {
 
             verify(clienteRepository).existsById(1);
             verify(enderecoRepository).findById(1);
-
             verify(clienteRepository, never()).save(any());
         }
     }
 
     @Nested
-    @DisplayName("Testes do método desativar")
-    class Desativar {
+    @DisplayName("Testes do método toggleAtivo")
+    class ToggleAtivo {
 
         @Test
-        @DisplayName("Deve desativar cliente com sucesso")
-        void deveDesativarClienteComSucesso() {
+        @DisplayName("Deve desativar cliente ativo sem pedidos ativos")
+        void deveDesativarClienteAtivoSemPedidosAtivos() {
 
             Cliente cliente = new Cliente();
             cliente.setId(1);
-            cliente.setAtivo(true);
+            cliente.setIsAtivo(true);
 
             when(clienteRepository.findById(1))
                     .thenReturn(Optional.of(cliente));
@@ -269,9 +260,9 @@ class ClienteServiceTest {
             when(pedidoRepository.existsPedidosAtivosParaCliente(1))
                     .thenReturn(false);
 
-            clienteService.desativar(1);
+            clienteService.toggleAtivo(1);
 
-            assertFalse(cliente.getAtivo());
+            assertFalse(cliente.getIsAtivo());
 
             verify(clienteRepository).findById(1);
             verify(pedidoRepository).existsPedidosAtivosParaCliente(1);
@@ -279,11 +270,12 @@ class ClienteServiceTest {
         }
 
         @Test
-        @DisplayName("Deve lançar exceção quando cliente tiver pedidos ativos")
-        void deveLancarExcecaoQuandoClientePossuirPedidosAtivos() {
+        @DisplayName("Deve lançar exceção ao desativar cliente com pedidos ativos")
+        void deveLancarExcecaoAoDesativarClienteComPedidosAtivos() {
 
             Cliente cliente = new Cliente();
             cliente.setId(1);
+            cliente.setIsAtivo(true);
 
             when(clienteRepository.findById(1))
                     .thenReturn(Optional.of(cliente));
@@ -293,13 +285,32 @@ class ClienteServiceTest {
 
             assertThrows(
                     ClienteComPedidosAtivosException.class,
-                    () -> clienteService.desativar(1)
+                    () -> clienteService.toggleAtivo(1)
             );
 
             verify(clienteRepository).findById(1);
             verify(pedidoRepository).existsPedidosAtivosParaCliente(1);
-
             verify(clienteRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Deve reativar cliente inativo sem verificar pedidos")
+        void deveReativarClienteInativoSemVerificarPedidos() {
+
+            Cliente cliente = new Cliente();
+            cliente.setId(1);
+            cliente.setIsAtivo(false);
+
+            when(clienteRepository.findById(1))
+                    .thenReturn(Optional.of(cliente));
+
+            clienteService.toggleAtivo(1);
+
+            assertTrue(cliente.getIsAtivo());
+
+            verify(clienteRepository).findById(1);
+            verify(pedidoRepository, never()).existsPedidosAtivosParaCliente(any());
+            verify(clienteRepository).save(cliente);
         }
 
         @Test
@@ -311,36 +322,35 @@ class ClienteServiceTest {
 
             assertThrows(
                     ClienteNaoEncontrado.class,
-                    () -> clienteService.desativar(1)
+                    () -> clienteService.toggleAtivo(1)
             );
 
             verify(clienteRepository).findById(1);
-
-            verify(pedidoRepository, never())
-                    .existsPedidosAtivosParaCliente(any());
-
+            verify(pedidoRepository, never()).existsPedidosAtivosParaCliente(any());
             verify(clienteRepository, never()).save(any());
         }
     }
 
     @Nested
-    @DisplayName("Testes do método reativar")
-    class Reativar {
+    @DisplayName("Testes do método deletar")
+    class Deletar {
 
         @Test
-        @DisplayName("Deve reativar cliente com sucesso")
-        void deveReativarClienteComSucesso() {
+        @DisplayName("Deve deletar cliente com sucesso")
+        void deveDeletarClienteComSucesso() {
 
             Cliente cliente = new Cliente();
             cliente.setId(1);
-            cliente.setAtivo(false);
+            cliente.setIsDeletado(false);
+            cliente.setIsAtivo(true);
 
             when(clienteRepository.findById(1))
                     .thenReturn(Optional.of(cliente));
 
-            clienteService.reativar(1);
+            clienteService.deletar(1);
 
-            assertTrue(cliente.getAtivo());
+            assertTrue(cliente.getIsDeletado());
+            assertFalse(cliente.getIsAtivo());
 
             verify(clienteRepository).findById(1);
             verify(clienteRepository).save(cliente);
@@ -355,11 +365,10 @@ class ClienteServiceTest {
 
             assertThrows(
                     ClienteNaoEncontrado.class,
-                    () -> clienteService.reativar(1)
+                    () -> clienteService.deletar(1)
             );
 
             verify(clienteRepository).findById(1);
-
             verify(clienteRepository, never()).save(any());
         }
     }
