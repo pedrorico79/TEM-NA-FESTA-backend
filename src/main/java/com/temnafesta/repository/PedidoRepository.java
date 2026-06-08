@@ -1,10 +1,21 @@
 package com.temnafesta.repository;
 
+import com.temnafesta.dto.relatorio.pedidosPorPeriodo.PedidosPeriodoProjection;
+import com.temnafesta.dto.relatorio.pedidosporsemana.PedidosPorSemanaProjection;
+import com.temnafesta.dto.relatorio.produtosmaisvendidos.MaisVendidosProjection;
 import com.temnafesta.model.Pedido;
 import com.temnafesta.model.StatusProducao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDateTime;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
@@ -33,5 +44,108 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
 
     // Pedidos concluidos (passar parametro -> entregue)
     List<Pedido> findByStatusProducao(StatusProducao status);
+
+    @Query("""
+    SELECT p
+    FROM Pedido p
+    WHERE p.dataEntrega BETWEEN :inicio AND :fim
+      AND p.statusProducao.nome NOT IN ('CANCELADO', 'ENTREGUE')
+    ORDER BY p.dataEntrega ASC
+""")
+    Page<Pedido> buscarProximasRetiradas(
+            LocalDateTime inicio,
+            LocalDateTime fim,
+            Pageable pageable
+    );
+
+
+    @Query("""
+    SELECT p
+    FROM Pedido p
+    WHERE p.dataEntrega BETWEEN :inicio AND :fim
+      AND p.statusProducao.nome NOT IN ('CANCELADO', 'ENTREGUE')
+""")
+    List<Pedido> countPedidos(
+            LocalDateTime inicio,
+            LocalDateTime fim
+    );
+
+    Long countByDataPedidoBetween(LocalDateTime localDateTime, LocalDateTime localDateTime1);
+
+    // Pedidos por status status entrege e periodo
+    @Query("SELECT COUNT(p) FROM Pedido p WHERE p.statusProducao.id = :statusId AND p.dataPedido BETWEEN :de AND :ate")
+    Long countByStatusEPeriodo(@Param("statusId") Integer statusId, @Param("de") LocalDateTime de, @Param("ate") LocalDateTime ate);
+
+    // Faturamento por periodo
+    @Query(value = "SELECT COALESCE(SUM(pag.valor), 0) " +
+            "FROM pagamento pag " +
+            "WHERE pag.data_pagamento BETWEEN :de AND :ate",
+            nativeQuery = true)
+    BigDecimal somarFaturamentoNoPeriodo(
+            @Param("statusId") Integer statusId,
+            @Param("de") LocalDateTime de,
+            @Param("ate") LocalDateTime ate);
+
+    // Retorna a quantidade de pedidos agrupado por rotulos como "Sem 19" para o grafico de pedidos por semana do relatorio consumir
+    @Query(value =
+            "SELECT CONCAT('Sem ', t.semana) AS rotulo, t.quantidade " +
+                    "FROM ( " +
+                    "  SELECT WEEK(p.data_pedido) AS semana, COUNT(p.id) AS quantidade " +
+                    "  FROM pedido p " +
+                    "  WHERE p.data_pedido BETWEEN :de AND :ate " +
+                    "  GROUP BY WEEK(p.data_pedido) " +
+                    ") t " +
+                    "ORDER BY t.semana ASC",
+            nativeQuery = true)
+    List<PedidosPorSemanaProjection> buscarPedidosAgrupadosPorSemana(
+            @Param("de") LocalDateTime de,
+            @Param("ate") LocalDateTime ate
+    );
+
+    // Retorna os pedidos paginados por periodo
+    @Query(value = "SELECT " +
+            "  p.id AS id, " +
+            "  p.data_pedido AS dataPedido, " +
+            "  c.nome AS clienteNome, " +
+            "  e.nome AS eventoNome, " +
+            "  p.valor_total AS valorTotal, " +
+            "  COALESCE(SUM(pag.valor), 0) AS valorPago, " +
+            "  s.nome AS statusNome " +
+            "FROM pedido p " +
+            "INNER JOIN cliente c ON p.cliente_id = c.id " +
+            "INNER JOIN evento e ON p.evento_id = e.id " +
+            "INNER JOIN status_producao s ON p.status_producao_id = s.id " +
+            "LEFT JOIN pagamento pag ON pag.pedido_id = p.id " +
+            "WHERE p.data_pedido BETWEEN :de AND :ate " +
+            "GROUP BY p.id, p.data_pedido, c.nome, e.nome, p.valor_total, s.nome",
+            countQuery = "SELECT COUNT(*) FROM pedido p WHERE p.data_pedido BETWEEN :de AND :ate",
+            nativeQuery = true)
+    Page<PedidosPeriodoProjection> buscarPedidosPeriodoPaginado(
+            @Param("de") java.time.LocalDateTime de,
+            @Param("ate") java.time.LocalDateTime ate,
+            Pageable pageable
+    );
+
+
+    // Busca dinamica que envolve regra de negocio para aplicar filtro de evento e e periodo simultaneamente:
+    @Query("SELECT p.id AS id, p.dataPedido AS dataPedido, c.nome AS clienteNome, " +
+            "e.nome AS eventoNome, p.valorTotal AS valorTotal, " +
+            "COALESCE((SELECT SUM(pag.valor) FROM Pagamento pag WHERE pag.pedido.id = p.id), 0) AS valorPago, " +
+            "s.nome AS statusNome " +
+            "FROM Pedido p " +
+            "JOIN p.cliente c " +
+            "JOIN p.evento e " +
+            "JOIN p.statusProducao s " +
+            "WHERE (:eventoId IS NULL OR e.id = :eventoId) " + // Filtro opcional de evento
+            "AND (:dataInicio IS NULL OR p.dataPedido >= :dataInicio) " + // Filtro opcional de data início
+            "AND (:dataFim IS NULL OR p.dataPedido <= :dataFim) " + // Filtro opcional de data fim
+            "ORDER BY p.dataPedido DESC")
+    List<PedidosPeriodoProjection> buscarRelatorioDinamico(
+            @Param("eventoId") Integer eventoId,
+            @Param("dataInicio") java.time.LocalDateTime dataInicio,
+            @Param("dataFim") java.time.LocalDateTime dataFim
+    );
+
+
 
 }

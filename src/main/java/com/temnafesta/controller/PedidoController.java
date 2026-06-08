@@ -1,10 +1,13 @@
 package com.temnafesta.controller;
 
+import com.temnafesta.dto.countPedidos.CountPedidosResponseDto;
+import com.temnafesta.dto.historicosStatusPedido.HistoricoStatusPedidoResponseDto;
 import com.temnafesta.dto.pedido.PedidoRequestDto;
 import com.temnafesta.dto.pedido.PedidoResponseDto;
 import com.temnafesta.mapper.PedidoMapper;
 import com.temnafesta.model.Pedido;
 import com.temnafesta.model.StatusProducao;
+import com.temnafesta.service.HistoricoStatusPedidoService;
 import com.temnafesta.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,19 +15,26 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import jakarta.validation.constraints.Positive;
+import org.springframework.validation.annotation.Validated;
+
 
 import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/pedidos")
+@Validated
 @Tag(name = "Pedidos", description = "Gestão de pedidos de encomenda")
 public class PedidoController {
 
     private final PedidoService service;
+    private final HistoricoStatusPedidoService historicoService;
 
-    public PedidoController(PedidoService service) {
+    public PedidoController(PedidoService service, HistoricoStatusPedidoService historicoService) {
         this.service = service;
+        this.historicoService = historicoService;
     }
 
     @Operation(summary = "Cria um novo pedido")
@@ -128,7 +138,57 @@ public class PedidoController {
             @PathVariable Integer id,
             @RequestParam Integer usuarioId
     ) {
-        service.cancelar(id,usuarioId);
+        service.cancelar(id, usuarioId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Lista os próximos pedidos para retirada")
+    @ApiResponse(responseCode = "200", description = "Pedidos encontrados")
+    @ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado")
+    @GetMapping("/proximas-retiradas")
+    public ResponseEntity<Page<PedidoResponseDto>> listarProximasRetiradas(
+            @RequestParam
+            @Positive(message = "dias deve ser maior que zero")
+            Integer dias,
+
+            @RequestParam(defaultValue = "0")
+            Integer page
+    ) {
+        Page<PedidoResponseDto> pedidos =
+                service.listarProximasRetiradas(dias, page);
+
+        if (pedidos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(pedidos);
+    }
+
+    @Operation(summary = "Lista o histórico de status do pedido")
+    @ApiResponse(responseCode = "200", description = "Histórico encontrado")
+    @ApiResponse(responseCode = "204", description = "Pedido sem histórico")
+    @GetMapping("/{id}/historico-status")
+    public ResponseEntity<List<HistoricoStatusPedidoResponseDto>>
+    listarHistoricoStatus(
+            @PathVariable Integer id
+    ) {
+
+        List<HistoricoStatusPedidoResponseDto> historico =
+                historicoService.listarPorPedido(id);
+
+        if (historico.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(historico);
+    }
+
+    @GetMapping("/count-pedidos")
+    public ResponseEntity<CountPedidosResponseDto> countPedidos(
+            @RequestParam Integer dias
+    ) {
+        return ResponseEntity.ok(
+                service.contarPedidos(dias)
+        );
     }
 }
