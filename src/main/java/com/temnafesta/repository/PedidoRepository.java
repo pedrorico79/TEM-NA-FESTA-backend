@@ -157,6 +157,24 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
             @Param("dataFim") java.time.LocalDateTime dataFim
     );
 
+    @Query("""
+                SELECT p FROM Pedido p
+                JOIN p.cliente c
+                JOIN p.statusProducao s
+                JOIN p.evento e
+                WHERE (:busca IS NULL OR 
+                       LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%')) OR
+                       CAST(p.id AS string) LIKE CONCAT('%', :busca, '%'))
+                AND (:statusId IS NULL OR s.id = :statusId)
+                AND (:eventoId IS NULL OR e.id = :eventoId)
+            """)
+    Page<Pedido> buscarComFiltros(
+            @Param("busca") String busca,
+            @Param("statusId") Integer statusId,
+            @Param("eventoId") Integer eventoId,
+            Pageable pageable
+    );
 
-
+    @Query("SELECT s.nome AS nome, COUNT(p) AS quantidade FROM Pedido p JOIN p.statusProducao s GROUP BY s.nome")
+    List<Object[]> countByStatusRaw();
 }

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/pedidos")
@@ -59,43 +61,28 @@ public class PedidoController {
     }
 
 
-    // ============================ ADAPTAR CONFORME PLANILHA
-    @Operation(summary = "Lista todos os pedidos")
+    @Operation(summary = "Lista pedidos com filtros")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado")
     @GetMapping
-    public ResponseEntity<List<PedidoResponseDto>> listar(
-            @RequestParam(defaultValue = "andamento") String filtro
+    public ResponseEntity<Page<PedidoResponseDto>> listar(
+            @RequestParam(required = false) String busca,
+            @RequestParam(required = false) Integer statusId,
+            @RequestParam(required = false) Integer eventoId,
+            Pageable pageable
     ) {
-        List<PedidoResponseDto> pedidos;
-        if (filtro.equalsIgnoreCase("todos")) {
-            pedidos = service.listarTodos();
-
-        } else if (filtro.equalsIgnoreCase("validos")) {
-            pedidos = service.listarPedidosValidos();
-
-        } else {
-            pedidos = service.listarPedidosEmAndamento();
-        }
-
+        Page<PedidoResponseDto> pedidos = service.listar(busca, statusId, eventoId, pageable);
         if (pedidos.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(pedidos);
     }
 
 
-    // ======= ADAPTAR PARA COUNT BY STATUS CONFORME PLANILHA
-    @Operation(summary = "Lista pedidos por status de produção")
+    @Operation(summary = "Lista contagem de pedidos por status de produção")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado")
-    @GetMapping("/status/{statusId}")
-    public ResponseEntity<List<PedidoResponseDto>> listarPorStatus(
-            @PathVariable Integer statusId
-    ) {
-        List<PedidoResponseDto> pedidos = service.listarPorStatus(statusId);
-        if (pedidos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(pedidos);
+    @GetMapping("/count-by-status")
+    public ResponseEntity<Map<String, Long>> listarPorStatus() {
+        return ResponseEntity.ok(service.countByStatus());
     }
 
 
@@ -124,7 +111,8 @@ public class PedidoController {
                 dto.getClienteId(),
                 dto.getUsuarioId(),
                 dto.getStatusProducaoId(), // agora o DTO deve ter o campo statusProducaoId
-                dto.getCampanhaId()
+                dto.getCampanhaId(),
+                dto.getProdutos()
         );
 
         return ResponseEntity.ok(service.buscarPorId(atualizado.getId()));

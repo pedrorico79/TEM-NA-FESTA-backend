@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "Dados do pedido")
 public class PedidoResponseDto {
@@ -266,6 +267,30 @@ public class PedidoResponseDto {
             this.nome = nome;
         }
     }
+
+
+    @Schema(description = "Itens do pedido")
+    private List<ItemPedidoResponseDto> itens;
+
+    public static class ItemPedidoResponseDto {
+        private Integer produtoId;
+        private String nomeProduto;
+        private Integer quantidade;
+        private BigDecimal precoUnitario;
+
+        public Integer getProdutoId() {return produtoId;}
+        public void setProdutoId(Integer produtoId) {this.produtoId = produtoId;}
+        public String getNomeProduto() {return nomeProduto;}
+        public void setNomeProduto(String nomeProduto) {this.nomeProduto = nomeProduto;}
+        public Integer getQuantidade() {return quantidade;}
+        public void setQuantidade(Integer quantidade) {this.quantidade = quantidade;}
+        public BigDecimal getPrecoUnitario() {return precoUnitario;}
+        public void setPrecoUnitario(BigDecimal precoUnitario) {this.precoUnitario = precoUnitario;}
+    }
+
+    public List<ItemPedidoResponseDto> getItens() {return itens;}
+    public void setItens(List<ItemPedidoResponseDto> itens) {this.itens = itens;}
+
 
     public Integer getId() {
         return id;
