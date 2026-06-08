@@ -4,12 +4,14 @@ import com.temnafesta.dto.pagamento.PagamentoRequestDto;
 import com.temnafesta.exception.pagamento.PagamentoNaoEncontrado;
 import com.temnafesta.exception.pedido.PedidoNaoEncontrado;
 import com.temnafesta.exception.usuario.UsuarioNaoEncontrado;
+import com.temnafesta.model.MetodoPagamento;
 import com.temnafesta.model.Pagamento;
 import com.temnafesta.model.Pedido;
 import com.temnafesta.model.Usuario;
 import com.temnafesta.repository.PagamentoRepository;
 import com.temnafesta.repository.PedidoRepository;
 import com.temnafesta.repository.UsuarioRepository;
+import com.temnafesta.repository.MetodoPagamentoRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,9 @@ class PagamentoServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private MetodoPagamentoRepository metodoPagamentoRepository;
+
     @InjectMocks
     private PagamentoService pagamentoService;
 
@@ -64,6 +69,10 @@ class PagamentoServiceTest {
 
             when(pagamentoRepository.save(any(Pagamento.class)))
                     .thenReturn(pagamento);
+
+            MetodoPagamento metodo = new MetodoPagamento();
+            when(metodoPagamentoRepository.findById(dto.getMetodoPagamentoId()))
+                    .thenReturn(Optional.of(metodo));
 
             Pagamento resultado = pagamentoService.criar(dto);
 

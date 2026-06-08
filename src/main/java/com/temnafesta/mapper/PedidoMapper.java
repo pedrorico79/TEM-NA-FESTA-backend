@@ -14,7 +14,7 @@ public class PedidoMapper {
     public static Pedido toEntity(PedidoRequestDto dto) {
         Pedido pedido = new Pedido();
         pedido.setDataEntrega(dto.getDataEntrega());
-        pedido.setValorTotal(dto.getValorTotal());
+//        pedido.setValorTotal(dto.getValorTotal());
         pedido.setObservacao(dto.getObservacao());
         return pedido;
     }
