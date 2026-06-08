@@ -48,8 +48,14 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
     Long countByStatusEPeriodo(@Param("statusId") Integer statusId, @Param("de") LocalDateTime de, @Param("ate") LocalDateTime ate);
 
     // Faturamento por periodo
-    @Query("SELECT SUM(p.valorTotal) FROM Pedido p WHERE p.statusProducao.id = :statusId AND p.dataPedido BETWEEN :de AND :ate")
-    BigDecimal somarFaturamentoNoPeriodo(@Param("statusId") Integer statusId, @Param("de") LocalDateTime de, @Param("ate") LocalDateTime ate);
+    @Query(value = "SELECT COALESCE(SUM(pag.valor), 0) " +
+            "FROM pagamento pag " +
+            "WHERE pag.data_pagamento BETWEEN :de AND :ate",
+            nativeQuery = true)
+    BigDecimal somarFaturamentoNoPeriodo(
+            @Param("statusId") Integer statusId,
+            @Param("de") LocalDateTime de,
+            @Param("ate") LocalDateTime ate);
 
     // Retorna a quantidade de pedidos agrupado por rotulos como "Sem 19" para o grafico de pedidos por semana do relatorio consumir
     @Query(value =
