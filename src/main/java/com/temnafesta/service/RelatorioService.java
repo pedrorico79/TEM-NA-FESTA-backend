@@ -104,6 +104,7 @@ public class RelatorioService {
                 p.getClienteNome(),
                 p.getEventoNome(),
                 p.getValorTotal(),
+                p.getValorPago(),
                 p.getStatusNome()
         ));
     }

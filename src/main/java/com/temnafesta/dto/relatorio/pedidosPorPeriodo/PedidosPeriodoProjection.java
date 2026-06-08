@@ -5,9 +5,10 @@ import java.time.LocalDateTime;
 
 public interface PedidosPeriodoProjection {
     Integer getId();
-    LocalDateTime getDataPedido(); // ver se é dateTime mesmo
+    LocalDateTime getDataPedido();
     String getClienteNome();
     String getEventoNome();
     BigDecimal getValorTotal();
+    BigDecimal getValorPago();
     String getStatusNome();
 }

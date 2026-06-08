@@ -9,6 +9,7 @@ public record PedidosPeriodoResponseDto(
         String clienteNome,
         String eventoNome,
         BigDecimal valorTotal,
+        BigDecimal valorPago,
         String statusNome
 ) {
 }

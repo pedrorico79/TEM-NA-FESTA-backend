@@ -70,13 +70,21 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
 
 
     // Retorna os pedidos paginados por periodo
-    @Query(value = "SELECT p.id AS id, p.data_pedido AS dataPedido, c.nome AS clienteNome, " +
-            "e.nome AS eventoNome, p.valor_total AS valorTotal, s.nome AS statusNome " +
+    @Query(value = "SELECT " +
+            "  p.id AS id, " +
+            "  p.data_pedido AS dataPedido, " +
+            "  c.nome AS clienteNome, " +
+            "  e.nome AS eventoNome, " +
+            "  p.valor_total AS valorTotal, " +
+            "  COALESCE(SUM(pag.valor), 0) AS valorPago, " +
+            "  s.nome AS statusNome " +
             "FROM pedido p " +
             "INNER JOIN cliente c ON p.cliente_id = c.id " +
             "INNER JOIN evento e ON p.evento_id = e.id " +
             "INNER JOIN status_producao s ON p.status_producao_id = s.id " +
-            "WHERE p.data_pedido BETWEEN :de AND :ate",
+            "LEFT JOIN pagamento pag ON pag.pedido_id = p.id " +
+            "WHERE p.data_pedido BETWEEN :de AND :ate " +
+            "GROUP BY p.id, p.data_pedido, c.nome, e.nome, p.valor_total, s.nome",
             countQuery = "SELECT COUNT(*) FROM pedido p WHERE p.data_pedido BETWEEN :de AND :ate",
             nativeQuery = true)
     Page<PedidosPeriodoProjection> buscarPedidosPeriodoPaginado(
