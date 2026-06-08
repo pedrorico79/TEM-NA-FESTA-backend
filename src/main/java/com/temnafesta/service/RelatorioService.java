@@ -83,7 +83,11 @@ public class RelatorioService {
         );
 
         return resultado.stream()
-                .map(p -> new PedidosPorSemanaResponseDto(p.getRotulo(), p.getQuantidade()))
+                .map(p -> new PedidosPorSemanaResponseDto(
+                        p.getRotulo(),
+                        p.getPeriodo(),
+                        p.getQuantidade()
+                ))
                 .toList();
     }
 

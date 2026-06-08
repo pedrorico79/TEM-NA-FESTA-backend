@@ -88,12 +88,23 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
 
     // Retorna a quantidade de pedidos agrupado por rotulos como "Sem 19" para o grafico de pedidos por semana do relatorio consumir
     @Query(value =
-            "SELECT CONCAT('Sem ', t.semana) AS rotulo, t.quantidade " +
+            "SELECT " +
+                    "   CONCAT('Sem ', ROW_NUMBER() OVER (ORDER BY t.semana)) AS rotulo, " +
+                    "   CONCAT( " +
+                    "       DATE_FORMAT(t.data_inicio, '%d/%m'), " +
+                    "       ' - ', " +
+                    "       DATE_FORMAT(t.data_fim, '%d/%m') " +
+                    "   ) AS periodo, " +
+                    "   t.quantidade " +
                     "FROM ( " +
-                    "  SELECT WEEK(p.data_pedido) AS semana, COUNT(p.id) AS quantidade " +
-                    "  FROM pedido p " +
-                    "  WHERE p.data_pedido BETWEEN :de AND :ate " +
-                    "  GROUP BY WEEK(p.data_pedido) " +
+                    "   SELECT " +
+                    "       WEEK(p.data_pedido) AS semana, " +
+                    "       MIN(p.data_pedido) AS data_inicio, " +
+                    "       MAX(p.data_pedido) AS data_fim, " +
+                    "       COUNT(p.id) AS quantidade " +
+                    "   FROM pedido p " +
+                    "   WHERE p.data_pedido BETWEEN :de AND :ate " +
+                    "   GROUP BY WEEK(p.data_pedido) " +
                     ") t " +
                     "ORDER BY t.semana ASC",
             nativeQuery = true)
