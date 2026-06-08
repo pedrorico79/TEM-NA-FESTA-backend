@@ -147,4 +147,24 @@ public class RelatorioService {
                 ))
                 .toList();
     }
+
+
+    public List<PedidosPeriodoResponseDto> retornarRelatorioDinamico(Integer eventoId, LocalDate dataInicio, LocalDate dataFim) {
+        java.time.LocalDateTime inicio = (dataInicio != null) ? dataInicio.atStartOfDay() : null;
+        java.time.LocalDateTime fim = (dataFim != null) ? dataFim.atTime(23, 59, 59) : null;
+
+        List<PedidosPeriodoProjection> resultados = pedidoRepository.buscarRelatorioDinamico(eventoId, inicio, fim);
+
+        return resultados.stream()
+                .map(p -> new PedidosPeriodoResponseDto(
+                        p.getId(),
+                        p.getDataPedido(),
+                        p.getClienteNome(),
+                        p.getEventoNome(),
+                        p.getValorTotal(),
+                        p.getValorPago(),
+                        p.getStatusNome()
+                ))
+                .toList();
+    }
 }

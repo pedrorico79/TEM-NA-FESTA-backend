@@ -73,8 +73,6 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
             @Param("ate") LocalDateTime ate
     );
 
-
-
     // Retorna os pedidos paginados por periodo
     @Query(value = "SELECT " +
             "  p.id AS id, " +
@@ -97,6 +95,26 @@ public interface PedidoRepository extends JpaRepository <Pedido, Integer> {
             @Param("de") java.time.LocalDateTime de,
             @Param("ate") java.time.LocalDateTime ate,
             Pageable pageable
+    );
+
+
+    // Busca dinamica que envolve regra de negocio para aplicar filtro de evento e e periodo simultaneamente:
+    @Query("SELECT p.id AS id, p.dataPedido AS dataPedido, c.nome AS clienteNome, " +
+            "e.nome AS eventoNome, p.valorTotal AS valorTotal, " +
+            "COALESCE((SELECT SUM(pag.valor) FROM Pagamento pag WHERE pag.pedido.id = p.id), 0) AS valorPago, " +
+            "s.nome AS statusNome " +
+            "FROM Pedido p " +
+            "JOIN p.cliente c " +
+            "JOIN p.evento e " +
+            "JOIN p.statusProducao s " +
+            "WHERE (:eventoId IS NULL OR e.id = :eventoId) " + // Filtro opcional de evento
+            "AND (:dataInicio IS NULL OR p.dataPedido >= :dataInicio) " + // Filtro opcional de data início
+            "AND (:dataFim IS NULL OR p.dataPedido <= :dataFim) " + // Filtro opcional de data fim
+            "ORDER BY p.dataPedido DESC")
+    List<PedidosPeriodoProjection> buscarRelatorioDinamico(
+            @Param("eventoId") Integer eventoId,
+            @Param("dataInicio") java.time.LocalDateTime dataInicio,
+            @Param("dataFim") java.time.LocalDateTime dataFim
     );
 
 

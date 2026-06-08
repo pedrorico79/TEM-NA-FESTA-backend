@@ -91,4 +91,17 @@ public class RelatorioController {
         if (dados.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(dados);
     }
+
+    @GetMapping("/busca-dinamica")
+    public ResponseEntity<List<PedidosPeriodoResponseDto>> obterRelatorioDinamico(
+            @RequestParam(required = false) Integer eventoId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+
+        List<PedidosPeriodoResponseDto> relatorio = relatorioService.
+                retornarRelatorioDinamico(eventoId, dataInicio, dataFim);
+
+        if (relatorio.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(relatorio);
+    }
 }
