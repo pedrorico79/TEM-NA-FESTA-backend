@@ -5,7 +5,7 @@ import com.temnafesta.exception.pedidoproduto.PedidoProdutoNaoEncontrado;
 import com.temnafesta.exception.produto.ProdutoNaoEncontrado;
 
 import com.temnafesta.model.Pedido;
-import com.temnafesta.model.PedidoProduto;
+import com.temnafesta.model.ItemPedido;
 import com.temnafesta.model.Produto;
 import com.temnafesta.repository.PedidoProdutoRepository;
 import com.temnafesta.repository.PedidoRepository;
@@ -31,32 +31,32 @@ public class PedidoProdutoService {
         this.produtoRepository = produtoRepository;
     }
 
-    public PedidoProduto criar(PedidoProduto pedidoProduto, Integer pedidoId, Integer produtoId) {
+    public ItemPedido criar(ItemPedido itemPedido, Integer pedidoId, Integer produtoId) {
         Pedido pedido = buscarPedidoOuLancar(pedidoId);
         Produto produto = produtoRepository.findById(produtoId)
                 .orElseThrow(() -> new ProdutoNaoEncontrado(produtoId));
 
-        pedidoProduto.setPedido(pedido);
-        pedidoProduto.setProduto(produto);
+        itemPedido.setPedido(pedido);
+        itemPedido.setProduto(produto);
 
-        return pedidoProdutoRepository.save(pedidoProduto);
+        return pedidoProdutoRepository.save(itemPedido);
     }
 
 
-    public List<PedidoProduto> listarPorPedido(Integer pedidoId) {
+    public List<ItemPedido> listarPorPedido(Integer pedidoId) {
         buscarPedidoOuLancar(pedidoId);
         return pedidoProdutoRepository.findByPedidoId(pedidoId);
     }
 
-    public PedidoProduto buscarPorId(Integer pedidoId, Integer id) {
+    public ItemPedido buscarPorId(Integer pedidoId, Integer id) {
         buscarPedidoOuLancar(pedidoId);
         return pedidoProdutoRepository.findByIdAndPedidoId(id, pedidoId)
                 .orElseThrow(() -> new PedidoProdutoNaoEncontrado(id));
     }
 
-    public PedidoProduto atualizar(
+    public ItemPedido atualizar(
             Integer id,
-            PedidoProduto pedidoProdutoAtualizado,
+            ItemPedido itemPedidoAtualizado,
             Integer pedidoId,
             Integer produtoId
     ) {
@@ -65,16 +65,16 @@ public class PedidoProdutoService {
         Produto produto = produtoRepository.findById(produtoId)
                 .orElseThrow(() -> new ProdutoNaoEncontrado(produtoId));
 
-        pedidoProdutoAtualizado.setPedido(pedido);
-        pedidoProdutoAtualizado.setProduto(produto);
-        pedidoProdutoAtualizado.setId(id);
+        itemPedidoAtualizado.setPedido(pedido);
+        itemPedidoAtualizado.setProduto(produto);
+        itemPedidoAtualizado.setId(id);
 
-        return pedidoProdutoRepository.save(pedidoProdutoAtualizado);
+        return pedidoProdutoRepository.save(itemPedidoAtualizado);
     }
 
     public void deletar(Integer pedidoId, Integer id) {
-        PedidoProduto pedidoProduto = buscarPorId(pedidoId, id);
-        pedidoProdutoRepository.deleteById(pedidoProduto.getId());
+        ItemPedido itemPedido = buscarPorId(pedidoId, id);
+        pedidoProdutoRepository.deleteById(itemPedido.getId());
     }
 
     private Pedido buscarPedidoOuLancar(Integer pedidoId) {

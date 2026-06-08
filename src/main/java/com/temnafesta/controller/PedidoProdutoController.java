@@ -2,8 +2,8 @@ package com.temnafesta.controller;
 
 import com.temnafesta.dto.pedidoproduto.PedidoProdutoRequestDto;
 import com.temnafesta.dto.pedidoproduto.PedidoProdutoResponseDto;
-import com.temnafesta.mapper.PedidoProdutoMapper;
-import com.temnafesta.model.PedidoProduto;
+import com.temnafesta.mapper.ItemPedidoMapper;
+import com.temnafesta.model.ItemPedido;
 import com.temnafesta.service.PedidoProdutoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,18 +34,18 @@ public class PedidoProdutoController {
             @PathVariable Integer pedidoId,
             @RequestBody @Valid PedidoProdutoRequestDto dto
     ) {
-        PedidoProduto pedidoProduto = PedidoProdutoMapper.toEntity(dto);
-        PedidoProduto criado = service.criar(pedidoProduto, pedidoId, dto.getProdutoId());
+        ItemPedido itemPedido = ItemPedidoMapper.toEntity(dto);
+        ItemPedido criado = service.criar(itemPedido, pedidoId, dto.getProdutoId());
         URI location = URI.create("/pedidos/" + pedidoId + "/produtos/" + criado.getId());
-        return ResponseEntity.created(location).body(PedidoProdutoMapper.toResponseDto(criado));
+        return ResponseEntity.created(location).body(ItemPedidoMapper.toResponseDto(criado));
     }
 
     @Operation(summary = "Lista produtos de um pedido")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @GetMapping
     public ResponseEntity<List<PedidoProdutoResponseDto>> listarPorPedido(@PathVariable Integer pedidoId) {
-        List<PedidoProduto> pedidoProdutos = service.listarPorPedido(pedidoId);
-        return ResponseEntity.ok(PedidoProdutoMapper.toResponseDtoList(pedidoProdutos));
+        List<ItemPedido> itemPedidos = service.listarPorPedido(pedidoId);
+        return ResponseEntity.ok(ItemPedidoMapper.toResponseDtoList(itemPedidos));
     }
 
     @Operation(summary = "Busca produto de um pedido por ID")
@@ -56,8 +56,8 @@ public class PedidoProdutoController {
             @PathVariable Integer pedidoId,
             @PathVariable Integer id
     ) {
-        PedidoProduto pedidoProduto = service.buscarPorId(pedidoId, id);
-        return ResponseEntity.ok(PedidoProdutoMapper.toResponseDto(pedidoProduto));
+        ItemPedido itemPedido = service.buscarPorId(pedidoId, id);
+        return ResponseEntity.ok(ItemPedidoMapper.toResponseDto(itemPedido));
     }
 
     @Operation(summary = "Atualiza um produto de um pedido")
@@ -70,9 +70,9 @@ public class PedidoProdutoController {
             @PathVariable Integer id,
             @RequestBody @Valid PedidoProdutoRequestDto dto
     ) {
-        PedidoProduto pedidoProduto = PedidoProdutoMapper.toEntity(dto);
-        PedidoProduto atualizado = service.atualizar(id, pedidoProduto, pedidoId, dto.getProdutoId());
-        return ResponseEntity.ok(PedidoProdutoMapper.toResponseDto(atualizado));
+        ItemPedido itemPedido = ItemPedidoMapper.toEntity(dto);
+        ItemPedido atualizado = service.atualizar(id, itemPedido, pedidoId, dto.getProdutoId());
+        return ResponseEntity.ok(ItemPedidoMapper.toResponseDto(atualizado));
     }
 
     @Operation(summary = "Remove um produto de um pedido")

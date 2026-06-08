@@ -43,10 +43,13 @@ public class Pedido {
     @JoinColumn(name = "evento_id", nullable = false)
     private Evento evento;
 
+    @Column(nullable = false, name = "is_ativo")
+    private Boolean isAtivo = true;
+
 
     // cascade all: salvar/atualizar/deletar pedido -> replica pra produtos
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PedidoProduto> produtos = new ArrayList<>();
+    private List<ItemPedido> produtos = new ArrayList<>();
 
     // ---
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -129,11 +132,11 @@ public class Pedido {
         this.evento = evento;
     }
 
-    public List<PedidoProduto> getProdutos() {
+    public List<ItemPedido> getProdutos() {
         return produtos;
     }
 
-    public void setProdutos(List<PedidoProduto> produtos) {
+    public void setProdutos(List<ItemPedido> produtos) {
         this.produtos = produtos;
     }
 
@@ -152,4 +155,7 @@ public class Pedido {
     public void setPagamentos(List<Pagamento> pagamentos) {
         this.pagamentos = pagamentos;
     }
+
+    public Boolean getIsAtivo() { return isAtivo; }
+    public void setIsAtivo(Boolean isAtivo) { this.isAtivo = isAtivo; }
 }
