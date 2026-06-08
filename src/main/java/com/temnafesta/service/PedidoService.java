@@ -22,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -131,28 +134,41 @@ public class PedidoService {
                 .toList();
     }
 
-    public List<PedidoResponseDto> listarPedidosValidos() {
-        return pedidoRepository.findApenasPedidosValidos()
+    //    public List<PedidoResponseDto> listarPedidosValidos() {
+//        return pedidoRepository.findApenasPedidosValidos()
+//                .stream()
+//                .map(this::toDto)
+//                .toList();
+//    }
+//
+//    public List<PedidoResponseDto> listarPedidosEmAndamento() {
+//        return pedidoRepository.findPedidosEmAndamento()
+//                .stream()
+//                .map(this::toDto)
+//                .toList();
+//    }
+//
+//    public List<PedidoResponseDto> listarPorStatus(Integer statusId) {
+//        StatusProducao status = statusProducaoRepository.findById(statusId)
+//                .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
+//
+//        return pedidoRepository.findByStatusProducao(status)
+//                .stream()
+//                .map(this::toDto)
+//                .toList();
+//    }
+    public Map<String, Long> countByStatus() {
+        return pedidoRepository.countByStatusRaw()
                 .stream()
-                .map(this::toDto)
-                .toList();
+                .collect(Collectors.toMap(
+                        row -> (String) row[0],
+                        row -> (Long) row[1]
+                ));
     }
 
-    public List<PedidoResponseDto> listarPedidosEmAndamento() {
-        return pedidoRepository.findPedidosEmAndamento()
-                .stream()
-                .map(this::toDto)
-                .toList();
-    }
-
-    public List<PedidoResponseDto> listarPorStatus(Integer statusId) {
-        StatusProducao status = statusProducaoRepository.findById(statusId)
-                .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
-
-        return pedidoRepository.findByStatusProducao(status)
-                .stream()
-                .map(this::toDto)
-                .toList();
+    public Page<PedidoResponseDto> listar(String busca, Integer statusId, Integer eventoId, Pageable pageable) {
+        return pedidoRepository.buscarComFiltros(busca, statusId, eventoId, pageable)
+                .map(this::toDto);
     }
 
 
@@ -163,7 +179,8 @@ public class PedidoService {
     }
 
     public Pedido atualizar(Integer id, Pedido pedidoAtualizado, Integer clienteId,
-                            Integer usuarioId, Integer statusProducaoId, Integer campanhaId) {
+                            Integer usuarioId, Integer statusProducaoId, Integer campanhaId,
+                            List<ItemPedidoDto> itens) {
 
         Pedido pedidoExistente = pedidoRepository.findById(id)
                 .orElseThrow(() -> new PedidoNaoEncontrado(id));
@@ -183,12 +200,33 @@ public class PedidoService {
                 .orElseThrow(() -> new RuntimeException("Status de produção não encontrado"));
 
         pedidoExistente.setDataEntrega(pedidoAtualizado.getDataEntrega());
-        pedidoExistente.setValorTotal(pedidoAtualizado.getValorTotal());
+//        pedidoExistente.setValorTotal(pedidoAtualizado.getValorTotal());
         pedidoExistente.setObservacao(pedidoAtualizado.getObservacao());
         pedidoExistente.setCliente(cliente);
         pedidoExistente.setUsuario(usuario);
         pedidoExistente.setStatusProducao(statusProducao);
         pedidoExistente.setEvento(evento);
+
+        pedidoExistente.getProdutos().clear();
+        BigDecimal valorTotal = BigDecimal.ZERO;
+
+        for (ItemPedidoDto item : itens) {
+            Produto produto = produtoRepository.findById(item.getProdutoId())
+                    .orElseThrow(() -> new ProdutoNaoEncontrado(item.getProdutoId()));
+
+            ItemPedido itemPedido = ItemPedidoMapper.toEntity(item);
+            itemPedido.setProduto(produto);
+            itemPedido.setPedido(pedidoExistente);
+            pedidoExistente.getProdutos().add(itemPedido);
+
+            valorTotal = valorTotal.add(
+                    BigDecimal.valueOf(item.getQuantidade())
+                            .multiply(item.getPrecoUnitario())
+            );
+        }
+
+        pedidoExistente.setValorTotal(valorTotal);
+
         Pedido salvo = pedidoRepository.save(pedidoExistente);
 
         if (!statusAnterior.getId().equals(statusProducao.getId())) {
