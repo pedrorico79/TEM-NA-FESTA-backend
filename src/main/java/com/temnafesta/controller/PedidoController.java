@@ -173,11 +173,9 @@ public class PedidoController {
     }
 
     @GetMapping("/count-pedidos")
-    public ResponseEntity<CountPedidosResponseDto> countPedidos(
-            @RequestParam Integer dias
-    ) {
+    public ResponseEntity<CountPedidosResponseDto> countPedidos() {
         return ResponseEntity.ok(
-                service.contarPedidos(dias)
+                service.contarPedidos()
         );
     }
 }

@@ -291,26 +291,21 @@ public class PedidoService {
                 .map(this::toDto);
     }
 
-    public CountPedidosResponseDto contarPedidos(Integer dias) {
+    public CountPedidosResponseDto contarPedidos() {
 
-        if (dias == null || dias <= 0) {
-            throw new IllegalArgumentException(
-                    "O parâmetro dias deve ser maior que zero."
-            );
-        }
+        List<Pedido> pedidos = pedidoRepository.findAll();
 
-        LocalDateTime agora = LocalDateTime.now();
-        LocalDateTime limite = agora.plusDays(dias);
+        long pedidosAtivos = pedidos.stream()
+                .filter(p ->
+                        !p.getStatusProducao().getNome()
+                                .equalsIgnoreCase("Entregue")
+                                &&
+                                !p.getStatusProducao().getNome()
+                                        .equalsIgnoreCase("Cancelado")
+                )
+                .count();
 
-        List<Pedido> pedidos =
-                pedidoRepository.countPedidos(
-                        agora,
-                        limite
-                );
-
-        long total = pedidos.size();
-
-        long aguardandoInicio = pedidos.stream()
+        long aguardandoPreparo = pedidos.stream()
                 .filter(p ->
                         "Aguardando Início".equalsIgnoreCase(
                                 p.getStatusProducao().getNome()
@@ -318,7 +313,15 @@ public class PedidoService {
                 )
                 .count();
 
-        long pagamentoPendente = pedidos.stream()
+        long emProducao = pedidos.stream()
+                .filter(p ->
+                        "Em Produção".equalsIgnoreCase(
+                                p.getStatusProducao().getNome()
+                        )
+                )
+                .count();
+
+        long pagamentosPendentes = pedidos.stream()
                 .filter(p -> {
 
                     BigDecimal valorPago =
@@ -335,9 +338,10 @@ public class PedidoService {
                 .count();
 
         return new CountPedidosResponseDto(
-                total,
-                aguardandoInicio,
-                pagamentoPendente
+                pedidosAtivos,
+                aguardandoPreparo,
+                emProducao,
+                pagamentosPendentes
         );
     }
 

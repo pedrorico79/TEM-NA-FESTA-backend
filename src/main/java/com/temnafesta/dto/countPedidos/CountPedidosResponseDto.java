@@ -2,29 +2,36 @@ package com.temnafesta.dto.countPedidos;
 
 public class CountPedidosResponseDto {
 
-    private Long total;
-    private Long aguardandoInicio;
-    private Long pagamentoPendente;
+    private Long pedidosAtivos;
+    private Long aguardandoPreparo;
+    private Long emProducao;
+    private Long pagamentosPendentes;
 
     public CountPedidosResponseDto(
-            Long total,
-            Long aguardandoInicio,
-            Long pagamentoPendente
+            Long pedidosAtivos,
+            Long aguardandoPreparo,
+            Long emProducao,
+            Long pagamentosPendentes
     ) {
-        this.total = total;
-        this.aguardandoInicio = aguardandoInicio;
-        this.pagamentoPendente = pagamentoPendente;
+        this.pedidosAtivos = pedidosAtivos;
+        this.aguardandoPreparo = aguardandoPreparo;
+        this.emProducao = emProducao;
+        this.pagamentosPendentes = pagamentosPendentes;
     }
 
-    public Long getTotal() {
-        return total;
+    public Long getPedidosAtivos() {
+        return pedidosAtivos;
     }
 
-    public Long getAguardandoInicio() {
-        return aguardandoInicio;
+    public Long getAguardandoPreparo() {
+        return aguardandoPreparo;
     }
 
-    public Long getPagamentoPendente() {
-        return pagamentoPendente;
+    public Long getEmProducao() {
+        return emProducao;
+    }
+
+    public Long getPagamentosPendentes() {
+        return pagamentosPendentes;
     }
 }
