@@ -99,4 +99,19 @@ public class LembreteController {
         lembreteService.deletar(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Lembrete por usuário
+    @Operation(summary = "Lista lembretes de um usuário")
+    @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<LembreteResponseDto>> listarPorUsuario(
+            @PathVariable Integer usuarioId
+    ) {
+
+        List<Lembrete> lembretes = lembreteService.listarPorUsuario(usuarioId);
+
+        return ResponseEntity.ok(
+                LembreteMapper.toResponseList(lembretes)
+        );
+    }
 }

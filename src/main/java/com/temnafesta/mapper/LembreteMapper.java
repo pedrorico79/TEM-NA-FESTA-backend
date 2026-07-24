@@ -24,6 +24,7 @@ public class LembreteMapper {
 
         LembreteResponseDto dto = new LembreteResponseDto();
 
+        dto.setId(lembrete.getId());
         dto.setDescricao(lembrete.getDescricao());
         dto.setDataCriacao(lembrete.getData_criacao());
         dto.setDataLimite(lembrete.getData_limite());

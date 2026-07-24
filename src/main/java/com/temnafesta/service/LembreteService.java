@@ -57,6 +57,10 @@ public class LembreteService {
         return lembreteRepository.save(lembreteAtualizado);
     }
 
+    public List<Lembrete> listarPorUsuario(Integer usuarioId) {
+        return lembreteRepository.findByUsuarioId(usuarioId);
+    }
+
     public void deletar(Integer id) {
         if (!lembreteRepository.existsById(id)) {
             throw new LembreteNaoEncontrado(id);

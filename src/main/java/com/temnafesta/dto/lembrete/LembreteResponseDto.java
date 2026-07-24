@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 @Schema(description = "Dados do lembrete")
 public class LembreteResponseDto {
 
+    @Schema(description = "Identificador do lembrete", example = "1")
+    private Integer id;
+
     @Schema(description = "Descrição do lembrete", example = "Confirmar local de entrega do pedido x")
     private String descricao;
 
@@ -23,6 +26,14 @@ public class LembreteResponseDto {
 
     @Schema(description = "Prioridade do lembrete", example = "ALTA")
     private Prioridade prioridade;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getDescricao() {
         return descricao;
