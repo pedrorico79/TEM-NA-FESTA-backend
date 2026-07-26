@@ -12,6 +12,7 @@ import com.temnafesta.model.Usuario;
 import com.temnafesta.repository.PerfilRepository;
 import com.temnafesta.repository.UsuarioRepository;
 import com.temnafesta.security.GerenciadorTokenJwt;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,12 @@ public class UsuarioService {
     private final GerenciadorTokenJwt gerenciadorTokenJwt;
     private final AuthenticationManager authenticationManager;
     private final PerfilRepository perfilRepository;
+
+    @Value("${jwt.validity}")
+    private long jwtValidity;
+
+    @Value("${jwt.validity.remember-me}")
+    private long jwtValidityRememberMe;
 
     public UsuarioService(UsuarioRepository usuarioRepository,
                           PasswordEncoder passwordEncoder,
@@ -73,8 +80,9 @@ public class UsuarioService {
         // 4. Salva a autenticação no contexto do Spring
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // 5. Gera o Token JWT
-        final String token = gerenciadorTokenJwt.generateToken(authentication);
+        // 5. Gera o Token JWT com validade baseada no rememberMe
+        long tokenValidity = loginDto.getRememberMe() ? jwtValidityRememberMe : jwtValidity;
+        final String token = gerenciadorTokenJwt.generateToken(authentication, tokenValidity);
 
         // 6. Retorna o DTO de Token usando o Mapper
         return UsuarioMapper.toTokenDto(usuarioAutenticado, token);

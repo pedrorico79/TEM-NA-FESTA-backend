@@ -16,6 +16,9 @@ public class UsuarioLoginDto {
   @NotBlank
   private String senha;
 
+  @Schema(description = "Manter usuário conectado por 30 dias", example = "false")
+  private Boolean rememberMe = false;
+
   public String getEmail() {
     return email;
   }
@@ -30,6 +33,14 @@ public class UsuarioLoginDto {
 
   public void setSenha(String senha) {
     this.senha = senha;
+  }
+
+  public Boolean getRememberMe() {
+    return rememberMe != null ? rememberMe : false;
+  }
+
+  public void setRememberMe(Boolean rememberMe) {
+    this.rememberMe = rememberMe;
   }
 
 }
