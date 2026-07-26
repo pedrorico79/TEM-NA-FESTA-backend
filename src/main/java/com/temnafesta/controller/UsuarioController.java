@@ -30,6 +30,9 @@ public class UsuarioController {
     @Value("${jwt.validity}")
     private long jwtValidity;
 
+    @Value("${jwt.validity.remember-me}")
+    private long jwtValidityRememberMe;
+
     public static final String COOKIE_NOME = "authToken";
 
     public UsuarioController(UsuarioService service) {
@@ -55,12 +58,15 @@ public class UsuarioController {
 
         UsuarioTokenDto autenticado = this.service.autenticar(loginDto);
 
+        // Determina a duração do cookie baseado no rememberMe
+        long cookieValidity = loginDto.getRememberMe() ? jwtValidityRememberMe : jwtValidity;
+
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NOME, autenticado.getToken())
                 .httpOnly(true)
                 .secure(false)
                 .sameSite("Strict")
                 .path("/")
-                .maxAge(Duration.ofSeconds(jwtValidity))
+                .maxAge(Duration.ofSeconds(cookieValidity))
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

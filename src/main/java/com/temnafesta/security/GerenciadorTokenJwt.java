@@ -80,6 +80,25 @@ public class GerenciadorTokenJwt {
      * @return token JWT compactado como String (formato: header.payload.signature)
      */
     public String generateToken(final Authentication authentication) {
+        return generateToken(authentication, jwtTokenValidity);
+    }
+
+    /**
+     * Gera um token JWT assinado a partir de uma autenticação bem-sucedida com validade customizável.
+     *
+     * <p>O token gerado contém os seguintes claims no payload:</p>
+     * <ul>
+     *   <li>{@code sub} (subject): e-mail/username do usuário autenticado</li>
+     *   <li>{@code authorities}: perfis/roles separados por vírgula (ex: "ROLE_USER,ROLE_ADMIN")</li>
+     *   <li>{@code iat} (issued at): momento em que o token foi emitido</li>
+     *   <li>{@code exp} (expiration): momento em que o token expira</li>
+     * </ul>
+     *
+     * @param authentication objeto de autenticação gerado pelo Spring Security após validar as credenciais
+     * @param tokenValidity tempo de validade do token em segundos
+     * @return token JWT compactado como String (formato: header.payload.signature)
+     */
+    public String generateToken(final Authentication authentication, final long tokenValidity) {
         // Coleta todas as authorities (roles/perfis) do usuário separadas por vírgula
         final String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -89,7 +108,7 @@ public class GerenciadorTokenJwt {
                 .subject(authentication.getName())           // claim "sub": quem é o usuário
                 .claim("authorities", authorities)           // claim customizado: perfis do usuário
                 .issuedAt(new Date(System.currentTimeMillis()))                             // claim "iat"
-                .expiration(new Date(System.currentTimeMillis() + jwtTokenValidity * 1_000)) // claim "exp"
+                .expiration(new Date(System.currentTimeMillis() + tokenValidity * 1_000)) // claim "exp"
                 .signWith(parseSecret())                     // assina com HMAC-SHA256
                 .compact();                                  // serializa para String
     }
