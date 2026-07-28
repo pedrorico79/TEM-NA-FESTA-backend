@@ -23,17 +23,20 @@ public class ClienteMapper {
 
     public static ClienteResponseDto toResponse(Cliente cliente) {
 
-        Endereco enderecoEntidade =
-                cliente.getEndereco();
+        Endereco enderecoEntidade = cliente.getEndereco();
 
-        ClienteResponseDto.EnderecoClienteDto enderecoDto = new
-                ClienteResponseDto.EnderecoClienteDto();
+        ClienteResponseDto.EnderecoClienteDto enderecoDto =
+                new ClienteResponseDto.EnderecoClienteDto();
 
         enderecoDto.setId(enderecoEntidade.getId());
         enderecoDto.setCep(enderecoEntidade.getCep());
         enderecoDto.setLogradouro(enderecoEntidade.getLogradouro());
         enderecoDto.setNumero(enderecoEntidade.getNumero());
+        enderecoDto.setComplemento(enderecoEntidade.getComplemento());
+        enderecoDto.setBairro(enderecoEntidade.getBairro());
         enderecoDto.setCidade(enderecoEntidade.getCidade());
+        enderecoDto.setEstado(enderecoEntidade.getEstado());
+
         ClienteResponseDto dto = new ClienteResponseDto();
 
         dto.setId(cliente.getId());

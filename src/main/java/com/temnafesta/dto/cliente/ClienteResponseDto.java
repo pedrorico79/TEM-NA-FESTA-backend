@@ -51,8 +51,17 @@ public class ClienteResponseDto {
         @Schema(description = "Número do endereço", example = "1578")
         private String numero;
 
+        @Schema(description = "Complemento do endereço", example = "Apto 42")
+        private String complemento;
+
+        @Schema(description = "Bairro do endereço", example = "Bela Vista")
+        private String bairro;
+
         @Schema(description = "Cidade do endereço", example = "São Paulo")
         private String cidade;
+
+        @Schema(description = "UF do endereço", example = "SP")
+        private String estado;
 
         public Integer getId() {
             return id;
@@ -86,12 +95,36 @@ public class ClienteResponseDto {
             this.numero = numero;
         }
 
+        public String getComplemento() {
+            return complemento;
+        }
+
+        public void setComplemento(String complemento) {
+            this.complemento = complemento;
+        }
+
+        public String getBairro() {
+            return bairro;
+        }
+
+        public void setBairro(String bairro) {
+            this.bairro = bairro;
+        }
+
         public String getCidade() {
             return cidade;
         }
 
         public void setCidade(String cidade) {
             this.cidade = cidade;
+        }
+
+        public String getEstado() {
+            return estado;
+        }
+
+        public void setEstado(String estado) {
+            this.estado = estado;
         }
     }
 

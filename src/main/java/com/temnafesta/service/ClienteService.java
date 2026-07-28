@@ -49,15 +49,21 @@ public class ClienteService {
     }
 
     public Cliente atualizar(Integer id, Cliente clienteAtualizado, Integer enderecoId) {
-        if (!clienteRepository.existsById(id)) {
-            throw new ClienteNaoEncontrado(id);
-        }
+
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new ClienteNaoEncontrado(id));
+
         Endereco enderecoEntidade = enderecoRepository.findById(enderecoId)
                 .orElseThrow(() -> new EnderecoNaoEncontrado(enderecoId));
 
-        clienteAtualizado.setEndereco(enderecoEntidade);
-        clienteAtualizado.setId(id);
-        return clienteRepository.save(clienteAtualizado);
+        cliente.setNome(clienteAtualizado.getNome());
+        cliente.setTelefone(clienteAtualizado.getTelefone());
+        cliente.setWhatsapp(clienteAtualizado.getWhatsapp());
+        cliente.setInstagram(clienteAtualizado.getInstagram());
+        cliente.setAnotacoes(clienteAtualizado.getAnotacoes());
+        cliente.setEndereco(enderecoEntidade);
+
+        return clienteRepository.save(cliente);
     }
 
     public void toggleAtivo(Integer id) {
