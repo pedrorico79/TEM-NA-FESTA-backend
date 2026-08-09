@@ -2,15 +2,17 @@ package com.temnafesta.controller;
 
 import com.temnafesta.dto.lembrete.LembreteRequestDto;
 import com.temnafesta.dto.lembrete.LembreteResponseDto;
+import com.temnafesta.dto.usuario.UsuarioDetalhesDto;
 import com.temnafesta.mapper.LembreteMapper;
 import com.temnafesta.model.Lembrete;
-import com.temnafesta.service.ClienteService;
 import com.temnafesta.service.LembreteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,17 +34,12 @@ public class LembreteController {
     @PostMapping
     public ResponseEntity<LembreteResponseDto> criar(
             @RequestBody @Valid LembreteRequestDto dto,
-            @RequestParam Integer usuarioId
+            @AuthenticationPrincipal UsuarioDetalhesDto usuarioLogado   // <-- vem do JWT validado
     ) {
-
-        Lembrete novo = lembreteService.criar(
-                LembreteMapper.toEntity(dto),
-                usuarioId
-        );
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(LembreteMapper.toResponse(novo));
+        Lembrete novo = lembreteService.criar(LembreteMapper.toEntity(dto), usuarioLogado.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(LembreteMapper.toResponse(novo));
     }
+
 
     // Atualizar
     @Operation(summary = "Atualiza um lembrete existente")
@@ -67,16 +64,18 @@ public class LembreteController {
         );
     }
 
+
     // Listar todos
     @Operation(summary = "Lista todos os lembretes")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
-    @GetMapping
-    public ResponseEntity<List<LembreteResponseDto>> listar() {
-        List<Lembrete> lembretes = lembreteService.listarTodos();
-        return ResponseEntity.ok(
-                LembreteMapper.toResponseList(lembretes)
-        );
+    @GetMapping("/meus")
+    public ResponseEntity<List<LembreteResponseDto>> listarMeusLembretes(
+            @AuthenticationPrincipal UsuarioDetalhesDto usuarioLogado
+    ) {
+        List<Lembrete> lembretes = lembreteService.listarPorUsuario(usuarioLogado.getId());
+        return ResponseEntity.ok(LembreteMapper.toResponseList(lembretes));
     }
+
 
     // Buscar por ID
     @Operation(summary = "Busca lembrete por ID")
@@ -104,14 +103,10 @@ public class LembreteController {
     @Operation(summary = "Lista lembretes de um usuário")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<LembreteResponseDto>> listarPorUsuario(
-            @PathVariable Integer usuarioId
-    ) {
-
+    @PreAuthorize("hasRole('ADMIN')")   // só ADMIN pode ver lembretes de terceiros
+    public ResponseEntity<List<LembreteResponseDto>> listarPorUsuario(@PathVariable Integer usuarioId) {
         List<Lembrete> lembretes = lembreteService.listarPorUsuario(usuarioId);
-
-        return ResponseEntity.ok(
-                LembreteMapper.toResponseList(lembretes)
-        );
+        return ResponseEntity.ok(LembreteMapper.toResponseList(lembretes));
     }
+
 }
