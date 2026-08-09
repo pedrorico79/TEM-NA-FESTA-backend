@@ -4,7 +4,6 @@ import com.temnafesta.dto.usuario.UsuarioAtualizacaoDto;
 import com.temnafesta.dto.usuario.UsuarioCriacaoDto;
 import com.temnafesta.dto.usuario.UsuarioLoginDto;
 import com.temnafesta.dto.usuario.UsuarioTokenDto;
-import com.temnafesta.exception.usuario.UsuarioJaExiste;
 import com.temnafesta.exception.usuario.UsuarioNaoEncontrado;
 import com.temnafesta.mapper.UsuarioMapper;
 import com.temnafesta.model.Perfil;
@@ -34,6 +33,7 @@ public class UsuarioService {
     private final GerenciadorTokenJwt gerenciadorTokenJwt;
     private final AuthenticationManager authenticationManager;
     private final PerfilRepository perfilRepository;
+    private static final String PERFIL_PADRAO = "CLIENTE";
 
     @Value("${jwt.validity}")
     private long jwtValidity;
@@ -52,7 +52,6 @@ public class UsuarioService {
         this.perfilRepository = perfilRepository;
     }
 
-    private static final String PERFIL_PADRAO = "CLIENTE";
 
     public void criar(UsuarioCriacaoDto dto) {
         Perfil perfilPadrao = perfilRepository.findByNome(PERFIL_PADRAO)

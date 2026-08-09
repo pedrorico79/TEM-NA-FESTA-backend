@@ -10,6 +10,7 @@ import java.util.List;
 
 public class UsuarioDetalhesDto implements UserDetails {
 
+  private final Integer id;
   private final String nome;
   private final String email;
   private final String senha;
@@ -17,12 +18,15 @@ public class UsuarioDetalhesDto implements UserDetails {
   private final String perfil;
 
   public UsuarioDetalhesDto(Usuario usuario) {
+    this.id = usuario.getId();
     this.nome = usuario.getNome();
     this.email = usuario.getEmail();
     this.senha = usuario.getSenha();
     this.ativo = usuario.getAtivo();
     this.perfil = usuario.getPerfil().getNome();
   }
+
+  public Integer getId() { return id; }
 
   public String getNome() {
     return nome;
