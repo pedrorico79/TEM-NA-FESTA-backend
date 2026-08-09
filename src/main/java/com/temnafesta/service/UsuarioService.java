@@ -52,18 +52,18 @@ public class UsuarioService {
         this.perfilRepository = perfilRepository;
     }
 
+    private static final String PERFIL_PADRAO = "CLIENTE";
+
     public void criar(UsuarioCriacaoDto dto) {
-        // 1. Busca o perfil pelo ID que veio do JSON
-        Perfil perfil = perfilRepository.findById(dto.getPerfilId())
-                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+        Perfil perfilPadrao = perfilRepository.findByNome(PERFIL_PADRAO)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Perfil padrão '" + PERFIL_PADRAO + "' não está cadastrado"));
 
-        // 2. Agora sim, chama o Mapper passando os dois!
-        Usuario novoUsuario = UsuarioMapper.toEntity(dto, perfil);
-
-        // 3. Criptografa a senha e salva
+        Usuario novoUsuario = UsuarioMapper.toEntity(dto, perfilPadrao);
         novoUsuario.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
         usuarioRepository.save(novoUsuario);
     }
+
 
     public UsuarioTokenDto autenticar(UsuarioLoginDto loginDto) {
         // 1. Cria o objeto de autenticação com as credenciais do DTO
