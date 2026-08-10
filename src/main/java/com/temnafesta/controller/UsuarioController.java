@@ -52,7 +52,6 @@ public class UsuarioController {
         return ResponseEntity.status(201).build();
     }
 
-    @Value("${cookie.secure}")
     @Operation(summary = "Realiza login do usuário")
     @ApiResponse(responseCode = "200", description = "Login realizado com sucesso")
     @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
@@ -94,7 +93,7 @@ public class UsuarioController {
         return ResponseEntity.ok(sessao);
     }
 
-    @Value("${cookie.secure}")  @Operation(summary = "Realiza logout do usuário")
+    @Operation(summary = "Realiza logout do usuário")
     @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
