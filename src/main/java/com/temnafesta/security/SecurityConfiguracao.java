@@ -42,22 +42,27 @@ public class SecurityConfiguracao {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. PUBLICO: Criar conta e Login
                         .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
-                        // 2. ADMIN: Listar, Buscar, Deletar e Atualizar
                         .requestMatchers(HttpMethod.GET, "/usuarios").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/usuarios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/usuarios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/usuarios/*/senha").hasRole("ADMIN")
 
-                        // 3. LOGOUT E OUTROS: Qualquer usuário autenticado (incluindo FUNCIONARIO)
+                        // NOVO: operações destrutivas restritas a ADMIN
+                        .requestMatchers(HttpMethod.DELETE, "/clientes/**", "/produtos/**",
+                                "/pagamentos/**", "/eventos/**", "/enderecos/**", "/lembretes/**").hasRole("ADMIN")
+
+                        // NOVO: relatórios financeiros restritos a ADMIN
+                        .requestMatchers("/relatorios/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
+
                 // Adicionando o filtro usando os beans definidos abaixo
                 .addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(autenticacaoJwtEntryPoint))

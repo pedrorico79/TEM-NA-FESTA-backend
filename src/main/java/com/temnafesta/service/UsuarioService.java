@@ -4,7 +4,6 @@ import com.temnafesta.dto.usuario.UsuarioAtualizacaoDto;
 import com.temnafesta.dto.usuario.UsuarioCriacaoDto;
 import com.temnafesta.dto.usuario.UsuarioLoginDto;
 import com.temnafesta.dto.usuario.UsuarioTokenDto;
-import com.temnafesta.exception.usuario.UsuarioJaExiste;
 import com.temnafesta.exception.usuario.UsuarioNaoEncontrado;
 import com.temnafesta.mapper.UsuarioMapper;
 import com.temnafesta.model.Perfil;
@@ -34,6 +33,7 @@ public class UsuarioService {
     private final GerenciadorTokenJwt gerenciadorTokenJwt;
     private final AuthenticationManager authenticationManager;
     private final PerfilRepository perfilRepository;
+    private static final String PERFIL_PADRAO = "CLIENTE";
 
     @Value("${jwt.validity}")
     private long jwtValidity;
@@ -52,18 +52,17 @@ public class UsuarioService {
         this.perfilRepository = perfilRepository;
     }
 
+
     public void criar(UsuarioCriacaoDto dto) {
-        // 1. Busca o perfil pelo ID que veio do JSON
-        Perfil perfil = perfilRepository.findById(dto.getPerfilId())
-                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+        Perfil perfilPadrao = perfilRepository.findByNome(PERFIL_PADRAO)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Perfil padrão '" + PERFIL_PADRAO + "' não está cadastrado"));
 
-        // 2. Agora sim, chama o Mapper passando os dois!
-        Usuario novoUsuario = UsuarioMapper.toEntity(dto, perfil);
-
-        // 3. Criptografa a senha e salva
+        Usuario novoUsuario = UsuarioMapper.toEntity(dto, perfilPadrao);
         novoUsuario.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
         usuarioRepository.save(novoUsuario);
     }
+
 
     public UsuarioTokenDto autenticar(UsuarioLoginDto loginDto) {
         // 1. Cria o objeto de autenticação com as credenciais do DTO

@@ -20,12 +20,16 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/usuarios")
 @Tag(name = "Usuários", description = "Gerenciamento de usuários do sistema")
 public class UsuarioController {
 
     private final UsuarioService service;
+
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
 
     @Value("${jwt.validity}")
     private long jwtValidity;
@@ -63,7 +67,7 @@ public class UsuarioController {
 
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NOME, autenticado.getToken())
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(Duration.ofSeconds(cookieValidity))
@@ -95,7 +99,7 @@ public class UsuarioController {
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NOME, "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(0) // Expira o cookie imediatamente
