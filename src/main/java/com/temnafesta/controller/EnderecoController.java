@@ -2,6 +2,7 @@ package com.temnafesta.controller;
 
 import com.temnafesta.dto.endereco.EnderecoRequestDto;
 import com.temnafesta.dto.endereco.EnderecoResponseDto;
+import com.temnafesta.dto.endereco.ViaCepResponseDto;
 import com.temnafesta.mapper.EnderecoMapper;
 import com.temnafesta.model.Endereco;
 import com.temnafesta.service.EnderecoService;
@@ -41,6 +42,16 @@ public class EnderecoController {
     public ResponseEntity<EnderecoResponseDto> buscarPorId(@PathVariable Integer id){
         Endereco endereco = enderecoService.buscarPorId(id);
         EnderecoResponseDto response = EnderecoMapper.toResponse(endereco);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Consulta um CEP na API do ViaCEP")
+    @ApiResponse(responseCode = "200", description = "Dados do endereço retornados com sucesso")
+    @ApiResponse(responseCode = "400", description = "CEP inválido")
+    @ApiResponse(responseCode = "404", description = "CEP não encontrado")
+    @GetMapping("/via-cep/{cep}")
+    public ResponseEntity<ViaCepResponseDto> consultarViaCep(@PathVariable String cep) {
+        ViaCepResponseDto response = enderecoService.buscarPorCep(cep);
         return ResponseEntity.ok(response);
     }
 

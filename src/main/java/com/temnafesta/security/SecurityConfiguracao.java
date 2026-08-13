@@ -45,6 +45,7 @@ public class SecurityConfiguracao {
                         // 1. PUBLICO: Criar conta e Login
                         .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enderecos/via-cep/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
