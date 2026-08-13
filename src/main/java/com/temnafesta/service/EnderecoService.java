@@ -1,11 +1,16 @@
 package com.temnafesta.service;
 
 import com.temnafesta.dto.endereco.EnderecoRequestDto;
+import com.temnafesta.dto.endereco.ViaCepResponseDto;
 import com.temnafesta.exception.endereco.EnderecoNaoEncontrado;
 import com.temnafesta.mapper.EnderecoMapper;
 import com.temnafesta.model.Endereco;
 import com.temnafesta.repository.EnderecoRepository;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -13,9 +18,11 @@ import java.util.List;
 public class EnderecoService {
 
     private final EnderecoRepository enderecoRepository;
+    private final RestTemplate restTemplate;
 
-    public EnderecoService(EnderecoRepository enderecoRepository) {
+    public EnderecoService(EnderecoRepository enderecoRepository, RestTemplateBuilder restTemplateBuilder) {
         this.enderecoRepository = enderecoRepository;
+        this.restTemplate = restTemplateBuilder.build();
     }
 
     public Endereco criar(EnderecoRequestDto enderecoRequestDto){
@@ -32,6 +39,23 @@ public class EnderecoService {
         if (id == null) throw new IllegalArgumentException("ID não pode ser nulo.");
         return enderecoRepository.findById(id)
                 .orElseThrow(() -> new EnderecoNaoEncontrado(id));
+    }
+
+    public ViaCepResponseDto buscarPorCep(String cepInformado) {
+        String cep = cepInformado == null ? "" : cepInformado.replaceAll("\\D", "");
+
+        if (cep.length() != 8) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CEP inválido.");
+        }
+
+        String url = "https://viacep.com.br/ws/" + cep + "/json/";
+        ViaCepResponseDto viaCepResponse = restTemplate.getForObject(url, ViaCepResponseDto.class);
+
+        if (viaCepResponse == null || viaCepResponse.isErro()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "CEP não encontrado.");
+        }
+
+        return viaCepResponse;
     }
 
     public Endereco atualizar(Integer id, EnderecoRequestDto endereco){
