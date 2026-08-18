@@ -25,6 +25,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+
 @Service
 public class UsuarioService {
 
@@ -76,6 +78,14 @@ public class UsuarioService {
         Usuario usuarioAutenticado = usuarioRepository.findByEmail(loginDto.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(404, "Usuário não encontrado", null));
 
+        if (Boolean.TRUE.equals(usuarioAutenticado.getDeletado())) { // validação pois é Boolean e pode ser null
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário deletado", null);
+        }
+
+        if (Boolean.FALSE.equals(usuarioAutenticado.getAtivo())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário inativo", null);
+        }
+
         // 4. Salva a autenticação no contexto do Spring
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -95,13 +105,18 @@ public class UsuarioService {
     }
 
     public Usuario buscarPorId(Integer id) {
-        return usuarioRepository.findById(id)
+        Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+
+        if (Boolean.TRUE.equals(usuario.getDeletado())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário deletado", null);
+        }
+
+        return usuario;
     }
 
     public void desativar(Integer id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                        .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+        Usuario usuario = buscarPorId(id);
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }
@@ -109,14 +124,30 @@ public class UsuarioService {
     public void reativar(Integer id){
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+
+        if (Boolean.TRUE.equals(usuario.getDeletado())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário deletado não pode ser reativado", null);
+        }
+
         usuario.setAtivo(true);
+        usuarioRepository.save(usuario);
+    }
+
+    public void toggleAtivo(Integer id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+
+        if (Boolean.TRUE.equals(usuario.getDeletado())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário deletado não pode ter status alterado", null);
+        }
+
+        usuario.setAtivo(!Boolean.TRUE.equals(usuario.getAtivo()));
         usuarioRepository.save(usuario);
     }
 
     public Usuario atualizar(Integer id, UsuarioAtualizacaoDto dto) {
         // 1. Verifica se o usuário existe
-        Usuario usuarioExistente = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Usuario usuarioExistente = buscarPorId(id);
 
         // 2. Busca o novo perfil pelo ID
         Perfil perfil = perfilRepository.findById(dto.getPerfilId())
@@ -161,6 +192,9 @@ public class UsuarioService {
     public void sofDelete(Integer id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(id));
+        if (Boolean.TRUE.equals(usuario.getDeletado())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário já deletado", null);
+        }
         usuario.setDeletado(true);
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);

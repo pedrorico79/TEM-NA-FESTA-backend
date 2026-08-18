@@ -173,27 +173,14 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-//    @Operation(summary = "Desativa um usuário")
-//    @ApiResponse(responseCode = "204", description = "Usuário desativado com sucesso")
-//    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-//    @PatchMapping("/{id}/desativar")
-//    @SecurityRequirement(name = "Bearer")
-//    public ResponseEntity<Void> desativar(@PathVariable Integer id) {
-//        service.desativar(id);
-//        return ResponseEntity.noContent().build();
-//    }
-//
-//    @Operation(summary = "Reativa um usuário")
-//    @ApiResponse(responseCode = "204", description = "Usuário reativado com sucesso")
-//    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-//    @PatchMapping("/{id}/reativar")
-//    @SecurityRequirement(name = "Bearer")
-//    public ResponseEntity<Void> reativar(@PathVariable Integer id) {
-//        service.reativar(id);
-//        return ResponseEntity.noContent().build();
-//    }
-
-
+    @Operation(summary = "Ativa ou desativa um usuário")
+    @ApiResponse(responseCode = "204", description = "Status atualizado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    @PatchMapping("/{id}/ativo")
+    public ResponseEntity<Void> toggleAtivo(@PathVariable Integer id) {
+        service.toggleAtivo(id);
+        return ResponseEntity.noContent().build();
+    }
 
     @Operation(summary = "Remove um usuário (soft delete)")
     @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso")
