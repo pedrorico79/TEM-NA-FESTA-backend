@@ -14,6 +14,9 @@ public class UsuarioListarDto {
     @Schema(description = "E-mail do usuário", example = "joao.silva@email.com")
     private String email;
 
+    @Schema(description = "Status do usuário", example = "true")
+    private Boolean ativo;
+
     @Schema(description = "Perfil do usuário")
     private PerfilUsuarioDto perfilUsuarioDto;
 
@@ -64,6 +67,14 @@ public class UsuarioListarDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
     }
 
     public PerfilUsuarioDto getPerfilUsuarioDto() {

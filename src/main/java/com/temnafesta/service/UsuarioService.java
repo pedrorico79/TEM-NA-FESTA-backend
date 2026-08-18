@@ -88,10 +88,10 @@ public class UsuarioService {
     }
 
     public List<Usuario> listar() {
-        return usuarioRepository.findAll();
+        return usuarioRepository.findByIsDeletadoFalse();
     }
     public List<Usuario> listarAtivos() {
-        return usuarioRepository.findByIsAtivoTrue();
+        return usuarioRepository.findByIsAtivoTrueAndIsDeletadoFalse();
     }
 
     public Usuario buscarPorId(Integer id) {
@@ -162,6 +162,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontrado(id));
         usuario.setDeletado(true);
+        usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }
 }

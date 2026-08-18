@@ -26,7 +26,7 @@ public class EventoRequestDto {
 
     @Schema(description = "Status da evento", example = "true")
     @NotNull
-    private Boolean ativa;
+    private Boolean ativo;
 
     public String getNome() {
         return nome;
@@ -52,12 +52,12 @@ public class EventoRequestDto {
         this.dataFim = dataFim;
     }
 
-    public Boolean getAtiva() {
-        return ativa;
+    public Boolean getAtivo() {
+        return ativo;
     }
 
-    public void setAtiva(Boolean ativa) {
-        this.ativa = ativa;
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
     }
 
     @AssertTrue(message = "A data de término deve ser depois da data de início")

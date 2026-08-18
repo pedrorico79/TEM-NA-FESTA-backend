@@ -17,7 +17,7 @@ public class EventoMapper {
         evento.setNome(dto.getNome());
         evento.setDataInicio(dto.getDataInicio());
         evento.setDataFim(dto.getDataFim());
-        evento.setIsAtivo(false); // sempre começa inativa
+        evento.setIsAtivo(true); // sempre começa inativa
         return evento;
     }
     public static Evento toEntityForUpdate(EventoRequestDto dto) {
@@ -25,7 +25,7 @@ public class EventoMapper {
         evento.setNome(dto.getNome());
         evento.setDataInicio(dto.getDataInicio());
         evento.setDataFim(dto.getDataFim());
-        evento.setIsAtivo(dto.getAtiva()); // pode ser true ou false
+        evento.setIsAtivo(dto.getAtivo()); // pode ser true ou false
         return evento;
     }
 

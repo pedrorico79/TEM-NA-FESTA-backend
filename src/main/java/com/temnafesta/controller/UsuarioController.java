@@ -111,7 +111,7 @@ public class UsuarioController {
 
 
     // ======================================== Colocar lista paginada
-    @Operation(summary = "Lista todos os usuários")
+    @Operation(summary = "Lista todos os usuários não deletados")
     @ApiResponse(responseCode = "200", description = "Listagem realizada com sucesso")
     @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado")
     @GetMapping
