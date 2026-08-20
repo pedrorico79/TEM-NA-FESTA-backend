@@ -1,162 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.13</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>com.temnafesta</groupId>
 	<artifactId>tem-na-festa</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
 	<properties>
 		<java.version>21</java.version>
+		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 	</properties>
+
 	<dependencies>
+		<!-- Spring Boot Starters -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.8.16</version>
+			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
+		<!-- Database Drivers -->
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
 
+		<!-- OpenAPI / Swagger -->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.16</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
-
+		<!-- JWT (JSON Web Tokens) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>0.12.6</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
 			<version>0.12.6</version>
+			<scope>runtime</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.12.6</version>
 			<scope>runtime</scope>
 		</dependency>
+
+		<!-- Utilities (Lombok & MapStruct) -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${org.mapstruct.version}</version>
+		</dependency>
+
+		<!-- Test Dependencies -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<!-- Spring Boot Plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
+
+			<!-- Compiler Plugin (Lombok + MapStruct Integration) -->
 			<plugin>
-				<!-- Informações sobre o Plugin -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${org.mapstruct.version}</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>${lombok-mapstruct-binding.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
+			<!-- JaCoCo Code Coverage Plugin -->
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.14</version>
-				<!-- ========================== -->
-
-				<!-- Executions: Define as fases do ciclo de vida do Maven em que o plugin será executado e quais metas serão acionadas. -->
 				<executions>
-
-					<!-- prepare-agent: Prepara o agente do JaCoCo para coletar dados de cobertura durante a execução dos testes. -->
-					<!-- É executado no início do ciclo de vida -->
 					<execution>
 						<id>prepare-agent</id>
-						<goals><goal>prepare-agent</goal></goals>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
 					</execution>
-
-					<!-- report: Gera o relatório de cobertura após a execução dos testes. -->
-					<!-- podemos acessar o relatório em target/site/jacoco/index.html -->
-					<!-- É executado na fase de verificação que ocorre após a execução dos testes -->
 					<execution>
 						<id>report</id>
 						<phase>verify</phase>
-						<goals><goal>report</goal></goals>
+						<goals>
+							<goal>report</goal>
+						</goals>
 					</execution>
-
-					<!-- check: Verifica se a cobertura de código atende aos critérios definidos. -->
 					<execution>
 						<id>check</id>
 						<phase>verify</phase>
-						<goals><goal>check</goal></goals>
-						<!-- Configuração para definir os critérios de cobertura -->
+						<goals>
+							<goal>check</goal>
+						</goals>
 						<configuration>
-							<!-- Includes: Especifica quais classes ou pacotes devem ser incluídos na verificação de cobertura. -->
-							<!-- Poderíamos ter usado <exclude> para excluir classes ou pacotes específicos. -->
 							<includes>
 								<include>school/sptech/*</include>
 							</includes>
-
-							<!-- Rules: Define as regras de cobertura que devem ser atendidas. -->
 							<rules>
 								<rule>
-									<!-- Element: Especifica o nível de cobertura a ser verificado, como classe, pacote, projeto, etc. -->
 									<element>BUNDLE</element>
-									<!-- Limits: Define os limites de cobertura que devem ser atendidos para o elemento especificado. -->
 									<limits>
 										<limit>
-											<!-- Counter: Especifica o tipo de cobertura a ser verificada, como instruções, branches, linhas, etc. -->
 											<counter>BRANCH</counter>
-											<!-- Value e Minimum: Define o valor mínimo de cobertura que deve ser atendido para o tipo de cobertura especificado. -->
-											<!-- Nesse caso, estamos exigindo que a cobertura de branches seja de pelo menos 70%. -->
 											<value>COVEREDRATIO</value>
 											<minimum>0.7</minimum>
 										</limit>
@@ -167,10 +189,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
-
-
 	</build>
 
 </project>
