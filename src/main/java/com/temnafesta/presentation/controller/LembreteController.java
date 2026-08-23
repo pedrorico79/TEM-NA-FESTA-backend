@@ -2,6 +2,7 @@ package com.temnafesta.presentation.controller;
 
 import com.temnafesta.application.dto.CriarLembreteCommand;
 import com.temnafesta.application.usecase.CriarLembreteUseCase;
+import com.temnafesta.application.usecase.DeletarLembreteUseCase;
 import com.temnafesta.application.usecase.ListarLembretesUsuarioUseCase;
 import com.temnafesta.domain.model.Lembrete;
 import com.temnafesta.infrastructure.security.user.UsuarioAutenticado;
@@ -14,7 +15,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,13 +26,16 @@ public class LembreteController {
 
     private final CriarLembreteUseCase criarLembreteUseCase;
     private final ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase;
+    private final DeletarLembreteUseCase deletarLembreteUseCase;
     private final ConsultasPresentationMapper mapper;
 
     public LembreteController(CriarLembreteUseCase criarLembreteUseCase,
                               ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase,
+                              DeletarLembreteUseCase deletarLembreteUseCase,
                               ConsultasPresentationMapper mapper) {
         this.criarLembreteUseCase = criarLembreteUseCase;
         this.listarLembretesUsuarioUseCase = listarLembretesUsuarioUseCase;
+        this.deletarLembreteUseCase = deletarLembreteUseCase;
         this.mapper = mapper;
     }
 
@@ -46,7 +49,7 @@ public class LembreteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(lembreteSalvo));
     }
 
-    @GetMapping("/usuarios/{usuarioId}")
+    @GetMapping
     @Operation(summary = "Lista todos os lembretes vinculados a um usuário específico")
     public ResponseEntity<List<LembreteResponseDto>> listarPorUsuario(@AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         List<LembreteResponseDto> response = listarLembretesUsuarioUseCase.executar(usuarioAutenticado.getId())
@@ -54,5 +57,13 @@ public class LembreteController {
                 .map(mapper::toResponse)
                 .toList();
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Deleta um lembrete do usuário autenticado")
+    public ResponseEntity<Void> deletar(@PathVariable Long id,
+                                        @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        deletarLembreteUseCase.executar(id, usuarioAutenticado.getId());
+        return ResponseEntity.noContent().build();
     }
 }

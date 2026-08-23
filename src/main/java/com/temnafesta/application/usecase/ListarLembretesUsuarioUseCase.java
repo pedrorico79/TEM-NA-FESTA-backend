@@ -14,6 +14,6 @@ public class ListarLembretesUsuarioUseCase {
     }
 
     public List<Lembrete> executar(Long usuarioId) {
-        return lembreteRepositoryPort.buscarPorUsuarioId(usuarioId);
+        return lembreteRepositoryPort.listarPorUsuarioId(usuarioId);
     }
 }
