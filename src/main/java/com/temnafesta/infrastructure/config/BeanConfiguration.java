@@ -63,4 +63,9 @@ public class BeanConfiguration {
     public ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
         return new ListarLembretesUsuarioUseCase(lembreteRepositoryPort);
     }
+
+    @Bean
+    public DeletarLembreteUseCase deletarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
+        return new DeletarLembreteUseCase(lembreteRepositoryPort);
+    }
 }

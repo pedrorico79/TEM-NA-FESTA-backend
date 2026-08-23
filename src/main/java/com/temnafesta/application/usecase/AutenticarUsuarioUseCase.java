@@ -19,7 +19,7 @@ public class AutenticarUsuarioUseCase {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public String executar(String email, String senha) {
+    public String executar(String email, String senha, boolean jwtValidityRememberMe) {
         Usuario usuario = usuarioRepositoryPort.buscarPorEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário ou senha inválidos."));
 
@@ -31,6 +31,6 @@ public class AutenticarUsuarioUseCase {
             throw new IllegalArgumentException("Usuário ou senha inválidos.");
         }
 
-        return jwtTokenProvider.gerarToken(usuario.getEmail(), usuario.getPerfil().getNome());
+        return jwtTokenProvider.gerarToken(usuario.getEmail(), usuario.getPerfil().getNome(), jwtValidityRememberMe);
     }
 }

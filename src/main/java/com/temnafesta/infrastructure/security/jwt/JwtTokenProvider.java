@@ -13,19 +13,27 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${app.jwt.secret:umaChaveMuitoSecretaEMuitoLongaParaOJWT123456}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
 
     @Value("${app.jwt.expiration-ms:86400000}") // 24 horas
     private long jwtExpirationMs;
 
+    @Value("${app.jwt.expiration-remember-ms:2592000000}") // 30 dias
+    private long jwtExpirationRememberMeMs;
+
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String gerarToken(String email, String perfil) {
+    public String gerarToken(String email, String perfil, boolean jwtValidityRememberMe) {
+        long expirationMs = jwtValidityRememberMe ? jwtExpirationRememberMeMs : jwtExpirationMs;
+        return gerarToken(email, perfil, expirationMs);
+    }
+
+    private String gerarToken(String email, String perfil, long expirationMs) {
         Date agora = new Date();
-        Date dataExpiracao = new Date(agora.getTime() + jwtExpirationMs);
+        Date dataExpiracao = new Date(agora.getTime() + expirationMs);
 
         return Jwts.builder()
                 .subject(email)
@@ -34,6 +42,10 @@ public class JwtTokenProvider {
                 .expiration(dataExpiracao)
                 .signWith(getSigningKey())
                 .compact();
+    }
+
+    public long getExpiracaoMs(boolean jwtValidityRememberMe) {
+        return jwtValidityRememberMe ? jwtExpirationRememberMeMs : jwtExpirationMs;
     }
 
     public String getEmailDoToken(String token) {

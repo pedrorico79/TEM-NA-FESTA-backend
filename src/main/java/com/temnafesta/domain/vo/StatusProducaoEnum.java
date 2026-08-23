@@ -11,7 +11,7 @@ public enum StatusProducaoEnum {
     ENTREGUE,
     CANCELADO;
 
-    // Define as transições válidas de cada estado [cite: 18, 59]
+    // Define as transições válidas de cada estado
     public boolean podeTransitarPara(StatusProducaoEnum novoStatus) {
         return switch (this) {
             case RASCUNHO -> List.of(AGUARDANDO_SINAL, CANCELADO).contains(novoStatus);

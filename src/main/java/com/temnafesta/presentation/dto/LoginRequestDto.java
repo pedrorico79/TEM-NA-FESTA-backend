@@ -9,5 +9,7 @@ public record LoginRequestDto(
         String email,
 
         @NotBlank(message = "A senha é obrigatória.")
-        String senha
+        String senha,
+
+        Boolean jwtValidityRememberMe
 ) {}
