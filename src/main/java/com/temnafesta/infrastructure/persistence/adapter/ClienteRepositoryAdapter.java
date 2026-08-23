@@ -4,8 +4,10 @@ import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 import com.temnafesta.infrastructure.persistence.mapper.ClientePersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataClienteRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -23,4 +25,19 @@ public class ClienteRepositoryAdapter implements ClienteRepositoryPort {
     public Optional<Cliente> buscarPorId(Long id) {
         return repository.findById(id).map(mapper::toDomain);
     }
+
+    @Override
+    public Cliente salvar(Cliente cliente) {
+        return mapper.toDomain(repository.save(mapper.toEntity(cliente)));
+    }
+
+    @Override
+    public List<Cliente> listarNaoDeletados(String termoBusca, int pagina, int tamanho) {
+        var pageable = PageRequest.of(pagina, tamanho);
+        var clientesPage = repository.findByNomeContainingIgnoreCaseOrTelefoneContainingIgnoreCaseAndDeletadoFalse(
+                termoBusca, termoBusca, pageable);
+        return clientesPage.stream().map(mapper::toDomain).toList();
+    }
+
+
 }
