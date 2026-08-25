@@ -34,8 +34,8 @@ public class ClienteRepositoryAdapter implements ClienteRepositoryPort {
     @Override
     public List<Cliente> listarNaoDeletados(String termoBusca, int pagina, int tamanho) {
         var pageable = PageRequest.of(pagina, tamanho);
-        var clientesPage = repository.findByNomeContainingIgnoreCaseOrTelefoneContainingIgnoreCaseAndDeletadoFalse(
-                termoBusca, termoBusca, pageable);
+        var clientesPage = repository.buscarClientes(
+                termoBusca, pageable);
         return clientesPage.stream().map(mapper::toDomain).toList();
     }
 
