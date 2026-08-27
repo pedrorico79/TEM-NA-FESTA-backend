@@ -2,6 +2,7 @@ package com.temnafesta.presentation.controller;
 
 import com.temnafesta.application.dto.CriarClienteCommand;
 import com.temnafesta.application.dto.ListarClientesQuery;
+import com.temnafesta.application.usecase.BuscarClientePorIdUseCase;
 import com.temnafesta.application.usecase.CriarClienteUseCase;
 import com.temnafesta.application.usecase.ListarClientesUseCase;
 import com.temnafesta.domain.model.Cliente;
@@ -25,14 +26,17 @@ public class ClienteController {
     private final CriarClienteUseCase criarClienteUseCase;
     private final ClientePresentationMapper mapper;
     private final ListarClientesUseCase listarClientesUseCase;
+    private final BuscarClientePorIdUseCase buscarClientePorIdUseCase;
 
     public ClienteController(
             CriarClienteUseCase criarClienteUseCase,
             ClientePresentationMapper mapper,
-            ListarClientesUseCase listarClientesUseCase) {
+            ListarClientesUseCase listarClientesUseCase,
+            BuscarClientePorIdUseCase buscarClientePorIdUseCase) {
         this.criarClienteUseCase = criarClienteUseCase;
         this.mapper = mapper;
         this.listarClientesUseCase = listarClientesUseCase;
+        this.buscarClientePorIdUseCase = buscarClientePorIdUseCase;
     }
 
     @PostMapping
@@ -53,11 +57,23 @@ public class ClienteController {
     ) {
         ListarClientesQuery query = new ListarClientesQuery(busca, pagina, tamanho);
 
+        //TODO: alterar DTO de retorno para objeto mais simples (sem info de endereço/denecessárias)
+        // para tornar as requisições mais eficientes
         List<ClienteResponseDto> response = listarClientesUseCase.executar(query)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
-
+        if (response.isEmpty()) {return ResponseEntity.noContent().build();}
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Busca um cliente pelo ID")
+    public ResponseEntity<ClienteResponseDto> buscarPorId(@PathVariable Long id) {
+        Cliente cliente = buscarClientePorIdUseCase.executar(id);
+        if (cliente == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(mapper.toResponse(cliente));
     }
 }

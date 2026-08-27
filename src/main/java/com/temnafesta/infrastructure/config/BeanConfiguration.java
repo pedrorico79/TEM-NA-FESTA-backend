@@ -78,4 +78,9 @@ public class BeanConfiguration {
     public ListarClientesUseCase listarClientesUseCase(ClienteRepositoryPort clienteRepositoryPort) {
         return new ListarClientesUseCase(clienteRepositoryPort);
     }
+
+    @Bean
+    public BuscarClientePorIdUseCase buscarClientePorIdUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new BuscarClientePorIdUseCase(clienteRepositoryPort);
+    }
 }
