@@ -83,4 +83,9 @@ public class BeanConfiguration {
     public BuscarClientePorIdUseCase buscarClientePorIdUseCase(ClienteRepositoryPort clienteRepositoryPort) {
         return new BuscarClientePorIdUseCase(clienteRepositoryPort);
     }
+
+    @Bean
+    public AtualizarClienteUseCase atualizarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new AtualizarClienteUseCase(clienteRepositoryPort);
+    }
 }

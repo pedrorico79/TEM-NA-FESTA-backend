@@ -1,11 +1,14 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.dto.AtualizarClienteCommand;
 import com.temnafesta.application.dto.CriarClienteCommand;
 import com.temnafesta.application.dto.ListarClientesQuery;
+import com.temnafesta.application.usecase.AtualizarClienteUseCase;
 import com.temnafesta.application.usecase.BuscarClientePorIdUseCase;
 import com.temnafesta.application.usecase.CriarClienteUseCase;
 import com.temnafesta.application.usecase.ListarClientesUseCase;
 import com.temnafesta.domain.model.Cliente;
+import com.temnafesta.presentation.dto.AtualizarClienteRequestDto;
 import com.temnafesta.presentation.dto.ClienteResponseDto;
 import com.temnafesta.presentation.dto.CriarClienteRequestDto;
 import com.temnafesta.presentation.mapper.ClientePresentationMapper;
@@ -27,15 +30,18 @@ public class ClienteController {
     private final ClientePresentationMapper mapper;
     private final ListarClientesUseCase listarClientesUseCase;
     private final BuscarClientePorIdUseCase buscarClientePorIdUseCase;
+    private final AtualizarClienteUseCase atualizarClienteUseCase;
 
     public ClienteController(
             CriarClienteUseCase criarClienteUseCase,
             ClientePresentationMapper mapper,
             ListarClientesUseCase listarClientesUseCase,
+            AtualizarClienteUseCase atualizarClienteUseCase,
             BuscarClientePorIdUseCase buscarClientePorIdUseCase) {
         this.criarClienteUseCase = criarClienteUseCase;
         this.mapper = mapper;
         this.listarClientesUseCase = listarClientesUseCase;
+        this.atualizarClienteUseCase = atualizarClienteUseCase;
         this.buscarClientePorIdUseCase = buscarClientePorIdUseCase;
     }
 
@@ -63,7 +69,9 @@ public class ClienteController {
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
-        if (response.isEmpty()) {return ResponseEntity.noContent().build();}
+        if (response.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(response);
     }
 
@@ -75,5 +83,16 @@ public class ClienteController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(mapper.toResponse(cliente));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Atualiza os dados de um cliente existente")
+    public ResponseEntity<ClienteResponseDto> atualizar(@PathVariable Long id, @Valid @RequestBody AtualizarClienteRequestDto request) {
+        AtualizarClienteCommand command = mapper.toCommand(request);
+        Cliente clienteAtualizado = atualizarClienteUseCase.executar(id, command);
+        if (clienteAtualizado == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
     }
 }
