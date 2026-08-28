@@ -33,6 +33,9 @@ public class Cliente {
         if (deletado != null) this.deletado = deletado;
     }
 
+    public void alterarStatus(boolean novoStatus){
+        this.ativo = novoStatus;
+    }
 
     public Long getId() { return id; }
     public String getNome() { return nome; }

@@ -41,4 +41,9 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public boolean existePedidoEmAndamentoPorCliente(Long clienteId) {
+        return repository.existePedidoEmAndamentoPorCliente(clienteId);
+    }
 }

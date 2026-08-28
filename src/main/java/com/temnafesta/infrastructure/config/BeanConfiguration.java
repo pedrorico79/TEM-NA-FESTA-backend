@@ -88,4 +88,9 @@ public class BeanConfiguration {
     public AtualizarClienteUseCase atualizarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
         return new AtualizarClienteUseCase(clienteRepositoryPort);
     }
+
+    @Bean
+    public AlternarAtivoClienteUseCase alternarAtivoClienteUseCase(ClienteRepositoryPort clienteRepositoryPort, PedidoRepositoryPort pedidoRepositoryPort) {
+        return new AlternarAtivoClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
+    }
 }

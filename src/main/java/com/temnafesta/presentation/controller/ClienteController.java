@@ -1,13 +1,12 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.dto.AlternarAtivoClienteCommand;
 import com.temnafesta.application.dto.AtualizarClienteCommand;
 import com.temnafesta.application.dto.CriarClienteCommand;
 import com.temnafesta.application.dto.ListarClientesQuery;
-import com.temnafesta.application.usecase.AtualizarClienteUseCase;
-import com.temnafesta.application.usecase.BuscarClientePorIdUseCase;
-import com.temnafesta.application.usecase.CriarClienteUseCase;
-import com.temnafesta.application.usecase.ListarClientesUseCase;
+import com.temnafesta.application.usecase.*;
 import com.temnafesta.domain.model.Cliente;
+import com.temnafesta.presentation.dto.AlternarStatusRequestDto;
 import com.temnafesta.presentation.dto.AtualizarClienteRequestDto;
 import com.temnafesta.presentation.dto.ClienteResponseDto;
 import com.temnafesta.presentation.dto.CriarClienteRequestDto;
@@ -31,17 +30,20 @@ public class ClienteController {
     private final ListarClientesUseCase listarClientesUseCase;
     private final BuscarClientePorIdUseCase buscarClientePorIdUseCase;
     private final AtualizarClienteUseCase atualizarClienteUseCase;
+    private final AlternarAtivoClienteUseCase alternarAtivoClienteUseCase;
 
     public ClienteController(
             CriarClienteUseCase criarClienteUseCase,
             ClientePresentationMapper mapper,
             ListarClientesUseCase listarClientesUseCase,
             AtualizarClienteUseCase atualizarClienteUseCase,
-            BuscarClientePorIdUseCase buscarClientePorIdUseCase) {
+            BuscarClientePorIdUseCase buscarClientePorIdUseCase,
+            AlternarAtivoClienteUseCase alternarAtivoClienteUseCase) {
         this.criarClienteUseCase = criarClienteUseCase;
         this.mapper = mapper;
         this.listarClientesUseCase = listarClientesUseCase;
         this.atualizarClienteUseCase = atualizarClienteUseCase;
+        this.alternarAtivoClienteUseCase = alternarAtivoClienteUseCase;
         this.buscarClientePorIdUseCase = buscarClientePorIdUseCase;
     }
 
@@ -93,6 +95,20 @@ public class ClienteController {
         if (clienteAtualizado == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
+    }
+
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Altera o status ativo/inativo de um cliente",
+            description = "Impede a desativação caso existam pedidos em andamento.")
+    public ResponseEntity<ClienteResponseDto> alternarStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody AlternarStatusRequestDto request
+    ) {
+        AlternarAtivoClienteCommand command = new AlternarAtivoClienteCommand(id, request.ativo());
+
+        Cliente clienteAtualizado = alternarAtivoClienteUseCase.executar(command);
+
         return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
     }
 }
