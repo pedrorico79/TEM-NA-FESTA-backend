@@ -10,4 +10,6 @@ public interface ProdutoRepositoryPort {
     Optional<Produto> buscarPorId(Long id);
 
     List<Produto> listarPorNome(String nome);
+
+    Produto salvar(Produto produto);
 }

@@ -1,7 +1,10 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.dto.CriarProdutoCommand;
+import com.temnafesta.application.usecase.CriarProdutoUseCase;
 import com.temnafesta.application.usecase.ListarProdutosUseCase;
 import com.temnafesta.domain.model.Produto;
+import com.temnafesta.presentation.dto.CriarProdutoRequestDto;
 import com.temnafesta.presentation.dto.ProdutoResponseDto;
 import com.temnafesta.presentation.mapper.ProdutoPresentationMapper;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,9 @@ class ProdutoControllerTest {
 
     @Mock
     private ListarProdutosUseCase listarProdutosUseCase;
+
+    @Mock
+    private CriarProdutoUseCase criarProdutoUseCase;
 
     @Mock
     private ProdutoPresentationMapper mapper;
@@ -54,5 +60,40 @@ class ProdutoControllerTest {
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertNotNull(resposta.getBody());
         assertEquals(List.of(produtoResponse), resposta.getBody());
+    }
+
+    @Test
+    void deveCadastrarProdutoERetornarStatusCriado() {
+        CriarProdutoRequestDto request = new CriarProdutoRequestDto(
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                null);
+        CriarProdutoCommand command = new CriarProdutoCommand(
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                null);
+        Produto produtoSalvo = new Produto(
+                1L,
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                true,
+                false);
+        ProdutoResponseDto response = new ProdutoResponseDto(
+                1L,
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                true);
+        when(mapper.toCommand(request)).thenReturn(command);
+        when(criarProdutoUseCase.executar(command)).thenReturn(produtoSalvo);
+        when(mapper.toResponse(produtoSalvo)).thenReturn(response);
+
+        ResponseEntity<ProdutoResponseDto> resposta = produtoController.criar(request);
+
+        assertEquals(HttpStatus.CREATED, resposta.getStatusCode());
+        assertEquals(response, resposta.getBody());
     }
 }

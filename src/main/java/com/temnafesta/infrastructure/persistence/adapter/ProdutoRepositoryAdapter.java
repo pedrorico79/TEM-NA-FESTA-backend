@@ -31,4 +31,9 @@ public class ProdutoRepositoryAdapter implements ProdutoRepositoryPort {
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public Produto salvar(Produto produto) {
+        return mapper.toDomain(repository.save(mapper.toEntity(produto)));
+    }
 }

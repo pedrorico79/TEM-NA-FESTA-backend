@@ -21,8 +21,8 @@ public class Produto {
         if (nome == null || nome.isBlank()) {
             throw new RegraDeNegocioException("O nome do produto é obrigatório.");
         }
-        if (precoVenda == null || precoVenda.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RegraDeNegocioException("O preço de venda do produto deve ser maior ou igual a zero.");
+        if (precoVenda == null || precoVenda.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RegraDeNegocioException("O preço de venda do produto deve ser maior que zero.");
         }
         this.id = id;
         this.nome = nome;
