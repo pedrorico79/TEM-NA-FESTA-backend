@@ -27,18 +27,24 @@ public class Pedido {
     private boolean deletado = false;
 
     public Pedido(Long id, LocalDateTime dataPedido, LocalDateTime dataEntrega, BigDecimal taxaEntrega,
-                  String observacao, Long clienteId, Long usuarioId, Long eventoId, Long enderecoEntregaId) {
+                  String observacao, Long clienteId, Long usuarioId, Long eventoId, Long enderecoEntregaId,
+                  List<ItemPedido> itens, List<Pagamento> pagamentos) {
         this.id = id;
         this.dataPedido = dataPedido != null ? dataPedido : LocalDateTime.now();
         this.dataEntrega = dataEntrega;
         this.taxaEntrega = taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO;
         this.observacao = observacao;
-        this.statusProducao = StatusProducaoEnum.RASCUNHO; // Status inicial por padrão
+        this.statusProducao = StatusProducaoEnum.RASCUNHO;
         this.clienteId = clienteId;
         this.usuarioId = usuarioId;
         this.eventoId = eventoId;
         this.enderecoEntregaId = enderecoEntregaId;
         this.valorTotal = BigDecimal.ZERO;
+        // Garante que a lista interna seja mutável para os métodos adicionarItem e adicionarPagamento
+        if (itens != null) this.itens.addAll(itens);
+        if (pagamentos != null) this.pagamentos.addAll(pagamentos);
+        // Recalcula o total caso o pedido já venha do banco com itens
+        recalcularValorTotal();
     }
 
     // --- REGRAS DE NEGÓCIO DA MÁQUINA DE ESTADOS ---

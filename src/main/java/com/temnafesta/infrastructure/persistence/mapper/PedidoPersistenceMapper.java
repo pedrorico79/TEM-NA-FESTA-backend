@@ -8,6 +8,7 @@ import com.temnafesta.infrastructure.persistence.entity.PagamentoJpaEntity;
 import com.temnafesta.infrastructure.persistence.entity.PedidoJpaEntity;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface PedidoPersistenceMapper {
@@ -26,12 +27,25 @@ public interface PedidoPersistenceMapper {
 
     // Garante o relacionamento bidirecional entre Pedido e seus Filhos (Itens/Pagamentos)
     @AfterMapping
-    default void vincularFilhosAoPedido(Pedido domain, @org.mapstruct.MappingTarget PedidoJpaEntity entity) {
+    default void vincularFilhosAoPedido(Pedido domain, @MappingTarget PedidoJpaEntity entity) {
         if (entity.getItens() != null) {
             entity.getItens().forEach(item -> item.setPedido(entity));
         }
         if (entity.getPagamentos() != null) {
             entity.getPagamentos().forEach(pagamento -> pagamento.setPedido(entity));
+        }
+    }
+
+    // Force eager loading dos itens e pagamentos para evitar LazyInitializationException
+    @AfterMapping
+    default void inicializarColecoes(PedidoJpaEntity entity, @MappingTarget Pedido domain) {
+        if (entity.getItens() != null) {
+            // Força carregamento da coleção lazy
+            entity.getItens().size();
+        }
+        if (entity.getPagamentos() != null) {
+            // Força carregamento da coleção lazy
+            entity.getPagamentos().size();
         }
     }
 }

@@ -99,6 +99,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErroResponse> handleGenericException(Exception ex) {
+        ex.printStackTrace();
         ErroResponse erroResponse = new ErroResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Erro Interno do Servidor",

@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,6 +38,7 @@ public class PedidoController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<PedidoResponseDto> criarPedido(@Valid @RequestBody CriarPedidoRequestDto request) {
         // 1. Converte DTO HTTP para Command Interno
         CriarPedidoCommand command = mapper.toCommand(request);
@@ -51,6 +53,7 @@ public class PedidoController {
     }
 
     @PatchMapping("/{id}/status")
+    @Transactional
     public ResponseEntity<PedidoResponseDto> alterarStatus(@PathVariable Long id,
                                                            @Valid @RequestBody AlterarStatusRequestDto request,
                                                            @AuthenticationPrincipal Usuario usuario) {
@@ -59,6 +62,7 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
+    @Transactional
     public ResponseEntity<PedidoResponseDto> listarPorId(@PathVariable Long id){
         Pedido pedido = listarPedidoPorIdUseCase.executar(id);
 
@@ -68,6 +72,7 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}/recibo")
+    @Transactional
     public ResponseEntity<String> gerarReciboDigital(@PathVariable Long id) {
         // Retorna o texto formatado para o WhatsApp
         String recibo = gerarReciboDigitalUseCase.executar(id);

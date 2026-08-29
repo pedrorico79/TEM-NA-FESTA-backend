@@ -15,7 +15,6 @@ public class ListarPedidoPorIdUseCase {
     public Pedido executar(Long pedidoId){
         Pedido pedido = pedidoRepositoryPort.buscarPorId(pedidoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Pedido não encontrado com ID: " + pedidoId));
-
         return pedido;
     }
 }

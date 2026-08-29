@@ -9,6 +9,8 @@ import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
 
+import java.util.ArrayList;
+
 public class CriarPedidoInternoUseCase {
 
     private final PedidoRepositoryPort pedidoRepositoryPort;
@@ -38,10 +40,12 @@ public class CriarPedidoInternoUseCase {
                 command.clienteId(),
                 command.usuarioId(),
                 command.eventoId(),
-                command.enderecoEntregaId()
+                command.enderecoEntregaId(),
+                new ArrayList<>(),
+                new ArrayList<>()
         );
 
-        // 3. Monta e adiciona os itens com o preço unitário congelado do cadastro
+        // 3. Monta e adiciona os itens com o preço unitário informado pelo usuário
         for (CriarPedidoCommand.ItemCommand itemDto : command.itens()) {
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
                     .orElseThrow(() -> new RegraDeNegocioException("Produto não encontrado com o ID: " + itemDto.produtoId()));
@@ -55,7 +59,7 @@ public class CriarPedidoInternoUseCase {
                     null,
                     produto.getId(),
                     itemDto.quantidade(),
-                    produto.getPrecoVenda(), // Preço atual do cardápio congelado no item
+                    itemDto.precoUnitario(), // Preço unitário definido pelo usuário
                     itemDto.observacaoItem()
             );
 
