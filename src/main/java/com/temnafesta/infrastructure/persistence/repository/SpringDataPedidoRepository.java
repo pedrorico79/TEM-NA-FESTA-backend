@@ -19,11 +19,4 @@ public interface SpringDataPedidoRepository extends JpaRepository<PedidoJpaEntit
     List<PedidoJpaEntity> listarPorFiltros(@Param("status") StatusProducaoEnum status,
                                            @Param("inicio") LocalDateTime inicio,
                                            @Param("fim") LocalDateTime fim);
-
-
-    @Query("SELECT COUNT(p) > 0 FROM PedidoJpaEntity p " +
-            "WHERE p.clienteId = :clienteId " +
-            "AND p.statusProducao NOT IN ('ENTREGUE', 'CANCELADO') " +
-            "AND p.deletado = false")
-    boolean existePedidoEmAndamentoPorCliente(@Param("clienteId") Long clienteId);
 }
