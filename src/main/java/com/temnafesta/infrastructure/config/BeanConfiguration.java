@@ -68,4 +68,29 @@ public class BeanConfiguration {
     public DeletarLembreteUseCase deletarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
         return new DeletarLembreteUseCase(lembreteRepositoryPort);
     }
+
+    @Bean
+    public CriarClienteUseCase criarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new CriarClienteUseCase(clienteRepositoryPort);
+    }
+
+    @Bean
+    public ListarClientesUseCase listarClientesUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new ListarClientesUseCase(clienteRepositoryPort);
+    }
+
+    @Bean
+    public BuscarClientePorIdUseCase buscarClientePorIdUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new BuscarClientePorIdUseCase(clienteRepositoryPort);
+    }
+
+    @Bean
+    public AtualizarClienteUseCase atualizarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new AtualizarClienteUseCase(clienteRepositoryPort);
+    }
+
+    @Bean
+    public AlternarAtivoClienteUseCase alternarAtivoClienteUseCase(ClienteRepositoryPort clienteRepositoryPort, PedidoRepositoryPort pedidoRepositoryPort) {
+        return new AlternarAtivoClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
+    }
 }
