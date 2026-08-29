@@ -4,6 +4,7 @@ import com.temnafesta.application.dto.CriarPedidoCommand;
 import com.temnafesta.application.usecase.AlterarStatusPedidoUseCase;
 import com.temnafesta.application.usecase.CriarPedidoInternoUseCase;
 import com.temnafesta.application.usecase.GerarReciboDigitalUseCase;
+import com.temnafesta.application.usecase.ListarPedidoPorIdUseCase;
 import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.model.Usuario;
 import org.springframework.security.core.userdetails.User;
@@ -24,15 +25,14 @@ public class PedidoController {
     private final CriarPedidoInternoUseCase criarPedidoInternoUseCase;
     private final AlterarStatusPedidoUseCase alterarStatusPedidoUseCase;
     private final GerarReciboDigitalUseCase gerarReciboDigitalUseCase;
+    private final ListarPedidoPorIdUseCase listarPedidoPorIdUseCase;
     private final PedidoPresentationMapper mapper;
 
-    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase,
-                            AlterarStatusPedidoUseCase alterarStatusPedidoUseCase,
-                            GerarReciboDigitalUseCase gerarReciboDigitalUseCase,
-                            PedidoPresentationMapper mapper) {
+    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, PedidoPresentationMapper mapper) {
         this.criarPedidoInternoUseCase = criarPedidoInternoUseCase;
         this.alterarStatusPedidoUseCase = alterarStatusPedidoUseCase;
         this.gerarReciboDigitalUseCase = gerarReciboDigitalUseCase;
+        this.listarPedidoPorIdUseCase = listarPedidoPorIdUseCase;
         this.mapper = mapper;
     }
 
@@ -56,6 +56,15 @@ public class PedidoController {
                                                            @AuthenticationPrincipal Usuario usuario) {
         Pedido pedidoAtualizado = alterarStatusPedidoUseCase.executar(id, request.novoStatus(), usuario.getId(), request.observacao());
         return ResponseEntity.ok(mapper.toResponse(pedidoAtualizado));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PedidoResponseDto> listarPorId(@PathVariable Long id){
+        Pedido pedido = listarPedidoPorIdUseCase.executar(id);
+
+        PedidoResponseDto response = mapper.toResponse(pedido);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/recibo")

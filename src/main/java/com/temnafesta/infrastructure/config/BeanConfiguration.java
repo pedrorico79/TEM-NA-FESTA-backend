@@ -17,6 +17,7 @@ public class BeanConfiguration {
             JwtTokenProvider jwtTokenProvider) {
         return new AutenticarUsuarioUseCase(usuarioRepositoryPort, passwordEncoder, jwtTokenProvider);
     }
+
     @Bean
     public CriarPedidoInternoUseCase criarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
@@ -50,7 +51,8 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public ListarMetodosPagamentoUseCase listarMetodosPagamentoUseCase(MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
+    public ListarMetodosPagamentoUseCase listarMetodosPagamentoUseCase(
+            MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
         return new ListarMetodosPagamentoUseCase(metodoPagamentoRepositoryPort);
     }
 
@@ -115,7 +117,15 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public AlternarAtivoClienteUseCase alternarAtivoClienteUseCase(ClienteRepositoryPort clienteRepositoryPort, PedidoRepositoryPort pedidoRepositoryPort) {
+    public AlternarAtivoClienteUseCase alternarAtivoClienteUseCase(
+            ClienteRepositoryPort clienteRepositoryPort,
+            PedidoRepositoryPort pedidoRepositoryPort) {
         return new AlternarAtivoClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPedidoPorIdUseCase listarPedidoPorIdUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarPedidoPorIdUseCase(pedidoRepositoryPort);
     }
 }
