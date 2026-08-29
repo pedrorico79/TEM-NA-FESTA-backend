@@ -55,6 +55,11 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public ListarProdutosUseCase listarProdutosUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new ListarProdutosUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
     public CriarLembreteUseCase criarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
         return new CriarLembreteUseCase(lembreteRepositoryPort);
     }
