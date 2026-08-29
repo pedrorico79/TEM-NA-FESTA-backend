@@ -128,4 +128,9 @@ public class BeanConfiguration {
             PedidoRepositoryPort pedidoRepositoryPort) {
         return new ListarPedidoPorIdUseCase(pedidoRepositoryPort);
     }
+
+    @Bean
+    public AtualizarPedidoUseCase atualizarPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort, ProdutoRepositoryPort produtoRepositoryPort) {
+        return new AtualizarPedidoUseCase(pedidoRepositoryPort, produtoRepositoryPort);
+    }
 }

@@ -1,13 +1,11 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.dto.AtualizarPedidoCommand;
 import com.temnafesta.application.dto.CriarPedidoCommand;
-import com.temnafesta.application.usecase.AlterarStatusPedidoUseCase;
-import com.temnafesta.application.usecase.CriarPedidoInternoUseCase;
-import com.temnafesta.application.usecase.GerarReciboDigitalUseCase;
-import com.temnafesta.application.usecase.ListarPedidoPorIdUseCase;
+import com.temnafesta.application.usecase.*;
 import com.temnafesta.domain.model.Pedido;
-import com.temnafesta.domain.model.Usuario;
-import org.springframework.security.core.userdetails.User;
+import com.temnafesta.infrastructure.security.user.UsuarioAutenticado;
+import com.temnafesta.presentation.dto.AtualizarPedidoRequestDto;
 import com.temnafesta.presentation.dto.AlterarStatusRequestDto;
 import com.temnafesta.presentation.dto.CriarPedidoRequestDto;
 import com.temnafesta.presentation.dto.PedidoResponseDto;
@@ -27,21 +25,24 @@ public class PedidoController {
     private final AlterarStatusPedidoUseCase alterarStatusPedidoUseCase;
     private final GerarReciboDigitalUseCase gerarReciboDigitalUseCase;
     private final ListarPedidoPorIdUseCase listarPedidoPorIdUseCase;
+    private final AtualizarPedidoUseCase atualizarPedidoUseCase;
     private final PedidoPresentationMapper mapper;
 
-    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, PedidoPresentationMapper mapper) {
+    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, PedidoPresentationMapper mapper) {
         this.criarPedidoInternoUseCase = criarPedidoInternoUseCase;
         this.alterarStatusPedidoUseCase = alterarStatusPedidoUseCase;
         this.gerarReciboDigitalUseCase = gerarReciboDigitalUseCase;
         this.listarPedidoPorIdUseCase = listarPedidoPorIdUseCase;
+        this.atualizarPedidoUseCase = atualizarPedidoUseCase;
         this.mapper = mapper;
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity<PedidoResponseDto> criarPedido(@Valid @RequestBody CriarPedidoRequestDto request) {
+    public ResponseEntity<PedidoResponseDto> criarPedido(@Valid @RequestBody CriarPedidoRequestDto request,
+                                                        @AuthenticationPrincipal UsuarioAutenticado usuario) {
         // 1. Converte DTO HTTP para Command Interno
-        CriarPedidoCommand command = mapper.toCommand(request);
+        CriarPedidoCommand command = mapper.toCommand(usuario.getId(), request);
 
         // 2. Executa a Regra de Negócio Pura
         Pedido pedidoSalvo = criarPedidoInternoUseCase.executar(command);
@@ -56,14 +57,14 @@ public class PedidoController {
     @Transactional
     public ResponseEntity<PedidoResponseDto> alterarStatus(@PathVariable Long id,
                                                            @Valid @RequestBody AlterarStatusRequestDto request,
-                                                           @AuthenticationPrincipal Usuario usuario) {
+                                                           @AuthenticationPrincipal UsuarioAutenticado usuario) {
         Pedido pedidoAtualizado = alterarStatusPedidoUseCase.executar(id, request.novoStatus(), usuario.getId(), request.observacao());
         return ResponseEntity.ok(mapper.toResponse(pedidoAtualizado));
     }
 
     @GetMapping("/{id}")
     @Transactional
-    public ResponseEntity<PedidoResponseDto> listarPorId(@PathVariable Long id){
+    public ResponseEntity<PedidoResponseDto> listarPorId(@PathVariable Long id) {
         Pedido pedido = listarPedidoPorIdUseCase.executar(id);
 
         PedidoResponseDto response = mapper.toResponse(pedido);
@@ -77,5 +78,21 @@ public class PedidoController {
         // Retorna o texto formatado para o WhatsApp
         String recibo = gerarReciboDigitalUseCase.executar(id);
         return ResponseEntity.ok(recibo);
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<PedidoResponseDto> atualizarPedido(@PathVariable Long id,
+                                                             @Valid @RequestBody AtualizarPedidoRequestDto request) {
+        // 1. Converte DTO HTTP para Command Interno
+        AtualizarPedidoCommand command = mapper.toCommand(id, request);
+
+        // 2. Executa a Regra de Negócio Pura
+        Pedido pedidoAtualizado = atualizarPedidoUseCase.executar(command);
+
+        // 3. Converte o resultado de volta para DTO HTTP
+        PedidoResponseDto response = mapper.toResponse(pedidoAtualizado);
+
+        return ResponseEntity.ok(response);
     }
 }

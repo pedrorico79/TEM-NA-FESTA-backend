@@ -46,4 +46,12 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     public boolean existePedidoEmAndamentoPorCliente(Long clienteId) {
         return repository.existePedidoEmAndamentoPorCliente(clienteId);
     }
+
+    //TODO: validar necessidade de duplicidade de código para diferenciar atualizar e salver
+    @Override
+    public Pedido atualizar(Pedido pedido) {
+        PedidoJpaEntity entity = mapper.toEntity(pedido);
+        PedidoJpaEntity entityAtualizada = repository.save(entity);
+        return mapper.toDomain(entityAtualizada);
+    }
 }

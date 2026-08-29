@@ -100,6 +100,33 @@ public class Pedido {
         return calcularTotalPago().compareTo(valorMinimoSinal) >= 0;
     }
 
+    // --- MÉTODOS DE ATUALIZAÇÃO ---
+
+    public void atualizarDadosBasicos(LocalDateTime dataEntrega, BigDecimal taxaEntrega, String observacao, Long enderecoEntregaId) {
+        if (List.of(StatusProducaoEnum.ENTREGUE, StatusProducaoEnum.CANCELADO).contains(this.statusProducao)) {
+            throw new RegraDeNegocioException("Não é permitido alterar dados de um pedido finalizado ou cancelado.");
+        }
+
+        this.dataEntrega = dataEntrega;
+        this.taxaEntrega = taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO;
+        this.observacao = observacao;
+        this.enderecoEntregaId = enderecoEntregaId;
+
+        recalcularValorTotal();
+    }
+
+    public void substituirItens(List<ItemPedido> novosItens) {
+        if (List.of(StatusProducaoEnum.EM_PRODUCAO, StatusProducaoEnum.PRONTO_PARA_ENTREGA,
+                StatusProducaoEnum.ENTREGUE, StatusProducaoEnum.CANCELADO).contains(this.statusProducao)) {
+            throw new RegraDeNegocioException("Não é permitido alterar os itens de um pedido que já está em produção ou finalizado.");
+        }
+
+        this.itens.clear();
+        this.itens.addAll(novosItens);
+
+        recalcularValorTotal();
+    }
+
     // Getters
     public Long getId() { return id; }
     public LocalDateTime getDataPedido() { return dataPedido; }

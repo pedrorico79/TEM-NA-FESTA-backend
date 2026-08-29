@@ -9,9 +9,18 @@ import java.util.Optional;
 
 public interface PedidoRepositoryPort {
     Pedido salvar(Pedido pedido);
+
     Optional<Pedido> buscarPorId(Long id);
-    List<Pedido> listarPorFiltros(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim);
+
+    List<Pedido> listarPorFiltros(
+            StatusProducaoEnum status,
+            LocalDateTime inicio,
+            LocalDateTime fim
+    );
+
     // O adaptador desta porta no JPA deverá buscar pedidos do cliente cujo
     // status_producao_id represente algo em andamento (diferente de ENTREGUE ou CANCELADO).
     boolean existePedidoEmAndamentoPorCliente(Long clienteId);
+
+    Pedido atualizar(Pedido pedido);
 }
