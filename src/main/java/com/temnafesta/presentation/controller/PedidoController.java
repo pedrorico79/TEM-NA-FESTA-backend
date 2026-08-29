@@ -10,6 +10,7 @@ import com.temnafesta.presentation.dto.AlterarStatusRequestDto;
 import com.temnafesta.presentation.dto.CriarPedidoRequestDto;
 import com.temnafesta.presentation.dto.PedidoResponseDto;
 import com.temnafesta.presentation.mapper.PedidoPresentationMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +27,16 @@ public class PedidoController {
     private final GerarReciboDigitalUseCase gerarReciboDigitalUseCase;
     private final ListarPedidoPorIdUseCase listarPedidoPorIdUseCase;
     private final AtualizarPedidoUseCase atualizarPedidoUseCase;
+    private final ExcluirPedidoUseCase excluirPedidoUseCase;
     private final PedidoPresentationMapper mapper;
 
-    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, PedidoPresentationMapper mapper) {
+    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, ExcluirPedidoUseCase excluirPedidoUseCase, PedidoPresentationMapper mapper) {
         this.criarPedidoInternoUseCase = criarPedidoInternoUseCase;
         this.alterarStatusPedidoUseCase = alterarStatusPedidoUseCase;
         this.gerarReciboDigitalUseCase = gerarReciboDigitalUseCase;
         this.listarPedidoPorIdUseCase = listarPedidoPorIdUseCase;
         this.atualizarPedidoUseCase = atualizarPedidoUseCase;
+        this.excluirPedidoUseCase = excluirPedidoUseCase;
         this.mapper = mapper;
     }
 
@@ -94,5 +97,13 @@ public class PedidoController {
         PedidoResponseDto response = mapper.toResponse(pedidoAtualizado);
 
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "cancela pedido (soft delete)", description = "Altera o status para CANCELADO e marca o pedido como deletado logicamente.")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        excluirPedidoUseCase.executar(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

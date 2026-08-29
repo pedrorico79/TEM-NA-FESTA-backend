@@ -133,4 +133,9 @@ public class BeanConfiguration {
     public AtualizarPedidoUseCase atualizarPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort, ProdutoRepositoryPort produtoRepositoryPort) {
         return new AtualizarPedidoUseCase(pedidoRepositoryPort, produtoRepositoryPort);
     }
+
+    @Bean
+    public ExcluirPedidoUseCase excluirPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ExcluirPedidoUseCase(pedidoRepositoryPort);
+    }
 }

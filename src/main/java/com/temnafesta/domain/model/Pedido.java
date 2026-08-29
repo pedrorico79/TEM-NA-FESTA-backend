@@ -127,6 +127,25 @@ public class Pedido {
         recalcularValorTotal();
     }
 
+    // --- MÉTODOS DE CICLO DE VIDA ---
+
+    public void excluirLogicamente() {
+        if (this.deletado) {
+            throw new RegraDeNegocioException("Este pedido já foi deletado.");
+        }
+
+        if (StatusProducaoEnum.ENTREGUE.equals(this.statusProducao)) {
+            throw new RegraDeNegocioException("Não é possível cancelar ou excluir um pedido que já foi entregue.");
+        }
+
+        // Se o pedido ainda não estiver cancelado, força a transição pela Máquina de Estados
+        if (!StatusProducaoEnum.CANCELADO.equals(this.statusProducao)) {
+            transitarPara(StatusProducaoEnum.CANCELADO);
+        }
+
+        this.deletado = true;
+    }
+
     // Getters
     public Long getId() { return id; }
     public LocalDateTime getDataPedido() { return dataPedido; }
