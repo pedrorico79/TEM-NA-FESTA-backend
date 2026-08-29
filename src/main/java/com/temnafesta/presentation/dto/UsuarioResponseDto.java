@@ -8,7 +8,6 @@ public record UsuarioResponseDto(
         Long id,
         String nome,
         String email,
-        String senha,
         boolean ativo,
         boolean deletado,
         LocalDateTime dataCriacao,
