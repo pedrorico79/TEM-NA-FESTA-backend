@@ -3,12 +3,12 @@ package com.temnafesta.presentation.controller;
 import com.temnafesta.application.dto.AtualizarPedidoCommand;
 import com.temnafesta.application.dto.CriarPedidoCommand;
 import com.temnafesta.application.usecase.*;
+import com.temnafesta.domain.model.ItemPedido;
+import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
+import com.temnafesta.domain.vo.StatusProducaoEnum;
 import com.temnafesta.infrastructure.security.user.UsuarioAutenticado;
-import com.temnafesta.presentation.dto.AtualizarPedidoRequestDto;
-import com.temnafesta.presentation.dto.AlterarStatusRequestDto;
-import com.temnafesta.presentation.dto.CriarPedidoRequestDto;
-import com.temnafesta.presentation.dto.PedidoResponseDto;
+import com.temnafesta.presentation.dto.*;
 import com.temnafesta.presentation.mapper.PedidoPresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/pedidos")
@@ -28,15 +30,25 @@ public class PedidoController {
     private final ListarPedidoPorIdUseCase listarPedidoPorIdUseCase;
     private final AtualizarPedidoUseCase atualizarPedidoUseCase;
     private final ExcluirPedidoUseCase excluirPedidoUseCase;
+    private final ContarPorStatusUseCase contarPorStatusUseCase;
+    private final ListarProximasRetiradasUseCase listarProximasRetiradasUseCase;
+    private final ListarPedidosUseCase listarPedidosUseCase;
+    private final ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase;
+    private final ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase;
     private final PedidoPresentationMapper mapper;
 
-    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, ExcluirPedidoUseCase excluirPedidoUseCase, PedidoPresentationMapper mapper) {
+    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, ExcluirPedidoUseCase excluirPedidoUseCase, ContarPorStatusUseCase contarPorStatusUseCase, ListarProximasRetiradasUseCase listarProximasRetiradasUseCase, ListarPedidosUseCase listarPedidosUseCase, ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase, ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase, PedidoPresentationMapper mapper) {
         this.criarPedidoInternoUseCase = criarPedidoInternoUseCase;
         this.alterarStatusPedidoUseCase = alterarStatusPedidoUseCase;
         this.gerarReciboDigitalUseCase = gerarReciboDigitalUseCase;
         this.listarPedidoPorIdUseCase = listarPedidoPorIdUseCase;
         this.atualizarPedidoUseCase = atualizarPedidoUseCase;
         this.excluirPedidoUseCase = excluirPedidoUseCase;
+        this.contarPorStatusUseCase = contarPorStatusUseCase;
+        this.listarProximasRetiradasUseCase = listarProximasRetiradasUseCase;
+        this.listarPedidosUseCase = listarPedidosUseCase;
+        this.listarItemPedidoPorIdUseCase = listarItemPedidoPorIdUseCase;
+        this.listarPagamentosPedidoUseCase = listarPagamentosPedidoUseCase;
         this.mapper = mapper;
     }
 
@@ -105,5 +117,72 @@ public class PedidoController {
         excluirPedidoUseCase.executar(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/count-by-status")
+    public ResponseEntity<?> contarPorStatus() {
+        return ResponseEntity.ok(contarPorStatusUseCase.executar());
+    }
+
+    @GetMapping("/proximas-retiradas")
+    @Transactional
+    public ResponseEntity<List<PedidoResponseDto>> listarProximasRetiradas(
+            @RequestParam int dias) {
+
+        List<Pedido> pedidos =
+                listarProximasRetiradasUseCase.executar(dias);
+
+        List<PedidoResponseDto> response = pedidos.stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    @Transactional
+    public ResponseEntity<List<PedidoResponseDto>> listarPedidos(
+            @RequestParam(required = false) String busca,
+            @RequestParam(required = false) StatusProducaoEnum status,
+            @RequestParam(required = false) Long evento) {
+
+        List<Pedido> pedidos = listarPedidosUseCase.executar(
+                busca,
+                status,
+                evento
+        );
+
+        List<PedidoResponseDto> response = pedidos.stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{pedidoId}/itens/{itemId}")
+    @Transactional
+    public ResponseEntity<ItemPedidoResponseDto> listarItemPorId(
+            @PathVariable Long pedidoId,
+            @PathVariable Long itemId) {
+
+        ItemPedido item =
+                listarItemPedidoPorIdUseCase.executar(pedidoId, itemId);
+
+        return ResponseEntity.ok(mapper.toResponse(item));
+    }
+
+    @GetMapping("/{id}/pagamentos")
+    @Transactional
+    public ResponseEntity<List<PagamentoResponseDto>> listarPagamentos(
+            @PathVariable Long id) {
+
+        List<Pagamento> pagamentos =
+                listarPagamentosPedidoUseCase.executar(id);
+
+        List<PagamentoResponseDto> response = pagamentos.stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 }

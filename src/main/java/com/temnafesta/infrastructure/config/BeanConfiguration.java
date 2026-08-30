@@ -138,4 +138,36 @@ public class BeanConfiguration {
     public ExcluirPedidoUseCase excluirPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
         return new ExcluirPedidoUseCase(pedidoRepositoryPort);
     }
+
+    @Bean
+    public ContarPorStatusUseCase contarPorStatusUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ContarPorStatusUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarProximasRetiradasUseCase listarProximasRetiradasUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarProximasRetiradasUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPedidosUseCase listarPedidosUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+
+        return new ListarPedidosUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+
+        return new ListarItemPedidoPorIdUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarPagamentosPedidoUseCase(pedidoRepositoryPort);
+    }
 }
