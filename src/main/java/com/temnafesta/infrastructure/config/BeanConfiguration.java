@@ -17,6 +17,7 @@ public class BeanConfiguration {
             JwtTokenProvider jwtTokenProvider) {
         return new AutenticarUsuarioUseCase(usuarioRepositoryPort, passwordEncoder, jwtTokenProvider);
     }
+
     @Bean
     public CriarPedidoInternoUseCase criarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
@@ -50,7 +51,8 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public ListarMetodosPagamentoUseCase listarMetodosPagamentoUseCase(MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
+    public ListarMetodosPagamentoUseCase listarMetodosPagamentoUseCase(
+            MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
         return new ListarMetodosPagamentoUseCase(metodoPagamentoRepositoryPort);
     }
 
@@ -115,7 +117,57 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public AlternarAtivoClienteUseCase alternarAtivoClienteUseCase(ClienteRepositoryPort clienteRepositoryPort, PedidoRepositoryPort pedidoRepositoryPort) {
+    public AlternarAtivoClienteUseCase alternarAtivoClienteUseCase(
+            ClienteRepositoryPort clienteRepositoryPort,
+            PedidoRepositoryPort pedidoRepositoryPort) {
         return new AlternarAtivoClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPedidoPorIdUseCase listarPedidoPorIdUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarPedidoPorIdUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public AtualizarPedidoUseCase atualizarPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort, ProdutoRepositoryPort produtoRepositoryPort) {
+        return new AtualizarPedidoUseCase(pedidoRepositoryPort, produtoRepositoryPort);
+    }
+
+    @Bean
+    public ExcluirPedidoUseCase excluirPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ExcluirPedidoUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ContarPorStatusUseCase contarPorStatusUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ContarPorStatusUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarProximasRetiradasUseCase listarProximasRetiradasUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarProximasRetiradasUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPedidosUseCase listarPedidosUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+
+        return new ListarPedidosUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+
+        return new ListarItemPedidoPorIdUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarPagamentosPedidoUseCase(pedidoRepositoryPort);
     }
 }

@@ -4,13 +4,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record CriarPedidoCommand(
-        Long clienteId,
-        Long usuarioId,
+public record AtualizarPedidoCommand(
+        Long pedidoId,
         LocalDateTime dataEntrega,
         BigDecimal taxaEntrega,
         String observacao,
-        Long eventoId,
         Long enderecoEntregaId,
         List<ItemCommand> itens
 ) {

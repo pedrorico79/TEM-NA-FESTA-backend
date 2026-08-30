@@ -1,10 +1,7 @@
 package com.temnafesta.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -20,12 +17,14 @@ public class ItemPedidoJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", nullable = false)
     private PedidoJpaEntity pedido;
 
-    @Column(name = "produto_id", nullable = false)
-    private Long produtoId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "produto_id", nullable = false)
+    private ProdutoJpaEntity produto;
 
     @Column(nullable = false)
     private Integer quantidade;

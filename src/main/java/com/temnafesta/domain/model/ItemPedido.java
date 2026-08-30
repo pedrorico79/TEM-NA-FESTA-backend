@@ -3,19 +3,33 @@ package com.temnafesta.domain.model;
 import java.math.BigDecimal;
 
 public class ItemPedido {
+
     private Long id;
     private Long produtoId;
+    private Produto produto;
     private Integer quantidade;
     private BigDecimal precoUnitario; // Preço congelado no momento da venda
-    private String observacaoItem;     // Personalizações do item
+    private String observacaoItem;    // Personalizações do item
 
-    public ItemPedido(Long id, Long produtoId, Integer quantidade, BigDecimal precoUnitario, String observacaoItem) {
+    public ItemPedido(
+            Long id,
+            Long produtoId,
+            Integer quantidade,
+            BigDecimal precoUnitario,
+            String observacaoItem
+    ) {
         if (quantidade == null || quantidade <= 0) {
-            throw new IllegalArgumentException("A quantidade do item deve ser maior que zero.");
+            throw new IllegalArgumentException(
+                    "A quantidade do item deve ser maior que zero."
+            );
         }
+
         if (precoUnitario == null || precoUnitario.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("O preço unitário não pode ser negativo.");
+            throw new IllegalArgumentException(
+                    "O preço unitário não pode ser negativo."
+            );
         }
+
         this.id = id;
         this.produtoId = produtoId;
         this.quantidade = quantidade;
@@ -30,7 +44,11 @@ public class ItemPedido {
     // Getters
     public Long getId() { return id; }
     public Long getProdutoId() { return produtoId; }
+    public Produto getProduto() { return produto; }
     public Integer getQuantidade() { return quantidade; }
     public BigDecimal getPrecoUnitario() { return precoUnitario; }
     public String getObservacaoItem() { return observacaoItem; }
+
+    // Setter
+    public void setProduto(Produto produto) { this.produto = produto; }
 }

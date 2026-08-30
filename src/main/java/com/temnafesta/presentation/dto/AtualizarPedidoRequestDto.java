@@ -10,10 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record CriarPedidoRequestDto(
-        @NotNull(message = "O ID do cliente é obrigatório.")
-        Long clienteId,
-
+public record AtualizarPedidoRequestDto(
         @NotNull(message = "A data de entrega é obrigatória.")
         @FutureOrPresent(message = "A data de entrega não pode ser no passado.")
         LocalDateTime dataEntrega,
