@@ -67,4 +67,35 @@ class ProdutoTest {
         assertTrue(produto.isDeletado());
         assertFalse(produto.isAtivo());
     }
+
+    @Test
+    void deveAlterarStatusAtivo() {
+        Produto produto = new Produto(
+                1L,
+                "Bolo de Chocolate",
+                null,
+                new BigDecimal("49.90"),
+                true,
+                false);
+
+        produto.alterarAtivo(false);
+
+        assertFalse(produto.isAtivo());
+    }
+
+    @Test
+    void naoDeveReativarProdutoDeletado() {
+        Produto produto = new Produto(
+                1L,
+                "Bolo de Chocolate",
+                null,
+                new BigDecimal("49.90"),
+                false,
+                true);
+
+        produto.alterarAtivo(true);
+
+        assertTrue(produto.isDeletado());
+        assertFalse(produto.isAtivo());
+    }
 }

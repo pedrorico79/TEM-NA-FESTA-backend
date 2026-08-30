@@ -1,12 +1,15 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.dto.AlterarAtivoProdutoCommand;
 import com.temnafesta.application.dto.AtualizarProdutoCommand;
 import com.temnafesta.application.dto.CriarProdutoCommand;
+import com.temnafesta.application.usecase.AlterarAtivoProdutoUseCase;
 import com.temnafesta.application.usecase.AtualizarProdutoUseCase;
 import com.temnafesta.application.usecase.CriarProdutoUseCase;
 import com.temnafesta.application.usecase.DeletarProdutoUseCase;
 import com.temnafesta.application.usecase.ListarProdutosUseCase;
 import com.temnafesta.domain.model.Produto;
+import com.temnafesta.presentation.dto.AlterarAtivoProdutoRequestDto;
 import com.temnafesta.presentation.dto.AtualizarProdutoRequestDto;
 import com.temnafesta.presentation.dto.CriarProdutoRequestDto;
 import com.temnafesta.presentation.dto.ProdutoResponseDto;
@@ -20,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,17 +42,20 @@ public class ProdutoController {
     private final CriarProdutoUseCase criarProdutoUseCase;
     private final AtualizarProdutoUseCase atualizarProdutoUseCase;
     private final DeletarProdutoUseCase deletarProdutoUseCase;
+    private final AlterarAtivoProdutoUseCase alterarAtivoProdutoUseCase;
     private final ProdutoPresentationMapper mapper;
 
     public ProdutoController(ListarProdutosUseCase listarProdutosUseCase,
                              CriarProdutoUseCase criarProdutoUseCase,
                              AtualizarProdutoUseCase atualizarProdutoUseCase,
                              DeletarProdutoUseCase deletarProdutoUseCase,
+                             AlterarAtivoProdutoUseCase alterarAtivoProdutoUseCase,
                              ProdutoPresentationMapper mapper) {
         this.listarProdutosUseCase = listarProdutosUseCase;
         this.criarProdutoUseCase = criarProdutoUseCase;
         this.atualizarProdutoUseCase = atualizarProdutoUseCase;
         this.deletarProdutoUseCase = deletarProdutoUseCase;
+        this.alterarAtivoProdutoUseCase = alterarAtivoProdutoUseCase;
         this.mapper = mapper;
     }
 
@@ -100,5 +107,19 @@ public class ProdutoController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         deletarProdutoUseCase.executar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/ativo")
+    @Operation(summary = "Altera o status ativo de um produto")
+    @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Status não informado ou inválido")
+    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+    public ResponseEntity<ProdutoResponseDto> alterarAtivo(
+            @PathVariable Long id,
+            @Valid @RequestBody AlterarAtivoProdutoRequestDto request) {
+        AlterarAtivoProdutoCommand command = mapper.toCommand(request, id);
+        Produto produtoAtualizado = alterarAtivoProdutoUseCase.executar(command);
+
+        return ResponseEntity.ok(mapper.toResponse(produtoAtualizado));
     }
 }

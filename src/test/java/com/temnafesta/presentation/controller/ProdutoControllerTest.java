@@ -1,12 +1,15 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.dto.AlterarAtivoProdutoCommand;
 import com.temnafesta.application.dto.AtualizarProdutoCommand;
 import com.temnafesta.application.dto.CriarProdutoCommand;
+import com.temnafesta.application.usecase.AlterarAtivoProdutoUseCase;
 import com.temnafesta.application.usecase.AtualizarProdutoUseCase;
 import com.temnafesta.application.usecase.CriarProdutoUseCase;
 import com.temnafesta.application.usecase.DeletarProdutoUseCase;
 import com.temnafesta.application.usecase.ListarProdutosUseCase;
 import com.temnafesta.domain.model.Produto;
+import com.temnafesta.presentation.dto.AlterarAtivoProdutoRequestDto;
 import com.temnafesta.presentation.dto.AtualizarProdutoRequestDto;
 import com.temnafesta.presentation.dto.CriarProdutoRequestDto;
 import com.temnafesta.presentation.dto.ProdutoResponseDto;
@@ -42,6 +45,9 @@ class ProdutoControllerTest {
 
     @Mock
     private DeletarProdutoUseCase deletarProdutoUseCase;
+
+    @Mock
+    private AlterarAtivoProdutoUseCase alterarAtivoProdutoUseCase;
 
     @Mock
     private ProdutoPresentationMapper mapper;
@@ -152,5 +158,32 @@ class ProdutoControllerTest {
         verify(deletarProdutoUseCase).executar(1L);
         assertEquals(HttpStatus.NO_CONTENT, resposta.getStatusCode());
         assertNull(resposta.getBody());
+    }
+
+    @Test
+    void deveAlterarStatusAtivoERetornarProdutoAtualizado() {
+        AlterarAtivoProdutoRequestDto request = new AlterarAtivoProdutoRequestDto(false);
+        AlterarAtivoProdutoCommand command = new AlterarAtivoProdutoCommand(1L, false);
+        Produto produtoAtualizado = new Produto(
+                1L,
+                "Bolo de Chocolate",
+                null,
+                new BigDecimal("49.90"),
+                false,
+                false);
+        ProdutoResponseDto response = new ProdutoResponseDto(
+                1L,
+                "Bolo de Chocolate",
+                null,
+                new BigDecimal("49.90"),
+                false);
+        when(mapper.toCommand(request, 1L)).thenReturn(command);
+        when(alterarAtivoProdutoUseCase.executar(command)).thenReturn(produtoAtualizado);
+        when(mapper.toResponse(produtoAtualizado)).thenReturn(response);
+
+        ResponseEntity<ProdutoResponseDto> resposta = produtoController.alterarAtivo(1L, request);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertEquals(response, resposta.getBody());
     }
 }

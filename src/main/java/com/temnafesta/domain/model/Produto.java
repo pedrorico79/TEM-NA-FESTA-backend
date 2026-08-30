@@ -37,6 +37,10 @@ public class Produto {
         this.ativo = false;
     }
 
+    public void alterarAtivo(boolean ativo) {
+        this.ativo = !this.deletado && ativo;
+    }
+
     // Getters
     public Long getId() { return id; }
     public String getNome() { return nome; }
