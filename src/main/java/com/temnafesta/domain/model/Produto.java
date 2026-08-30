@@ -28,8 +28,13 @@ public class Produto {
         this.nome = nome;
         this.descricao = descricao;
         this.precoVenda = precoVenda;
-        if (ativo != null) this.ativo = ativo;
-        if (deletado != null) this.deletado = deletado;
+        this.deletado = Boolean.TRUE.equals(deletado);
+        this.ativo = !this.deletado && (ativo == null || ativo); // garante ativo=false se deletado=true
+    }
+
+    public void deletar() {
+        this.deletado = true;
+        this.ativo = false;
     }
 
     // Getters

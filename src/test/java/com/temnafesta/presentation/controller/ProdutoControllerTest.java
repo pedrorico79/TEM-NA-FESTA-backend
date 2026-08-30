@@ -4,6 +4,7 @@ import com.temnafesta.application.dto.AtualizarProdutoCommand;
 import com.temnafesta.application.dto.CriarProdutoCommand;
 import com.temnafesta.application.usecase.AtualizarProdutoUseCase;
 import com.temnafesta.application.usecase.CriarProdutoUseCase;
+import com.temnafesta.application.usecase.DeletarProdutoUseCase;
 import com.temnafesta.application.usecase.ListarProdutosUseCase;
 import com.temnafesta.domain.model.Produto;
 import com.temnafesta.presentation.dto.AtualizarProdutoRequestDto;
@@ -23,6 +24,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +39,9 @@ class ProdutoControllerTest {
 
     @Mock
     private AtualizarProdutoUseCase atualizarProdutoUseCase;
+
+    @Mock
+    private DeletarProdutoUseCase deletarProdutoUseCase;
 
     @Mock
     private ProdutoPresentationMapper mapper;
@@ -137,5 +143,14 @@ class ProdutoControllerTest {
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(response, resposta.getBody());
+    }
+
+    @Test
+    void deveExcluirProdutoERetornarStatusSemConteudo() {
+        ResponseEntity<Void> resposta = produtoController.deletar(1L);
+
+        verify(deletarProdutoUseCase).executar(1L);
+        assertEquals(HttpStatus.NO_CONTENT, resposta.getStatusCode());
+        assertNull(resposta.getBody());
     }
 }

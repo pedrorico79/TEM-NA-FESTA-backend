@@ -70,6 +70,11 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public DeletarProdutoUseCase deletarProdutoUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new DeletarProdutoUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
     public CriarLembreteUseCase criarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
         return new CriarLembreteUseCase(lembreteRepositoryPort);
     }
