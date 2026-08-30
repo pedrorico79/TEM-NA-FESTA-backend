@@ -1,5 +1,6 @@
 package com.temnafesta.presentation.handler;
 
+import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,17 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<ErroResponse> handleRecursoNaoEncontradoException(
+            RecursoNaoEncontradoException ex) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Recurso Não Encontrado",
+                List.of(ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erroResponse);
+    }
 
     /**
      * Captura as violações da nossa Máquina de Estados e validações puras de Domínio.

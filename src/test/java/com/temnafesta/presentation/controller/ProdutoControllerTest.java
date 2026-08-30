@@ -1,9 +1,12 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.dto.AtualizarProdutoCommand;
 import com.temnafesta.application.dto.CriarProdutoCommand;
+import com.temnafesta.application.usecase.AtualizarProdutoUseCase;
 import com.temnafesta.application.usecase.CriarProdutoUseCase;
 import com.temnafesta.application.usecase.ListarProdutosUseCase;
 import com.temnafesta.domain.model.Produto;
+import com.temnafesta.presentation.dto.AtualizarProdutoRequestDto;
 import com.temnafesta.presentation.dto.CriarProdutoRequestDto;
 import com.temnafesta.presentation.dto.ProdutoResponseDto;
 import com.temnafesta.presentation.mapper.ProdutoPresentationMapper;
@@ -30,6 +33,9 @@ class ProdutoControllerTest {
 
     @Mock
     private CriarProdutoUseCase criarProdutoUseCase;
+
+    @Mock
+    private AtualizarProdutoUseCase atualizarProdutoUseCase;
 
     @Mock
     private ProdutoPresentationMapper mapper;
@@ -94,6 +100,42 @@ class ProdutoControllerTest {
         ResponseEntity<ProdutoResponseDto> resposta = produtoController.criar(request);
 
         assertEquals(HttpStatus.CREATED, resposta.getStatusCode());
+        assertEquals(response, resposta.getBody());
+    }
+
+    @Test
+    void deveAtualizarProdutoERetornarStatusOk() {
+        AtualizarProdutoRequestDto request = new AtualizarProdutoRequestDto(
+                "Bolo Atualizado",
+                null,
+                new BigDecimal("59.90"),
+                false);
+        AtualizarProdutoCommand command = new AtualizarProdutoCommand(
+                1L,
+                "Bolo Atualizado",
+                null,
+                new BigDecimal("59.90"),
+                false);
+        Produto produtoAtualizado = new Produto(
+                1L,
+                "Bolo Atualizado",
+                null,
+                new BigDecimal("59.90"),
+                false,
+                false);
+        ProdutoResponseDto response = new ProdutoResponseDto(
+                1L,
+                "Bolo Atualizado",
+                null,
+                new BigDecimal("59.90"),
+                false);
+        when(mapper.toCommand(request, 1L)).thenReturn(command);
+        when(atualizarProdutoUseCase.executar(command)).thenReturn(produtoAtualizado);
+        when(mapper.toResponse(produtoAtualizado)).thenReturn(response);
+
+        ResponseEntity<ProdutoResponseDto> resposta = produtoController.atualizar(1L, request);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(response, resposta.getBody());
     }
 }

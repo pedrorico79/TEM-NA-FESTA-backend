@@ -65,6 +65,11 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public AtualizarProdutoUseCase atualizarProdutoUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new AtualizarProdutoUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
     public CriarLembreteUseCase criarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
         return new CriarLembreteUseCase(lembreteRepositoryPort);
     }

@@ -22,7 +22,7 @@ public class ProdutoRepositoryAdapter implements ProdutoRepositoryPort {
 
     @Override
     public Optional<Produto> buscarPorId(Long id) {
-        return repository.findById(id).map(mapper::toDomain);
+        return repository.findByIdAndDeletadoFalse(id).map(mapper::toDomain);
     }
 
     @Override
