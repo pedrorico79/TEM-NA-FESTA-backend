@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class PedidoRepositoryAdapter {
+public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
 
     private final SpringDataPedidoRepository repository;
     private final PedidoPersistenceMapper mapper;
