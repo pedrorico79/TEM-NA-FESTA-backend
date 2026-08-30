@@ -26,23 +26,36 @@ public class Pedido {
     private boolean ativo = true;
     private boolean deletado = false;
 
-    public Pedido(Long id, LocalDateTime dataPedido, LocalDateTime dataEntrega, BigDecimal taxaEntrega,
-                  String observacao, Long clienteId, Long usuarioId, Long eventoId, Long enderecoEntregaId,
+    public Pedido(Long id, LocalDateTime dataPedido, LocalDateTime dataEntrega,
+                  BigDecimal taxaEntrega, String observacao,
+                  StatusProducaoEnum statusProducao,
+                  Long clienteId, Long usuarioId, Long eventoId,
+                  Long enderecoEntregaId,
                   List<ItemPedido> itens, List<Pagamento> pagamentos) {
+
         this.id = id;
         this.dataPedido = dataPedido != null ? dataPedido : LocalDateTime.now();
         this.dataEntrega = dataEntrega;
         this.taxaEntrega = taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO;
         this.observacao = observacao;
-        this.statusProducao = StatusProducaoEnum.RASCUNHO;
+
+        this.statusProducao = statusProducao != null
+                ? statusProducao
+                : StatusProducaoEnum.RASCUNHO;
+
         this.clienteId = clienteId;
         this.usuarioId = usuarioId;
         this.eventoId = eventoId;
         this.enderecoEntregaId = enderecoEntregaId;
         this.valorTotal = BigDecimal.ZERO;
         // Garante que a lista interna seja mutável para os métodos adicionarItem e adicionarPagamento
-        if (itens != null) this.itens.addAll(itens);
-        if (pagamentos != null) this.pagamentos.addAll(pagamentos);
+        if (itens != null) {
+            this.itens.addAll(itens);
+        }
+
+        if (pagamentos != null) {
+            this.pagamentos.addAll(pagamentos);
+        }
         // Recalcula o total caso o pedido já venha do banco com itens
         recalcularValorTotal();
     }
@@ -116,15 +129,59 @@ public class Pedido {
     }
 
     public void substituirItens(List<ItemPedido> novosItens) {
-        if (List.of(StatusProducaoEnum.EM_PRODUCAO, StatusProducaoEnum.PRONTO_PARA_ENTREGA,
-                StatusProducaoEnum.ENTREGUE, StatusProducaoEnum.CANCELADO).contains(this.statusProducao)) {
-            throw new RegraDeNegocioException("Não é permitido alterar os itens de um pedido que já está em produção ou finalizado.");
+
+        boolean itensForamAlterados = !itensIguais(this.itens, novosItens);
+
+        if (itensForamAlterados &&
+                List.of(
+                        StatusProducaoEnum.EM_PRODUCAO,
+                        StatusProducaoEnum.PRONTO_PARA_ENTREGA,
+                        StatusProducaoEnum.ENTREGUE,
+                        StatusProducaoEnum.CANCELADO
+                ).contains(this.statusProducao)) {
+
+            throw new RegraDeNegocioException(
+                    "Não é permitido alterar os itens de um pedido que já está em produção ou finalizado."
+            );
         }
 
-        this.itens.clear();
-        this.itens.addAll(novosItens);
+        if (itensForamAlterados) {
+            this.itens.clear();
+            this.itens.addAll(novosItens);
+        }
 
         recalcularValorTotal();
+    }
+
+    private boolean itensIguais(List<ItemPedido> itensAtuais, List<ItemPedido> novosItens) {
+
+        if (itensAtuais.size() != novosItens.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < itensAtuais.size(); i++) {
+
+            ItemPedido atual = itensAtuais.get(i);
+            ItemPedido novo = novosItens.get(i);
+
+            if (!java.util.Objects.equals(atual.getProdutoId(), novo.getProdutoId())) {
+                return false;
+            }
+
+            if (!java.util.Objects.equals(atual.getQuantidade(), novo.getQuantidade())) {
+                return false;
+            }
+
+            if (atual.getPrecoUnitario().compareTo(novo.getPrecoUnitario()) != 0) {
+                return false;
+            }
+
+            if (!java.util.Objects.equals(atual.getObservacaoItem(), novo.getObservacaoItem())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // --- MÉTODOS DE CICLO DE VIDA ---

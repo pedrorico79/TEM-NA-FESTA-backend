@@ -22,8 +22,9 @@ public class ItemPedidoJpaEntity {
     @JoinColumn(name = "pedido_id", nullable = false)
     private PedidoJpaEntity pedido;
 
-    @Column(name = "produto_id", nullable = false)
-    private Long produtoId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "produto_id", nullable = false)
+    private ProdutoJpaEntity produto;
 
     @Column(nullable = false)
     private Integer quantidade;
