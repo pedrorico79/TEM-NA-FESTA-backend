@@ -46,6 +46,11 @@ public class CriarPedidoInternoUseCase {
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
                     .orElseThrow(() -> new RegraDeNegocioException("Produto não encontrado com o ID: " + itemDto.produtoId()));
 
+            if (!produto.isAtivo()) {
+                throw new RegraDeNegocioException(
+                        "Produto inativo não pode ser adicionado ao pedido. ID: " + itemDto.produtoId());
+            }
+
             ItemPedido item = new ItemPedido(
                     null,
                     produto.getId(),
