@@ -6,6 +6,8 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ProdutoPersistenceMapper {
+
     Produto toDomain(ProdutoJpaEntity entity);
+
     ProdutoJpaEntity toEntity(Produto domain);
 }

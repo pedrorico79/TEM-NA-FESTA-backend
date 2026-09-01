@@ -4,10 +4,7 @@ package com.temnafesta.infrastructure.persistence.entity;
 import com.temnafesta.domain.vo.StatusPagamentoEnum;
 import com.temnafesta.domain.vo.TipoPagamentoEnum;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -44,6 +41,7 @@ public class PagamentoJpaEntity {
     @Column(name = "usuario_id", nullable = false)
     private Long usuarioId;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", nullable = false)
     private PedidoJpaEntity pedido;

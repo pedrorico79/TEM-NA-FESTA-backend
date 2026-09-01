@@ -1,0 +1,189 @@
+package com.temnafesta.presentation.controller;
+
+import com.temnafesta.application.dto.AlterarAtivoProdutoCommand;
+import com.temnafesta.application.dto.AtualizarProdutoCommand;
+import com.temnafesta.application.dto.CriarProdutoCommand;
+import com.temnafesta.application.usecase.AlterarAtivoProdutoUseCase;
+import com.temnafesta.application.usecase.AtualizarProdutoUseCase;
+import com.temnafesta.application.usecase.CriarProdutoUseCase;
+import com.temnafesta.application.usecase.DeletarProdutoUseCase;
+import com.temnafesta.application.usecase.ListarProdutosUseCase;
+import com.temnafesta.domain.model.Produto;
+import com.temnafesta.presentation.dto.AlterarAtivoProdutoRequestDto;
+import com.temnafesta.presentation.dto.AtualizarProdutoRequestDto;
+import com.temnafesta.presentation.dto.CriarProdutoRequestDto;
+import com.temnafesta.presentation.dto.ProdutoResponseDto;
+import com.temnafesta.presentation.mapper.ProdutoPresentationMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class ProdutoControllerTest {
+
+    @Mock
+    private ListarProdutosUseCase listarProdutosUseCase;
+
+    @Mock
+    private CriarProdutoUseCase criarProdutoUseCase;
+
+    @Mock
+    private AtualizarProdutoUseCase atualizarProdutoUseCase;
+
+    @Mock
+    private DeletarProdutoUseCase deletarProdutoUseCase;
+
+    @Mock
+    private AlterarAtivoProdutoUseCase alterarAtivoProdutoUseCase;
+
+    @Mock
+    private ProdutoPresentationMapper mapper;
+
+    @InjectMocks
+    private ProdutoController produtoController;
+
+    @Test
+    void deveRetornarProdutosMapeados() {
+        Produto produto = new Produto(
+                1L,
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                true,
+                false);
+        ProdutoResponseDto produtoResponse = new ProdutoResponseDto(
+                1L,
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                true);
+        when(listarProdutosUseCase.executar("bolo")).thenReturn(List.of(produto));
+        when(mapper.toResponse(produto)).thenReturn(produtoResponse);
+
+        ResponseEntity<List<ProdutoResponseDto>> resposta = produtoController.listar("bolo");
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertNotNull(resposta.getBody());
+        assertEquals(List.of(produtoResponse), resposta.getBody());
+    }
+
+    @Test
+    void deveCadastrarProdutoERetornarStatusCriado() {
+        CriarProdutoRequestDto request = new CriarProdutoRequestDto(
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                null);
+        CriarProdutoCommand command = new CriarProdutoCommand(
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                null);
+        Produto produtoSalvo = new Produto(
+                1L,
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                true,
+                false);
+        ProdutoResponseDto response = new ProdutoResponseDto(
+                1L,
+                "Bolo de Chocolate",
+                "Bolo com cobertura de ganache",
+                new BigDecimal("49.90"),
+                true);
+        when(mapper.toCommand(request)).thenReturn(command);
+        when(criarProdutoUseCase.executar(command)).thenReturn(produtoSalvo);
+        when(mapper.toResponse(produtoSalvo)).thenReturn(response);
+
+        ResponseEntity<ProdutoResponseDto> resposta = produtoController.criar(request);
+
+        assertEquals(HttpStatus.CREATED, resposta.getStatusCode());
+        assertEquals(response, resposta.getBody());
+    }
+
+    @Test
+    void deveAtualizarProdutoERetornarStatusOk() {
+        AtualizarProdutoRequestDto request = new AtualizarProdutoRequestDto(
+                "Bolo Atualizado",
+                null,
+                new BigDecimal("59.90"),
+                false);
+        AtualizarProdutoCommand command = new AtualizarProdutoCommand(
+                1L,
+                "Bolo Atualizado",
+                null,
+                new BigDecimal("59.90"),
+                false);
+        Produto produtoAtualizado = new Produto(
+                1L,
+                "Bolo Atualizado",
+                null,
+                new BigDecimal("59.90"),
+                false,
+                false);
+        ProdutoResponseDto response = new ProdutoResponseDto(
+                1L,
+                "Bolo Atualizado",
+                null,
+                new BigDecimal("59.90"),
+                false);
+        when(mapper.toCommand(request, 1L)).thenReturn(command);
+        when(atualizarProdutoUseCase.executar(command)).thenReturn(produtoAtualizado);
+        when(mapper.toResponse(produtoAtualizado)).thenReturn(response);
+
+        ResponseEntity<ProdutoResponseDto> resposta = produtoController.atualizar(1L, request);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertEquals(response, resposta.getBody());
+    }
+
+    @Test
+    void deveExcluirProdutoERetornarStatusSemConteudo() {
+        ResponseEntity<Void> resposta = produtoController.deletar(1L);
+
+        verify(deletarProdutoUseCase).executar(1L);
+        assertEquals(HttpStatus.NO_CONTENT, resposta.getStatusCode());
+        assertNull(resposta.getBody());
+    }
+
+    @Test
+    void deveAlterarStatusAtivoERetornarProdutoAtualizado() {
+        AlterarAtivoProdutoRequestDto request = new AlterarAtivoProdutoRequestDto(false);
+        AlterarAtivoProdutoCommand command = new AlterarAtivoProdutoCommand(1L, false);
+        Produto produtoAtualizado = new Produto(
+                1L,
+                "Bolo de Chocolate",
+                null,
+                new BigDecimal("49.90"),
+                false,
+                false);
+        ProdutoResponseDto response = new ProdutoResponseDto(
+                1L,
+                "Bolo de Chocolate",
+                null,
+                new BigDecimal("49.90"),
+                false);
+        when(mapper.toCommand(request, 1L)).thenReturn(command);
+        when(alterarAtivoProdutoUseCase.executar(command)).thenReturn(produtoAtualizado);
+        when(mapper.toResponse(produtoAtualizado)).thenReturn(response);
+
+        ResponseEntity<ProdutoResponseDto> resposta = produtoController.alterarAtivo(1L, request);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertEquals(response, resposta.getBody());
+    }
+}

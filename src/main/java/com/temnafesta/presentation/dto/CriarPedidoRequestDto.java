@@ -14,9 +14,6 @@ public record CriarPedidoRequestDto(
         @NotNull(message = "O ID do cliente é obrigatório.")
         Long clienteId,
 
-        @NotNull(message = "O ID do utilizador (atendente) é obrigatório.")
-        Long usuarioId,
-
         @NotNull(message = "A data de entrega é obrigatória.")
         @FutureOrPresent(message = "A data de entrega não pode ser no passado.")
         LocalDateTime dataEntrega,

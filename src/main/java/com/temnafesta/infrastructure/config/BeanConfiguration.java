@@ -17,6 +17,7 @@ public class BeanConfiguration {
             JwtTokenProvider jwtTokenProvider) {
         return new AutenticarUsuarioUseCase(usuarioRepositoryPort, passwordEncoder, jwtTokenProvider);
     }
+
     @Bean
     public CriarPedidoInternoUseCase criarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
@@ -50,6 +51,127 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public ListarMetodosPagamentoUseCase listarMetodosPagamentoUseCase(
+            MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
+        return new ListarMetodosPagamentoUseCase(metodoPagamentoRepositoryPort);
+    }
+
+    @Bean
+    public ListarProdutosUseCase listarProdutosUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new ListarProdutosUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
+    public CriarProdutoUseCase criarProdutoUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new CriarProdutoUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
+    public AtualizarProdutoUseCase atualizarProdutoUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new AtualizarProdutoUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
+    public DeletarProdutoUseCase deletarProdutoUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new DeletarProdutoUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
+    public AlterarAtivoProdutoUseCase alterarAtivoProdutoUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new AlterarAtivoProdutoUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
+    public CriarLembreteUseCase criarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
+        return new CriarLembreteUseCase(lembreteRepositoryPort);
+    }
+
+    @Bean
+    public ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
+        return new ListarLembretesUsuarioUseCase(lembreteRepositoryPort);
+    }
+
+    @Bean
+    public DeletarLembreteUseCase deletarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
+        return new DeletarLembreteUseCase(lembreteRepositoryPort);
+    }
+
+    @Bean
+    public CriarClienteUseCase criarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new CriarClienteUseCase(clienteRepositoryPort);
+    }
+
+    @Bean
+    public ListarClientesUseCase listarClientesUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new ListarClientesUseCase(clienteRepositoryPort);
+    }
+
+    @Bean
+    public BuscarClientePorIdUseCase buscarClientePorIdUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new BuscarClientePorIdUseCase(clienteRepositoryPort);
+    }
+
+    @Bean
+    public AtualizarClienteUseCase atualizarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
+        return new AtualizarClienteUseCase(clienteRepositoryPort);
+    }
+
+    @Bean
+    public AlternarAtivoClienteUseCase alternarAtivoClienteUseCase(
+            ClienteRepositoryPort clienteRepositoryPort,
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new AlternarAtivoClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPedidoPorIdUseCase listarPedidoPorIdUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarPedidoPorIdUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public AtualizarPedidoUseCase atualizarPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort, ProdutoRepositoryPort produtoRepositoryPort) {
+        return new AtualizarPedidoUseCase(pedidoRepositoryPort, produtoRepositoryPort);
+    }
+
+    @Bean
+    public ExcluirPedidoUseCase excluirPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ExcluirPedidoUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ContarPorStatusUseCase contarPorStatusUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ContarPorStatusUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarProximasRetiradasUseCase listarProximasRetiradasUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarProximasRetiradasUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPedidosUseCase listarPedidosUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+
+        return new ListarPedidosUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+
+        return new ListarItemPedidoPorIdUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListarPagamentosPedidoUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
     public CriarEventoUseCase criarEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
         return new CriarEventoUseCase(eventoRepositoryPort);
     }
@@ -67,26 +189,6 @@ public class BeanConfiguration {
     @Bean
     public AlterarStatusEventoUseCase alterarStatusEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
         return new AlterarStatusEventoUseCase(eventoRepositoryPort);
-    }
-
-    @Bean
-    public ListarMetodosPagamentoUseCase listarMetodosPagamentoUseCase(MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
-        return new ListarMetodosPagamentoUseCase(metodoPagamentoRepositoryPort);
-    }
-
-    @Bean
-    public CriarLembreteUseCase criarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
-        return new CriarLembreteUseCase(lembreteRepositoryPort);
-    }
-
-    @Bean
-    public ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
-        return new ListarLembretesUsuarioUseCase(lembreteRepositoryPort);
-    }
-
-    @Bean
-    public DeletarLembreteUseCase deletarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
-        return new DeletarLembreteUseCase(lembreteRepositoryPort);
     }
 
     @Bean
