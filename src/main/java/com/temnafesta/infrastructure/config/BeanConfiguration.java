@@ -170,4 +170,47 @@ public class BeanConfiguration {
             PedidoRepositoryPort pedidoRepositoryPort) {
         return new ListarPagamentosPedidoUseCase(pedidoRepositoryPort);
     }
+
+    @Bean
+    public CriarEventoUseCase criarEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new CriarEventoUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
+    public AtualizarEventoUseCase atualizarEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new AtualizarEventoUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
+    public DeletarEventoUseCase deletarEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new DeletarEventoUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
+    public AlterarStatusEventoUseCase alterarStatusEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new AlterarStatusEventoUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
+    public ListarUsuarioUseCase listarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
+        return new ListarUsuarioUseCase(usuarioRepositoryPort);
+    }
+
+    @Bean
+    public CriarUsuarioUseCase criarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort,
+                                                   PerfilRepositoryPort perfilRepositoryPort,
+                                                   PasswordEncoder passwordEncoder) {
+        return new CriarUsuarioUseCase(usuarioRepositoryPort, perfilRepositoryPort, passwordEncoder);
+    }
+
+    @Bean
+    public AtualizarUsuarioUseCase atualizarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort,
+                                                           PerfilRepositoryPort perfilRepositoryPort) {
+        return new AtualizarUsuarioUseCase(usuarioRepositoryPort, perfilRepositoryPort);
+    }
+
+    @Bean
+    public DeletarUsuarioUseCase deletarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
+        return new DeletarUsuarioUseCase(usuarioRepositoryPort);
+    }
 }

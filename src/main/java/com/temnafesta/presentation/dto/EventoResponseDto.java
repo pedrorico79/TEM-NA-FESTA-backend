@@ -6,5 +6,7 @@ public record EventoResponseDto(
         Long id,
         String nome,
         LocalDate dataInicio,
-        LocalDate dataFim
+        LocalDate dataFim,
+        boolean ativo,
+        boolean deletado
 ) {}
