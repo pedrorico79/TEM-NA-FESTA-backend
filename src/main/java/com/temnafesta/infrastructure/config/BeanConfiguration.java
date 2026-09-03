@@ -68,4 +68,36 @@ public class BeanConfiguration {
     public DeletarLembreteUseCase deletarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
         return new DeletarLembreteUseCase(lembreteRepositoryPort);
     }
+
+    @Bean
+    public ListaKpisUseCase listaKpisUseCase(PedidoRepositoryPort pedidoRepositoryPort, ProdutoRepositoryPort produtoRepositoryPort, EventoRepositoryPort eventoRepositoryPort) {
+        return new ListaKpisUseCase(pedidoRepositoryPort, produtoRepositoryPort, eventoRepositoryPort);
+    }
+
+    @Bean
+    ListaPedidosPorSemanaUseCase listaPedidosPorSemanaUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListaPedidosPorSemanaUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    ListaPedidosPeriodoUseCase listaPedidosPeriodoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListaPedidosPeriodoUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    ListaProdutosMaisVendidosUseCase listaProdutosMaisVendidosUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new ListaProdutosMaisVendidosUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
+    ListaComparativoEventosUseCase listaComparativoEventosUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new ListaComparativoEventosUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
+    ListaRelatorioDinamicoUseCase listaRelatorioDinamicoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListaRelatorioDinamicoUseCase(pedidoRepositoryPort);
+    }
+
+
 }
