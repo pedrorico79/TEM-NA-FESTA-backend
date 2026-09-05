@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface ClienteRepositoryPort {
     Optional<Cliente> buscarPorId(Long id);
     Cliente salvar(Cliente cliente);
-    List<Cliente> listarNaoDeletados(String termoBusca, int pagina, int tamanho);
+    List<Cliente> listarNaoDeletadosPorBusca(String busca);
     Cliente atualizar(Cliente cliente);
 }

@@ -3,7 +3,6 @@ package com.temnafesta.presentation.controller;
 import com.temnafesta.application.dto.AlternarAtivoClienteCommand;
 import com.temnafesta.application.dto.AtualizarClienteCommand;
 import com.temnafesta.application.dto.CriarClienteCommand;
-import com.temnafesta.application.dto.ListarClientesQuery;
 import com.temnafesta.application.usecase.*;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.presentation.dto.AlternarStatusRequestDto;
@@ -57,23 +56,18 @@ public class ClienteController {
 
 
     @GetMapping
-    @Operation(summary = "Lista clientes com paginação e filtro opcional por nome")
+    @Operation(summary = "Lista os clientes não deletados, com busca opcional e ativos primeiro",
+            description = "A busca considera nome, telefone, WhatsApp e Instagram.")
     public ResponseEntity<List<ClienteResponseDto>> listar(
-            @RequestParam(required = false) String busca,
-            @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int tamanho
+            @RequestParam(required = false) String busca
     ) {
-        ListarClientesQuery query = new ListarClientesQuery(busca, pagina, tamanho);
-
         //TODO: alterar DTO de retorno para objeto mais simples (sem info de endereço/denecessárias)
         // para tornar as requisições mais eficientes
-        List<ClienteResponseDto> response = listarClientesUseCase.executar(query)
+        List<ClienteResponseDto> response = listarClientesUseCase.executar(busca)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
-        if (response.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
+
         return ResponseEntity.ok(response);
     }
 
