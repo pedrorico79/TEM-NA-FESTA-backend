@@ -29,12 +29,17 @@ public class Cliente {
         this.dataCadastro = dataCadastro != null ? dataCadastro : LocalDate.now();
         this.anotacoes = anotacoes;
         this.endereco = endereco;
-        if (ativo != null) this.ativo = ativo;
-        if (deletado != null) this.deletado = deletado;
+        this.deletado = Boolean.TRUE.equals(deletado);
+        this.ativo = !this.deletado && (ativo == null || ativo);
     }
 
-    public void alterarStatus(boolean novoStatus){
-        this.ativo = novoStatus;
+    public void alterarStatus(boolean novoStatus) {
+        this.ativo = !this.deletado && novoStatus;
+    }
+
+    public void deletar() {
+        this.deletado = true;
+        this.ativo = false;
     }
 
     public Long getId() { return id; }
