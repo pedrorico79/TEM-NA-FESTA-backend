@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 
@@ -12,6 +13,7 @@ public class BuscarClientePorIdUseCase {
 
     public Cliente executar(Long id) {
         return clienteRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado com id: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Cliente não encontrado com o ID: " + id));
     }
 }

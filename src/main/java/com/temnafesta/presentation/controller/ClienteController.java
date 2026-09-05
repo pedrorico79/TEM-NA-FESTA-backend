@@ -75,9 +75,6 @@ public class ClienteController {
     @Operation(summary = "Busca um cliente pelo ID")
     public ResponseEntity<ClienteResponseDto> buscarPorId(@PathVariable Long id) {
         Cliente cliente = buscarClientePorIdUseCase.executar(id);
-        if (cliente == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(mapper.toResponse(cliente));
     }
 

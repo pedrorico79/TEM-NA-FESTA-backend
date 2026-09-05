@@ -23,6 +23,11 @@ public class ClienteRepositoryAdapter implements ClienteRepositoryPort {
 
     @Override
     public Optional<Cliente> buscarPorId(Long id) {
+        return repository.findByIdAndDeletadoFalse(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Cliente> buscarPorIdIncluindoDeletados(Long id) {
         return repository.findById(id).map(mapper::toDomain);
     }
 
