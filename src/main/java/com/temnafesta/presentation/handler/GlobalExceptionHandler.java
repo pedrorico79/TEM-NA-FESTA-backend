@@ -65,9 +65,11 @@ public class GlobalExceptionHandler {
                 .getAllErrors()
                 .stream()
                 .map(error -> {
-                    String campo = ((FieldError) error).getField();
-                    String mensagem = error.getDefaultMessage();
-                    return campo + ": " + mensagem;
+                    if (error instanceof FieldError fieldError) {
+                        return fieldError.getField() + ": " + fieldError.getDefaultMessage();
+                    }
+
+                    return error.getDefaultMessage();
                 })
                 .collect(Collectors.toList());
 
