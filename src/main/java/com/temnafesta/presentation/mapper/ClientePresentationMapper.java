@@ -7,11 +7,15 @@ import com.temnafesta.presentation.dto.AtualizarClienteRequestDto;
 import com.temnafesta.presentation.dto.ClienteResponseDto;
 import com.temnafesta.presentation.dto.CriarClienteRequestDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ClientePresentationMapper {
     CriarClienteCommand toCommand(CriarClienteRequestDto dto);
-    AtualizarClienteCommand toCommand(AtualizarClienteRequestDto dto);
+
+    @Mapping(target = "id", source = "clienteIdUrl")
+    AtualizarClienteCommand toCommand(AtualizarClienteRequestDto dto, Long clienteIdUrl);
+
     ClienteResponseDto toResponse(Cliente domain);
 
 }

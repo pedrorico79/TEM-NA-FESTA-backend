@@ -10,5 +10,4 @@ public interface ClienteRepositoryPort {
     Optional<Cliente> buscarPorIdIncluindoDeletados(Long id);
     Cliente salvar(Cliente cliente);
     List<Cliente> listarNaoDeletadosPorBusca(String busca);
-    Cliente atualizar(Cliente cliente);
 }

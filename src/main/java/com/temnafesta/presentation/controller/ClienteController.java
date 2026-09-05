@@ -81,11 +81,8 @@ public class ClienteController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza os dados de um cliente existente")
     public ResponseEntity<ClienteResponseDto> atualizar(@PathVariable Long id, @Valid @RequestBody AtualizarClienteRequestDto request) {
-        AtualizarClienteCommand command = mapper.toCommand(request);
-        Cliente clienteAtualizado = atualizarClienteUseCase.executar(id, command);
-        if (clienteAtualizado == null) {
-            return ResponseEntity.notFound().build();
-        }
+        AtualizarClienteCommand command = mapper.toCommand(request, id);
+        Cliente clienteAtualizado = atualizarClienteUseCase.executar(command);
         return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
     }
 

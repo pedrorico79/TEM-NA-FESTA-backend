@@ -1,6 +1,5 @@
 package com.temnafesta.infrastructure.persistence.adapter;
 
-import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 import com.temnafesta.infrastructure.persistence.mapper.ClientePersistenceMapper;
@@ -43,12 +42,4 @@ public class ClienteRepositoryAdapter implements ClienteRepositoryPort {
                 .map(mapper::toDomain)
                 .toList();
     }
-
-    @Override
-    public Cliente atualizar(Cliente cliente) {
-        buscarPorId(cliente.getId()).orElseThrow(()-> new NaoEncontradoException("Cliente não encontrado"));
-        return mapper.toDomain(repository.save(mapper.toEntity(cliente)));
-    }
-
-
 }
