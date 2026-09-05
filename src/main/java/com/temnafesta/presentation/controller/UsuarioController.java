@@ -8,10 +8,8 @@ import com.temnafesta.application.usecase.DeletarUsuarioUseCase;
 import com.temnafesta.application.usecase.ListarUsuarioUseCase;
 import com.temnafesta.domain.model.Usuario;
 import com.temnafesta.infrastructure.security.jwt.JwtTokenProvider;
-import com.temnafesta.presentation.dto.AtualizarUsuarioRequestDto;
-import com.temnafesta.presentation.dto.CriarUsuarioRequestDto;
-import com.temnafesta.presentation.dto.LoginRequestDto;
-import com.temnafesta.presentation.dto.UsuarioResponseDto;
+import com.temnafesta.infrastructure.security.user.UsuarioAutenticado;
+import com.temnafesta.presentation.dto.*;
 import com.temnafesta.presentation.mapper.UsuarioPresentationMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -23,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -108,6 +107,11 @@ public class UsuarioController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MeResponseDto> me(@AuthenticationPrincipal UsuarioAutenticado usuario) {
+        return ResponseEntity.ok(MeResponseDto.from(usuario));
     }
 
     @PostMapping("/logout")

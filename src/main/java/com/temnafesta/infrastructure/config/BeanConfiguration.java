@@ -97,6 +97,11 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public AtualizarLembreteUseCase atualizarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
+        return new AtualizarLembreteUseCase(lembreteRepositoryPort);
+    }
+
+    @Bean
     public CriarClienteUseCase criarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
         return new CriarClienteUseCase(clienteRepositoryPort);
     }
