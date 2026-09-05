@@ -124,6 +124,13 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public DeletarClienteUseCase deletarClienteUseCase(
+            ClienteRepositoryPort clienteRepositoryPort,
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new DeletarClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
+    }
+
+    @Bean
     public ListarPedidoPorIdUseCase listarPedidoPorIdUseCase(
             PedidoRepositoryPort pedidoRepositoryPort) {
         return new ListarPedidoPorIdUseCase(pedidoRepositoryPort);

@@ -31,6 +31,7 @@ public class ClienteController {
     private final BuscarClientePorIdUseCase buscarClientePorIdUseCase;
     private final AtualizarClienteUseCase atualizarClienteUseCase;
     private final AlterarAtivoClienteUseCase alterarAtivoClienteUseCase;
+    private final DeletarClienteUseCase deletarClienteUseCase;
 
     public ClienteController(
             CriarClienteUseCase criarClienteUseCase,
@@ -38,12 +39,14 @@ public class ClienteController {
             ListarClientesUseCase listarClientesUseCase,
             AtualizarClienteUseCase atualizarClienteUseCase,
             BuscarClientePorIdUseCase buscarClientePorIdUseCase,
-            AlterarAtivoClienteUseCase alterarAtivoClienteUseCase) {
+            AlterarAtivoClienteUseCase alterarAtivoClienteUseCase,
+            DeletarClienteUseCase deletarClienteUseCase) {
         this.criarClienteUseCase = criarClienteUseCase;
         this.mapper = mapper;
         this.listarClientesUseCase = listarClientesUseCase;
         this.atualizarClienteUseCase = atualizarClienteUseCase;
         this.alterarAtivoClienteUseCase = alterarAtivoClienteUseCase;
+        this.deletarClienteUseCase = deletarClienteUseCase;
         this.buscarClientePorIdUseCase = buscarClientePorIdUseCase;
     }
 
@@ -103,4 +106,16 @@ public class ClienteController {
 
         return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Exclui logicamente um cliente",
+            description = "Impede a exclusão caso existam pedidos em andamento.")
+    @ApiResponse(responseCode = "204", description = "Cliente excluído com sucesso")
+    @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    @ApiResponse(responseCode = "422", description = "Cliente possui pedidos em andamento")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        deletarClienteUseCase.executar(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
