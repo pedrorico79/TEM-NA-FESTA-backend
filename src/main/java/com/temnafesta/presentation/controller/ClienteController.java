@@ -1,16 +1,17 @@
 package com.temnafesta.presentation.controller;
 
-import com.temnafesta.application.dto.AlternarAtivoClienteCommand;
+import com.temnafesta.application.dto.AlterarAtivoClienteCommand;
 import com.temnafesta.application.dto.AtualizarClienteCommand;
 import com.temnafesta.application.dto.CriarClienteCommand;
 import com.temnafesta.application.usecase.*;
 import com.temnafesta.domain.model.Cliente;
-import com.temnafesta.presentation.dto.AlternarStatusRequestDto;
+import com.temnafesta.presentation.dto.AlterarAtivoClienteRequestDto;
 import com.temnafesta.presentation.dto.AtualizarClienteRequestDto;
 import com.temnafesta.presentation.dto.ClienteResponseDto;
 import com.temnafesta.presentation.dto.CriarClienteRequestDto;
 import com.temnafesta.presentation.mapper.ClientePresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class ClienteController {
     private final ListarClientesUseCase listarClientesUseCase;
     private final BuscarClientePorIdUseCase buscarClientePorIdUseCase;
     private final AtualizarClienteUseCase atualizarClienteUseCase;
-    private final AlternarAtivoClienteUseCase alternarAtivoClienteUseCase;
+    private final AlterarAtivoClienteUseCase alterarAtivoClienteUseCase;
 
     public ClienteController(
             CriarClienteUseCase criarClienteUseCase,
@@ -37,12 +38,12 @@ public class ClienteController {
             ListarClientesUseCase listarClientesUseCase,
             AtualizarClienteUseCase atualizarClienteUseCase,
             BuscarClientePorIdUseCase buscarClientePorIdUseCase,
-            AlternarAtivoClienteUseCase alternarAtivoClienteUseCase) {
+            AlterarAtivoClienteUseCase alterarAtivoClienteUseCase) {
         this.criarClienteUseCase = criarClienteUseCase;
         this.mapper = mapper;
         this.listarClientesUseCase = listarClientesUseCase;
         this.atualizarClienteUseCase = atualizarClienteUseCase;
-        this.alternarAtivoClienteUseCase = alternarAtivoClienteUseCase;
+        this.alterarAtivoClienteUseCase = alterarAtivoClienteUseCase;
         this.buscarClientePorIdUseCase = buscarClientePorIdUseCase;
     }
 
@@ -86,16 +87,19 @@ public class ClienteController {
         return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
     }
 
-    @PatchMapping("/{id}/status")
-    @Operation(summary = "Altera o status ativo/inativo de um cliente",
+    @PatchMapping("/{id}/ativo")
+    @Operation(summary = "Altera o status ativo de um cliente",
             description = "Impede a desativação caso existam pedidos em andamento.")
-    public ResponseEntity<ClienteResponseDto> alternarStatus(
+    @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Status não informado ou inválido")
+    @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    @ApiResponse(responseCode = "422", description = "Cliente possui pedidos em andamento")
+    public ResponseEntity<ClienteResponseDto> alterarAtivo(
             @PathVariable Long id,
-            @Valid @RequestBody AlternarStatusRequestDto request
+            @Valid @RequestBody AlterarAtivoClienteRequestDto request
     ) {
-        AlternarAtivoClienteCommand command = new AlternarAtivoClienteCommand(id, request.ativo());
-
-        Cliente clienteAtualizado = alternarAtivoClienteUseCase.executar(command);
+        AlterarAtivoClienteCommand command = mapper.toCommand(request, id);
+        Cliente clienteAtualizado = alterarAtivoClienteUseCase.executar(command);
 
         return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
     }
