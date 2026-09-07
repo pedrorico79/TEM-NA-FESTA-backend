@@ -191,6 +191,11 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public BuscarEventoPorIdUseCase buscarEventoPorIdUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new BuscarEventoPorIdUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
     public ListarUsuarioUseCase listarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
         return new ListarUsuarioUseCase(usuarioRepositoryPort);
     }
