@@ -4,6 +4,7 @@ import com.temnafesta.application.dto.relatorio.KpiOutput;
 import com.temnafesta.domain.ports.repository.EventoRepositoryPort;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
+import com.temnafesta.domain.vo.StatusProducaoEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,9 +24,9 @@ public class ListaKpisUseCase  {
 
     public KpiOutput execute(LocalDate de, LocalDate ate) {
         Long dias = ChronoUnit.DAYS.between(de, ate); // intervalo entre as datas
-        Integer statusEntregueProducao = 4; // alterar com base no Id correspondente no bd.
+        StatusProducaoEnum statusEntregueProducao = StatusProducaoEnum.ENTREGUE; // alterar com base no Id correspondente no bd.
 
-        Long totalPedidos = pedidoRepositoryPort.countByDataPedidoBetween(
+        Long totalPedidos = pedidoRepositoryPort.countByDataPedidoBetweenAndDeletadoFalse(
                 de.atStartOfDay(),
                 ate.atTime(23, 59, 59)
         );
@@ -37,7 +38,6 @@ public class ListaKpisUseCase  {
         );
 
         BigDecimal faturamento = pedidoRepositoryPort.somarFaturamentoNoPeriodo(
-                statusEntregueProducao,
                 de.atStartOfDay(),
                 ate.atTime(23, 59, 59)
         );

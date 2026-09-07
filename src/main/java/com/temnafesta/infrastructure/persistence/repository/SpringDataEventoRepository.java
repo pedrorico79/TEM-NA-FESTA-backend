@@ -3,14 +3,17 @@ package com.temnafesta.infrastructure.persistence.repository;
 import com.temnafesta.infrastructure.persistence.entity.EventoJpaEntity;
 import com.temnafesta.infrastructure.projection.EventosComparativoProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface SpringDataEventoRepository extends JpaRepository<EventoJpaEntity, Long> {
     List<EventoJpaEntity> findByAtivoTrueAndDeletadoFalse();
+    Optional<EventoJpaEntity> findByIdAndDeletadoFalse(Long id);
 
     @Query(value = """
         SELECT

@@ -1,5 +1,7 @@
 package com.temnafesta.infrastructure.persistence.adapter;
 
+import com.temnafesta.domain.model.ItemPedido;
+import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.application.dto.relatorio.PedidosPeriodoOutput;
 import com.temnafesta.application.dto.relatorio.PedidosPorSemanaOutput;
 import com.temnafesta.domain.model.Pedido;
@@ -52,18 +54,68 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     }
 
     @Override
-    public Long countByDataPedidoBetween(LocalDateTime de, LocalDateTime ate) {
-        return repository.countByDataPedidoBetween(de, ate);
+    public boolean existePedidoEmAndamentoPorCliente(Long clienteId) {
+        return repository.existePedidoEmAndamentoPorCliente(clienteId);
     }
 
     @Override
-    public Long countByStatusEPeriodo(Integer statusId, LocalDateTime de, LocalDateTime ate) {
+    public Pedido atualizar(Pedido pedido) {
+        PedidoJpaEntity entity = mapper.toEntity(pedido);
+        PedidoJpaEntity entityAtualizada = repository.save(entity);
+        return mapper.toDomain(entityAtualizada);
+    }
+
+    @Override
+    public long contarPorStatus(StatusProducaoEnum status) {
+        return repository.countByStatusProducaoAndDeletadoFalse(status);
+    }
+
+    @Override
+    public List<Pedido> listarProximasRetiradas(LocalDateTime limite) {
+        return repository.listarProximasRetiradas(limite).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId) {
+        return repository.listarPedidos(busca, status, eventoId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Optional<ItemPedido> buscarItemPorId(Long pedidoId, Long itemId) {
+        return repository.findById(pedidoId)
+                .flatMap(pedido -> pedido.getItens().stream()
+                        .filter(item -> item.getId().equals(itemId))
+                        .findFirst())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Pagamento> listarPagamentos(Long pedidoId) {
+        return repository.findById(pedidoId)
+                .map(PedidoJpaEntity::getPagamentos)
+                .orElse(List.of())
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime de, LocalDateTime ate) {
+        return repository.countByDataPedidoBetweenAndDeletadoFalse(de, ate);
+    }
+
+    @Override
+    public Long countByStatusEPeriodo(StatusProducaoEnum statusId, LocalDateTime de, LocalDateTime ate) {
         return repository.countByStatusEPeriodo(statusId, de, ate);
     }
 
     @Override
-    public BigDecimal somarFaturamentoNoPeriodo(Integer statusEntregueProducao, LocalDateTime de, LocalDateTime ate) {
-        return repository.somarFaturamentoNoPeriodo(statusEntregueProducao, de, ate);
+    public BigDecimal somarFaturamentoNoPeriodo(LocalDateTime de, LocalDateTime ate) {
+        return repository.somarFaturamentoNoPeriodo(de, ate);
     }
 
     @Override

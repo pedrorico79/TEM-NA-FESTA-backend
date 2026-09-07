@@ -12,12 +12,12 @@ public class Cliente {
     private String instagram;
     private LocalDate dataCadastro;
     private String anotacoes;
-    private Long enderecoId; // Endereço residencial/padrão
+    private Endereco endereco; // Endereço residencial/padrão
     private boolean ativo = true;
     private boolean deletado = false;
 
     public Cliente(Long id, String nome, String telefone, String whatsapp, String instagram,
-                   LocalDate dataCadastro, String anotacoes, Long enderecoId, Boolean ativo, Boolean deletado) {
+                   LocalDate dataCadastro, String anotacoes, Endereco endereco, Boolean ativo, Boolean deletado) {
         if (nome == null || nome.isBlank()) {
             throw new RegraDeNegocioException("O nome do cliente é obrigatório.");
         }
@@ -28,11 +28,14 @@ public class Cliente {
         this.instagram = instagram;
         this.dataCadastro = dataCadastro != null ? dataCadastro : LocalDate.now();
         this.anotacoes = anotacoes;
-        this.enderecoId = enderecoId;
+        this.endereco = endereco;
         if (ativo != null) this.ativo = ativo;
         if (deletado != null) this.deletado = deletado;
     }
 
+    public void alterarStatus(boolean novoStatus){
+        this.ativo = novoStatus;
+    }
 
     public Long getId() { return id; }
     public String getNome() { return nome; }
@@ -41,7 +44,7 @@ public class Cliente {
     public String getInstagram() { return instagram; }
     public LocalDate getDataCadastro() { return dataCadastro; }
     public String getAnotacoes() { return anotacoes; }
-    public Long getEnderecoId() { return enderecoId; }
+    public Endereco getEndereco() { return endereco; }
     public boolean isAtivo() { return ativo; }
     public boolean isDeletado() { return deletado; }
 }

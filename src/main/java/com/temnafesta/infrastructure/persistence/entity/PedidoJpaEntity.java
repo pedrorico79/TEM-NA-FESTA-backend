@@ -57,8 +57,8 @@ public class PedidoJpaEntity {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PagamentoJpaEntity> pagamentos = new ArrayList<>();
 
-    // Endereço de Entrega: Persistido em cascata caso o pedido tenha entrega
-    @ManyToOne(cascade = CascadeType.ALL)
+    // Endereço de Entrega: apenas referência a um endereço existente
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "endereco_entrega_id")
     private EnderecoJpaEntity enderecoEntrega;
 

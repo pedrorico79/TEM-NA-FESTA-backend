@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -26,7 +27,19 @@ public class ProdutoRepositoryAdapter implements ProdutoRepositoryPort {
 
     @Override
     public Optional<Produto> buscarPorId(Long id) {
-        return repository.findById(id).map(mapper::toDomain);
+        return repository.findByIdAndDeletadoFalse(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Produto> listarPorNome(String nome) {
+        return repository.findByDeletadoFalseAndNomeContainingIgnoreCaseOrderByAtivoDesc(nome).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Produto salvar(Produto produto) {
+        return mapper.toDomain(repository.save(mapper.toEntity(produto)));
     }
 
     @Override

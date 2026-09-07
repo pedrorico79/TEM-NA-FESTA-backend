@@ -9,7 +9,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface SpringDataProdutoRepository extends JpaRepository<ProdutoJpaEntity, Long> {
+
+    List<ProdutoJpaEntity> findByDeletadoFalseAndNomeContainingIgnoreCaseOrderByAtivoDesc(String nome);
+
+    Optional<ProdutoJpaEntity> findByIdAndDeletadoFalse(Long id);
+
 
     // Busca produtos mais vendidos paginado
     @Query(value = "SELECT " +

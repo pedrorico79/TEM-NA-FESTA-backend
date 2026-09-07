@@ -17,6 +17,7 @@ public record CriarPedidoCommand(
     public record ItemCommand(
             Long produtoId,
             Integer quantidade,
+            BigDecimal precoUnitario,
             String observacaoItem
     ) {}
 }
