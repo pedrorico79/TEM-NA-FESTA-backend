@@ -7,11 +7,11 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.stream.Stream;
 
 public class PeloMenosUmContatoValidator
-        implements ConstraintValidator<PeloMenosUmContato, CriarClienteRequestDto> {
+        implements ConstraintValidator<PeloMenosUmContato, DadosContatoDto> {
 
     @Override
     public boolean isValid(
-            CriarClienteRequestDto dto,
+            DadosContatoDto dto,
             ConstraintValidatorContext context
     ) {
         if (dto == null) {

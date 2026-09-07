@@ -1,17 +1,17 @@
 package com.temnafesta.presentation.controller;
 
-import com.temnafesta.application.dto.AlternarAtivoClienteCommand;
+import com.temnafesta.application.dto.AlterarAtivoClienteCommand;
 import com.temnafesta.application.dto.AtualizarClienteCommand;
 import com.temnafesta.application.dto.CriarClienteCommand;
-import com.temnafesta.application.dto.ListarClientesQuery;
 import com.temnafesta.application.usecase.*;
 import com.temnafesta.domain.model.Cliente;
-import com.temnafesta.presentation.dto.AlternarStatusRequestDto;
+import com.temnafesta.presentation.dto.AlterarAtivoClienteRequestDto;
 import com.temnafesta.presentation.dto.AtualizarClienteRequestDto;
 import com.temnafesta.presentation.dto.ClienteResponseDto;
 import com.temnafesta.presentation.dto.CriarClienteRequestDto;
 import com.temnafesta.presentation.mapper.ClientePresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,8 @@ public class ClienteController {
     private final ListarClientesUseCase listarClientesUseCase;
     private final BuscarClientePorIdUseCase buscarClientePorIdUseCase;
     private final AtualizarClienteUseCase atualizarClienteUseCase;
-    private final AlternarAtivoClienteUseCase alternarAtivoClienteUseCase;
+    private final AlterarAtivoClienteUseCase alterarAtivoClienteUseCase;
+    private final DeletarClienteUseCase deletarClienteUseCase;
 
     public ClienteController(
             CriarClienteUseCase criarClienteUseCase,
@@ -38,12 +39,14 @@ public class ClienteController {
             ListarClientesUseCase listarClientesUseCase,
             AtualizarClienteUseCase atualizarClienteUseCase,
             BuscarClientePorIdUseCase buscarClientePorIdUseCase,
-            AlternarAtivoClienteUseCase alternarAtivoClienteUseCase) {
+            AlterarAtivoClienteUseCase alterarAtivoClienteUseCase,
+            DeletarClienteUseCase deletarClienteUseCase) {
         this.criarClienteUseCase = criarClienteUseCase;
         this.mapper = mapper;
         this.listarClientesUseCase = listarClientesUseCase;
         this.atualizarClienteUseCase = atualizarClienteUseCase;
-        this.alternarAtivoClienteUseCase = alternarAtivoClienteUseCase;
+        this.alterarAtivoClienteUseCase = alterarAtivoClienteUseCase;
+        this.deletarClienteUseCase = deletarClienteUseCase;
         this.buscarClientePorIdUseCase = buscarClientePorIdUseCase;
     }
 
@@ -57,23 +60,18 @@ public class ClienteController {
 
 
     @GetMapping
-    @Operation(summary = "Lista clientes com paginação e filtro opcional por nome")
+    @Operation(summary = "Lista os clientes não deletados, com busca opcional e ativos primeiro",
+            description = "A busca considera nome, telefone, WhatsApp e Instagram.")
     public ResponseEntity<List<ClienteResponseDto>> listar(
-            @RequestParam(required = false) String busca,
-            @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int tamanho
+            @RequestParam(required = false) String busca
     ) {
-        ListarClientesQuery query = new ListarClientesQuery(busca, pagina, tamanho);
-
         //TODO: alterar DTO de retorno para objeto mais simples (sem info de endereço/denecessárias)
         // para tornar as requisições mais eficientes
-        List<ClienteResponseDto> response = listarClientesUseCase.executar(query)
+        List<ClienteResponseDto> response = listarClientesUseCase.executar(busca)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
-        if (response.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
+
         return ResponseEntity.ok(response);
     }
 
@@ -81,34 +79,43 @@ public class ClienteController {
     @Operation(summary = "Busca um cliente pelo ID")
     public ResponseEntity<ClienteResponseDto> buscarPorId(@PathVariable Long id) {
         Cliente cliente = buscarClientePorIdUseCase.executar(id);
-        if (cliente == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(mapper.toResponse(cliente));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza os dados de um cliente existente")
     public ResponseEntity<ClienteResponseDto> atualizar(@PathVariable Long id, @Valid @RequestBody AtualizarClienteRequestDto request) {
-        AtualizarClienteCommand command = mapper.toCommand(request);
-        Cliente clienteAtualizado = atualizarClienteUseCase.executar(id, command);
-        if (clienteAtualizado == null) {
-            return ResponseEntity.notFound().build();
-        }
+        AtualizarClienteCommand command = mapper.toCommand(request, id);
+        Cliente clienteAtualizado = atualizarClienteUseCase.executar(command);
         return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
     }
 
-    @PatchMapping("/{id}/status")
-    @Operation(summary = "Altera o status ativo/inativo de um cliente",
+    @PatchMapping("/{id}/ativo")
+    @Operation(summary = "Altera o status ativo de um cliente",
             description = "Impede a desativação caso existam pedidos em andamento.")
-    public ResponseEntity<ClienteResponseDto> alternarStatus(
+    @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Status não informado ou inválido")
+    @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    @ApiResponse(responseCode = "422", description = "Cliente possui pedidos em andamento")
+    public ResponseEntity<ClienteResponseDto> alterarAtivo(
             @PathVariable Long id,
-            @Valid @RequestBody AlternarStatusRequestDto request
+            @Valid @RequestBody AlterarAtivoClienteRequestDto request
     ) {
-        AlternarAtivoClienteCommand command = new AlternarAtivoClienteCommand(id, request.ativo());
-
-        Cliente clienteAtualizado = alternarAtivoClienteUseCase.executar(command);
+        AlterarAtivoClienteCommand command = mapper.toCommand(request, id);
+        Cliente clienteAtualizado = alterarAtivoClienteUseCase.executar(command);
 
         return ResponseEntity.ok(mapper.toResponse(clienteAtualizado));
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Exclui logicamente um cliente",
+            description = "Impede a exclusão caso existam pedidos em andamento.")
+    @ApiResponse(responseCode = "204", description = "Cliente excluído com sucesso")
+    @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    @ApiResponse(responseCode = "422", description = "Cliente possui pedidos em andamento")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        deletarClienteUseCase.executar(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

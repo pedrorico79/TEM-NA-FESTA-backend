@@ -1,11 +1,10 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.AtualizarClienteCommand;
+import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.Endereco;
 import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
-
-import java.time.LocalDate;
 
 public class AtualizarClienteUseCase {
     private final ClienteRepositoryPort clienteRepositoryPort;
@@ -14,12 +13,20 @@ public class AtualizarClienteUseCase {
         this.clienteRepositoryPort = clienteRepositoryPort;
     }
 
-    public Cliente executar(Long id, AtualizarClienteCommand command){
-        Endereco enderecoAtualizado = null;
+    public Cliente executar(AtualizarClienteCommand command) {
+        Cliente clienteExistente = clienteRepositoryPort.buscarPorId(command.id())
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Cliente não encontrado com o ID: " + command.id()));
+
+        Endereco enderecoAtualizado = clienteExistente.getEndereco();
 
         if (command.endereco() != null) {
+            Long enderecoId = clienteExistente.getEndereco() == null
+                    ? null
+                    : clienteExistente.getEndereco().getId();
+
             enderecoAtualizado = new Endereco(
-                    null,
+                    enderecoId,
                     command.endereco().cep(),
                     command.endereco().logradouro(),
                     command.endereco().numero(),
@@ -30,19 +37,20 @@ public class AtualizarClienteUseCase {
             );
         }
 
-        Cliente ClienteAtualizado = new Cliente(
-                id,
-                command.nome(),
+        String nome = command.nome() == null ? null : command.nome().trim();
+        Cliente clienteAtualizado = new Cliente(
+                clienteExistente.getId(),
+                nome,
                 command.telefone(),
                 command.whatsapp(),
                 command.instagram(),
-                LocalDate.now(),
+                clienteExistente.getDataCadastro(),
                 command.anotacoes(),
                 enderecoAtualizado,
-                true,
-                false
+                clienteExistente.isAtivo(),
+                clienteExistente.isDeletado()
         );
 
-        return clienteRepositoryPort.atualizar(ClienteAtualizado);
+        return clienteRepositoryPort.salvar(clienteAtualizado);
     }
 }

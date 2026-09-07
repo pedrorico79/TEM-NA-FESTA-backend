@@ -96,6 +96,11 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public AtualizarLembreteUseCase atualizarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
+        return new AtualizarLembreteUseCase(lembreteRepositoryPort);
+    }
+
+    @Bean
     public CriarClienteUseCase criarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
         return new CriarClienteUseCase(clienteRepositoryPort);
     }
@@ -116,10 +121,17 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public AlternarAtivoClienteUseCase alternarAtivoClienteUseCase(
+    public AlterarAtivoClienteUseCase alterarAtivoClienteUseCase(
             ClienteRepositoryPort clienteRepositoryPort,
             PedidoRepositoryPort pedidoRepositoryPort) {
-        return new AlternarAtivoClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
+        return new AlterarAtivoClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
+    }
+
+    @Bean
+    public DeletarClienteUseCase deletarClienteUseCase(
+            ClienteRepositoryPort clienteRepositoryPort,
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new DeletarClienteUseCase(clienteRepositoryPort, pedidoRepositoryPort);
     }
 
     @Bean

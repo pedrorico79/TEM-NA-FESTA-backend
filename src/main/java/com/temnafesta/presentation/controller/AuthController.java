@@ -1,12 +1,15 @@
 package com.temnafesta.presentation.controller;
 
 import com.temnafesta.application.usecase.AutenticarUsuarioUseCase;
+import com.temnafesta.infrastructure.security.user.UsuarioAutenticado;
 import com.temnafesta.presentation.dto.LoginRequestDto;
+import com.temnafesta.presentation.dto.MeResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.temnafesta.infrastructure.security.jwt.JwtTokenProvider;
@@ -59,5 +62,10 @@ public class AuthController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString())
                 .build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MeResponseDto> me(@AuthenticationPrincipal UsuarioAutenticado usuario) {
+        return ResponseEntity.ok(MeResponseDto.from(usuario));
     }
 }

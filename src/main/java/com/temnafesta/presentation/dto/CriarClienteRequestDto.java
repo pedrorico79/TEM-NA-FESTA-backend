@@ -2,17 +2,26 @@ package com.temnafesta.presentation.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @PeloMenosUmContato
-public record CriarClienteRequestDto (
-    @NotBlank(message = "O nome do cliente é obrigatório")
-    String nome,
-    String telefone,
-    String whatsapp,
-    String instagram,
-    String anotacoes,
+public record CriarClienteRequestDto(
+        @NotBlank(message = "O nome do cliente é obrigatório")
+        @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
+        String nome,
 
-    @Valid // Faz o Spring validar também os campos dentro do endereço
-    EnderecoDto endereco
+        @Size(max = 20, message = "O telefone deve ter no máximo 20 caracteres")
+        String telefone,
+
+        @Size(max = 20, message = "O WhatsApp deve ter no máximo 20 caracteres")
+        String whatsapp,
+
+        @Size(max = 50, message = "O Instagram deve ter no máximo 50 caracteres")
+        String instagram,
+        String anotacoes,
+
+        @Valid // Faz o Spring validar também os campos dentro do endereço
+        EnderecoDto endereco
 )
-{}
+        implements DadosContatoDto {
+}

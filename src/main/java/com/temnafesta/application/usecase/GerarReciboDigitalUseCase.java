@@ -25,7 +25,7 @@ public class GerarReciboDigitalUseCase {
         Pedido pedido = pedidoRepositoryPort.buscarPorId(pedidoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Pedido não encontrado com ID: " + pedidoId));
 
-        Cliente cliente = clienteRepositoryPort.buscarPorId(pedido.getClienteId())
+        Cliente cliente = clienteRepositoryPort.buscarPorIdIncluindoDeletados(pedido.getClienteId())
                 .orElseThrow(() -> new RegraDeNegocioException("Cliente não encontrado."));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");

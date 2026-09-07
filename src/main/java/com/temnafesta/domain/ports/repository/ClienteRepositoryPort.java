@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface ClienteRepositoryPort {
     Optional<Cliente> buscarPorId(Long id);
+    Optional<Cliente> buscarPorIdIncluindoDeletados(Long id);
     Cliente salvar(Cliente cliente);
-    List<Cliente> listarNaoDeletados(String termoBusca, int pagina, int tamanho);
-    Cliente atualizar(Cliente cliente);
+    List<Cliente> listarNaoDeletadosPorBusca(String busca);
 }

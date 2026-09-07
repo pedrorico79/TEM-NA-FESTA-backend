@@ -13,6 +13,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ProdutoTest {
 
     @Test
+    void naoDeveAceitarNomeNulo() {
+        RegraDeNegocioException ex = assertThrows(RegraDeNegocioException.class, () -> new Produto(
+                null,
+                null,
+                null,
+                new BigDecimal("49.90"),
+                true,
+                false));
+
+        assertEquals("O nome do produto é obrigatório.", ex.getMessage());
+    }
+
+    @Test
+    void naoDeveAceitarNomeEmBranco() {
+        assertThrows(RegraDeNegocioException.class, () -> new Produto(
+                null,
+                "   ",
+                null,
+                new BigDecimal("49.90"),
+                true,
+                false));
+    }
+
+    @Test
     void naoDeveAceitarPrecoIgualAZero() {
         assertThrows(RegraDeNegocioException.class, () -> new Produto(
                 null,

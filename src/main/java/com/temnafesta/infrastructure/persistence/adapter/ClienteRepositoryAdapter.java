@@ -1,11 +1,9 @@
 package com.temnafesta.infrastructure.persistence.adapter;
 
-import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 import com.temnafesta.infrastructure.persistence.mapper.ClientePersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataClienteRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,6 +22,11 @@ public class ClienteRepositoryAdapter implements ClienteRepositoryPort {
 
     @Override
     public Optional<Cliente> buscarPorId(Long id) {
+        return repository.findByIdAndDeletadoFalse(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Cliente> buscarPorIdIncluindoDeletados(Long id) {
         return repository.findById(id).map(mapper::toDomain);
     }
 
@@ -33,18 +36,10 @@ public class ClienteRepositoryAdapter implements ClienteRepositoryPort {
     }
 
     @Override
-    public List<Cliente> listarNaoDeletados(String termoBusca, int pagina, int tamanho) {
-        var pageable = PageRequest.of(pagina, tamanho);
-        var clientesPage = repository.buscarClientes(
-                termoBusca, pageable);
-        return clientesPage.stream().map(mapper::toDomain).toList();
+    public List<Cliente> listarNaoDeletadosPorBusca(String busca) {
+        return repository.buscarClientesNaoDeletados(busca)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
-
-    @Override
-    public Cliente atualizar(Cliente cliente) {
-        buscarPorId(cliente.getId()).orElseThrow(()-> new NaoEncontradoException("Cliente não encontrado"));
-        return mapper.toDomain(repository.save(mapper.toEntity(cliente)));
-    }
-
-
 }

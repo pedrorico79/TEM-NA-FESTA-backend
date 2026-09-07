@@ -1,6 +1,8 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.dto.AtualizarLembreteCommand;
 import com.temnafesta.application.dto.CriarLembreteCommand;
+import com.temnafesta.application.usecase.AtualizarLembreteUseCase;
 import com.temnafesta.application.usecase.CriarLembreteUseCase;
 import com.temnafesta.application.usecase.DeletarLembreteUseCase;
 import com.temnafesta.application.usecase.ListarLembretesUsuarioUseCase;
@@ -27,15 +29,18 @@ public class LembreteController {
     private final CriarLembreteUseCase criarLembreteUseCase;
     private final ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase;
     private final DeletarLembreteUseCase deletarLembreteUseCase;
+    private final AtualizarLembreteUseCase atualizarLembreteUseCase;
     private final ConsultasPresentationMapper mapper;
 
     public LembreteController(CriarLembreteUseCase criarLembreteUseCase,
                               ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase,
                               DeletarLembreteUseCase deletarLembreteUseCase,
+                              AtualizarLembreteUseCase atualizarLembreteUseCase,
                               ConsultasPresentationMapper mapper) {
         this.criarLembreteUseCase = criarLembreteUseCase;
         this.listarLembretesUsuarioUseCase = listarLembretesUsuarioUseCase;
         this.deletarLembreteUseCase = deletarLembreteUseCase;
+        this.atualizarLembreteUseCase = atualizarLembreteUseCase;
         this.mapper = mapper;
     }
 
@@ -57,6 +62,16 @@ public class LembreteController {
                 .map(mapper::toResponse)
                 .toList();
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Atualiza um lembrete do usuário autenticado")
+    public ResponseEntity<LembreteResponseDto> atualizar(@PathVariable Long id,
+                                                         @Valid @RequestBody LembreteRequestDto request,
+                                                         @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        AtualizarLembreteCommand command = mapper.toCommand(request, id, usuarioAutenticado.getId());
+        Lembrete lembreteAtualizado = atualizarLembreteUseCase.executar(command);
+        return ResponseEntity.ok(mapper.toResponse(lembreteAtualizado));
     }
 
     @DeleteMapping("/{id}")

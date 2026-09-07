@@ -1,7 +1,9 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.CriarPedidoCommand;
+import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.model.Produto;
@@ -30,13 +32,16 @@ public class CriarPedidoInternoUseCase {
 
     public Pedido executar(CriarPedidoCommand command) {
 
-        // 1. Valida existência do Cliente
-        clienteRepositoryPort.buscarPorId(command.clienteId())
-                .orElseThrow(() ->
-                        new RegraDeNegocioException(
-                                "Cliente não encontrado com o ID: " + command.clienteId()
-                        )
-                );
+        // 1. Valida se o cliente existe e está disponível para novos pedidos
+        Cliente cliente = clienteRepositoryPort.buscarPorId(command.clienteId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Cliente não encontrado com o ID: " + command.clienteId()));
+
+        if (!cliente.isAtivo()) {
+            throw new RegraDeNegocioException(
+                    "Cliente inativo não pode ser associado a um novo pedido. ID: "
+                            + command.clienteId());
+        }
 
         // 2. Instancia o Pedido
         Pedido novoPedido = new Pedido(
