@@ -37,6 +37,8 @@ class LembreteUseCasesTest {
     private DeletarLembreteUseCase deletarLembreteUseCase;
     @InjectMocks
     private ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase;
+    @InjectMocks
+    private BuscarLembretePorIdUseCase buscarLembretePorIdUseCase;
 
     private static Lembrete lembrete(Long usuarioId) {
         return new Lembrete(1L, "Comprar ovos", LocalDate.now(), LocalDate.now().plusDays(1), usuarioId);
@@ -104,6 +106,34 @@ class LembreteUseCasesTest {
             when(lembreteRepositoryPort.listarPorUsuarioId(10L)).thenReturn(List.of());
 
             assertTrue(listarLembretesUsuarioUseCase.executar(10L).isEmpty());
+        }
+    }
+
+    @Nested
+    class BuscarPorId {
+        @Test
+        void deveBuscarQuandoDono() {
+            when(lembreteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(lembrete(10L)));
+
+            Lembrete resultado = buscarLembretePorIdUseCase.executar(1L, 10L);
+
+            assertNotNull(resultado);
+        }
+
+        @Test
+        void naoDeveBuscarQuandoNaoEncontrado() {
+            when(lembreteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
+
+            assertThrows(RegraDeNegocioException.class, () -> buscarLembretePorIdUseCase.executar(1L, 10L));
+        }
+
+        @Test
+        void naoDeveBuscarDeOutroUsuario() {
+            when(lembreteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(lembrete(10L)));
+
+            RegraDeNegocioException ex = assertThrows(RegraDeNegocioException.class,
+                    () -> buscarLembretePorIdUseCase.executar(1L, 99L));
+            assertTrue(ex.getMessage().contains("permissão"));
         }
     }
 }

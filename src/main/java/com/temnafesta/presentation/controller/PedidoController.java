@@ -2,7 +2,9 @@ package com.temnafesta.presentation.controller;
 
 import com.temnafesta.application.dto.AtualizarPedidoCommand;
 import com.temnafesta.application.dto.CriarPedidoCommand;
+import com.temnafesta.application.dto.relatorio.PedidosPorSemanaOutput;
 import com.temnafesta.application.usecase.*;
+import com.temnafesta.domain.model.HistoricoStatusPedido;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
@@ -12,12 +14,14 @@ import com.temnafesta.presentation.dto.*;
 import com.temnafesta.presentation.mapper.PedidoPresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -35,9 +39,11 @@ public class PedidoController {
     private final ListarPedidosUseCase listarPedidosUseCase;
     private final ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase;
     private final ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase;
+    private final ListarHistoricoStatusPedidoUseCase listarHistoricoStatusPedidoUseCase;
+    private final ListaPedidosPorSemanaUseCase listaPedidosPorSemanaUseCase;
     private final PedidoPresentationMapper mapper;
 
-    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, ExcluirPedidoUseCase excluirPedidoUseCase, ContarPorStatusUseCase contarPorStatusUseCase, ListarProximasRetiradasUseCase listarProximasRetiradasUseCase, ListarPedidosUseCase listarPedidosUseCase, ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase, ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase, PedidoPresentationMapper mapper) {
+    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, ExcluirPedidoUseCase excluirPedidoUseCase, ContarPorStatusUseCase contarPorStatusUseCase, ListarProximasRetiradasUseCase listarProximasRetiradasUseCase, ListarPedidosUseCase listarPedidosUseCase, ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase, ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase, ListarHistoricoStatusPedidoUseCase listarHistoricoStatusPedidoUseCase, ListaPedidosPorSemanaUseCase listaPedidosPorSemanaUseCase, PedidoPresentationMapper mapper) {
         this.criarPedidoInternoUseCase = criarPedidoInternoUseCase;
         this.alterarStatusPedidoUseCase = alterarStatusPedidoUseCase;
         this.gerarReciboDigitalUseCase = gerarReciboDigitalUseCase;
@@ -49,6 +55,8 @@ public class PedidoController {
         this.listarPedidosUseCase = listarPedidosUseCase;
         this.listarItemPedidoPorIdUseCase = listarItemPedidoPorIdUseCase;
         this.listarPagamentosPedidoUseCase = listarPagamentosPedidoUseCase;
+        this.listarHistoricoStatusPedidoUseCase = listarHistoricoStatusPedidoUseCase;
+        this.listaPedidosPorSemanaUseCase = listaPedidosPorSemanaUseCase;
         this.mapper = mapper;
     }
 
@@ -182,6 +190,34 @@ public class PedidoController {
         List<PagamentoResponseDto> response = pagamentos.stream()
                 .map(mapper::toResponse)
                 .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/historico-status")
+    @Transactional
+    @Operation(summary = "Lista o histórico de status de um pedido")
+    public ResponseEntity<List<HistoricoStatusPedidoResponseDto>> listarHistoricoStatus(
+            @PathVariable Long id) {
+
+        List<HistoricoStatusPedido> historico =
+                listarHistoricoStatusPedidoUseCase.executar(id);
+
+        List<HistoricoStatusPedidoResponseDto> response = historico.stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/count-pedidos-por-semana")
+    @Operation(summary = "Retorna a quantidade de pedidos por semana com base nas queryParams")
+    public ResponseEntity<List<PedidosPorSemanaResponseDto>> countPedidosPorSemana(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate) {
+
+        List<PedidosPorSemanaOutput> outputs = listaPedidosPorSemanaUseCase.execute(de, ate);
+        List<PedidosPorSemanaResponseDto> response = mapper.toPedidosPorSemanaResponse(outputs);
 
         return ResponseEntity.ok(response);
     }

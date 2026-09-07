@@ -183,6 +183,29 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public ExcluirPagamentoUseCase excluirPagamentoUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ExcluirPagamentoUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarHistoricoStatusPedidoUseCase listarHistoricoStatusPedidoUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort,
+            HistoricoStatusPedidoRepositoryPort historicoStatusPedidoRepositoryPort) {
+        return new ListarHistoricoStatusPedidoUseCase(pedidoRepositoryPort, historicoStatusPedidoRepositoryPort);
+    }
+
+    @Bean
+    public ListarStatusProducaoUseCase listarStatusProducaoUseCase() {
+        return new ListarStatusProducaoUseCase();
+    }
+
+    @Bean
+    public BuscarLembretePorIdUseCase buscarLembretePorIdUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
+        return new BuscarLembretePorIdUseCase(lembreteRepositoryPort);
+    }
+
+    @Bean
     public CriarEventoUseCase criarEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
         return new CriarEventoUseCase(eventoRepositoryPort);
     }

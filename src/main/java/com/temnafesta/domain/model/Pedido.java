@@ -94,6 +94,14 @@ public class Pedido {
         this.pagamentos.add(pagamento);
     }
 
+    public void removerPagamento(Long pagamentoId) {
+        boolean removido = this.pagamentos.removeIf(p -> p.getId() != null && p.getId().equals(pagamentoId));
+
+        if (!removido) {
+            throw new RegraDeNegocioException("Pagamento não encontrado com ID: " + pagamentoId + " para este pedido.");
+        }
+    }
+
     public void recalcularValorTotal() {
         BigDecimal totalItens = itens.stream()
                 .map(ItemPedido::calcularSubtotal)

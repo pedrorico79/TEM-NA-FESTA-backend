@@ -3,6 +3,7 @@ package com.temnafesta.presentation.controller;
 import com.temnafesta.application.dto.AtualizarLembreteCommand;
 import com.temnafesta.application.dto.CriarLembreteCommand;
 import com.temnafesta.application.usecase.AtualizarLembreteUseCase;
+import com.temnafesta.application.usecase.BuscarLembretePorIdUseCase;
 import com.temnafesta.application.usecase.CriarLembreteUseCase;
 import com.temnafesta.application.usecase.DeletarLembreteUseCase;
 import com.temnafesta.application.usecase.ListarLembretesUsuarioUseCase;
@@ -28,17 +29,20 @@ public class LembreteController {
 
     private final CriarLembreteUseCase criarLembreteUseCase;
     private final ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase;
+    private final BuscarLembretePorIdUseCase buscarLembretePorIdUseCase;
     private final DeletarLembreteUseCase deletarLembreteUseCase;
     private final AtualizarLembreteUseCase atualizarLembreteUseCase;
     private final ConsultasPresentationMapper mapper;
 
     public LembreteController(CriarLembreteUseCase criarLembreteUseCase,
                               ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase,
+                              BuscarLembretePorIdUseCase buscarLembretePorIdUseCase,
                               DeletarLembreteUseCase deletarLembreteUseCase,
                               AtualizarLembreteUseCase atualizarLembreteUseCase,
                               ConsultasPresentationMapper mapper) {
         this.criarLembreteUseCase = criarLembreteUseCase;
         this.listarLembretesUsuarioUseCase = listarLembretesUsuarioUseCase;
+        this.buscarLembretePorIdUseCase = buscarLembretePorIdUseCase;
         this.deletarLembreteUseCase = deletarLembreteUseCase;
         this.atualizarLembreteUseCase = atualizarLembreteUseCase;
         this.mapper = mapper;
@@ -62,6 +66,14 @@ public class LembreteController {
                 .map(mapper::toResponse)
                 .toList();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Lista um lembrete pelo ID")
+    public ResponseEntity<LembreteResponseDto> listarPorId(@PathVariable Long id,
+                                                            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        Lembrete lembrete = buscarLembretePorIdUseCase.executar(id, usuarioAutenticado.getId());
+        return ResponseEntity.ok(mapper.toResponse(lembrete));
     }
 
     @PutMapping("/{id}")

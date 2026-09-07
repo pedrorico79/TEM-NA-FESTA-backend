@@ -211,4 +211,26 @@ class PedidoTest {
         assertThrows(UnsupportedOperationException.class,
                 () -> pedido.getPagamentos().add(pagamentoConfirmado("1.00")));
     }
+
+    @Test
+    void deveRemoverPagamentoExistentePorId() {
+        Pedido pedido = pedidoRascunho();
+        Pagamento pagamento = new Pagamento(9L, new BigDecimal("30.00"), LocalDateTime.now(),
+                TipoPagamentoEnum.SINAL, StatusPagamentoEnum.CONFIRMADO, 1L, 1L);
+        pedido.adicionarPagamento(pagamento);
+
+        pedido.removerPagamento(9L);
+
+        assertTrue(pedido.getPagamentos().isEmpty());
+    }
+
+    @Test
+    void naoDeveRemoverPagamentoInexistente() {
+        Pedido pedido = pedidoRascunho();
+        pedido.adicionarPagamento(new Pagamento(1L, new BigDecimal("30.00"), LocalDateTime.now(),
+                TipoPagamentoEnum.SINAL, StatusPagamentoEnum.CONFIRMADO, 1L, 1L));
+
+        assertThrows(RegraDeNegocioException.class, () -> pedido.removerPagamento(999L));
+        assertEquals(1, pedido.getPagamentos().size());
+    }
 }
