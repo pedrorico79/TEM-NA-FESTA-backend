@@ -1,0 +1,37 @@
+package com.temnafesta.infrastructure.persistence.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "item_pedido")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ItemPedidoJpaEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pedido_id", nullable = false)
+    private PedidoJpaEntity pedido;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "produto_id", nullable = false)
+    private ProdutoJpaEntity produto;
+
+    @Column(nullable = false)
+    private Integer quantidade;
+
+    @Column(name = "preco_unitario", nullable = false, precision = 10, scale = 2)
+    private BigDecimal precoUnitario;
+
+    @Column(name = "observacao_item", columnDefinition = "TEXT")
+    private String observacaoItem;
+}
