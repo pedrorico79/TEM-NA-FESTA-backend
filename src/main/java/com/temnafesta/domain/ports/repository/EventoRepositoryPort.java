@@ -1,7 +1,10 @@
 package com.temnafesta.domain.ports.repository;
 
+import com.temnafesta.application.dto.relatorio.EventoComparativoOutput;
 import com.temnafesta.domain.model.Evento;
 
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,4 +15,5 @@ public interface EventoRepositoryPort {
     Evento atualizar(Evento evento);
     void deletar(Long id);
     Evento alterarStatus(Long id, boolean ativo);
+    List<EventoComparativoOutput> buscarComparativoEventos(LocalDateTime de, LocalDateTime ate);
 }

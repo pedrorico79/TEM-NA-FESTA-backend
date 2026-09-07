@@ -2,11 +2,7 @@ package com.temnafesta.presentation.controller;
 
 import com.temnafesta.application.dto.AtualizarEventoCommand;
 import com.temnafesta.application.dto.CriarEventoCommand;
-import com.temnafesta.application.usecase.AlterarStatusEventoUseCase;
-import com.temnafesta.application.usecase.AtualizarEventoUseCase;
-import com.temnafesta.application.usecase.CriarEventoUseCase;
-import com.temnafesta.application.usecase.DeletarEventoUseCase;
-import com.temnafesta.application.usecase.ListarEventosAtivosUseCase;
+import com.temnafesta.application.usecase.*;
 import com.temnafesta.domain.model.Evento;
 import com.temnafesta.presentation.dto.AlterarStatusEventoRequestDto;
 import com.temnafesta.presentation.dto.AtualizarEventoRequestDto;
@@ -40,19 +36,21 @@ public class EventoController {
     private final AtualizarEventoUseCase atualizarEventoUseCase;
     private final DeletarEventoUseCase deletarEventoUseCase;
     private final AlterarStatusEventoUseCase alterarStatusEventoUseCase;
+    private final BuscarEventoPorIdUseCase buscarEventoPorIdUseCase;
     private final ConsultasPresentationMapper mapper;
 
     public EventoController(ListarEventosAtivosUseCase listarEventosAtivosUseCase,
-                           CriarEventoUseCase criarEventoUseCase,
-                           AtualizarEventoUseCase atualizarEventoUseCase,
-                           DeletarEventoUseCase deletarEventoUseCase,
-                           AlterarStatusEventoUseCase alterarStatusEventoUseCase,
-                           ConsultasPresentationMapper mapper) {
+                            CriarEventoUseCase criarEventoUseCase,
+                            AtualizarEventoUseCase atualizarEventoUseCase,
+                            DeletarEventoUseCase deletarEventoUseCase,
+                            AlterarStatusEventoUseCase alterarStatusEventoUseCase, BuscarEventoPorIdUseCase buscarEventoPorIdUseCase,
+                            ConsultasPresentationMapper mapper) {
         this.listarEventosAtivosUseCase = listarEventosAtivosUseCase;
         this.criarEventoUseCase = criarEventoUseCase;
         this.atualizarEventoUseCase = atualizarEventoUseCase;
         this.deletarEventoUseCase = deletarEventoUseCase;
         this.alterarStatusEventoUseCase = alterarStatusEventoUseCase;
+        this.buscarEventoPorIdUseCase = buscarEventoPorIdUseCase;
         this.mapper = mapper;
     }
 
@@ -65,6 +63,14 @@ public class EventoController {
                 .toList();
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Busca evento por Id")
+    public ResponseEntity<EventoResponseDto> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(mapper.toResponse(buscarEventoPorIdUseCase.executar(id)));
+    }
+
 
     @PostMapping
     @Operation(summary = "Cadastra um novo evento")

@@ -51,8 +51,7 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public ListarMetodosPagamentoUseCase listarMetodosPagamentoUseCase(
-            MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
+    public ListarMetodosPagamentoUseCase listarMetodosPagamentoUseCase(MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
         return new ListarMetodosPagamentoUseCase(metodoPagamentoRepositoryPort);
     }
 
@@ -204,6 +203,11 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public BuscarEventoPorIdUseCase buscarEventoPorIdUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new BuscarEventoPorIdUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
     public ListarUsuarioUseCase listarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
         return new ListarUsuarioUseCase(usuarioRepositoryPort);
     }
@@ -225,4 +229,36 @@ public class BeanConfiguration {
     public DeletarUsuarioUseCase deletarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
         return new DeletarUsuarioUseCase(usuarioRepositoryPort);
     }
+
+    @Bean
+    public ListaKpisUseCase listaKpisUseCase(PedidoRepositoryPort pedidoRepositoryPort, ProdutoRepositoryPort produtoRepositoryPort, EventoRepositoryPort eventoRepositoryPort) {
+        return new ListaKpisUseCase(pedidoRepositoryPort, produtoRepositoryPort, eventoRepositoryPort);
+    }
+
+    @Bean
+    ListaPedidosPorSemanaUseCase listaPedidosPorSemanaUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListaPedidosPorSemanaUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    ListaPedidosPeriodoUseCase listaPedidosPeriodoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListaPedidosPeriodoUseCase(pedidoRepositoryPort);
+    }
+
+    @Bean
+    ListaProdutosMaisVendidosUseCase listaProdutosMaisVendidosUseCase(ProdutoRepositoryPort produtoRepositoryPort) {
+        return new ListaProdutosMaisVendidosUseCase(produtoRepositoryPort);
+    }
+
+    @Bean
+    ListaComparativoEventosUseCase listaComparativoEventosUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new ListaComparativoEventosUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
+    ListaRelatorioDinamicoUseCase listaRelatorioDinamicoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ListaRelatorioDinamicoUseCase(pedidoRepositoryPort);
+    }
+
+
 }
