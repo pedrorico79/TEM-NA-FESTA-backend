@@ -21,7 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/relatorios")
+@RequestMapping("/api/v1/relatorios")
 @AllArgsConstructor
 public class RelatorioController {
 
