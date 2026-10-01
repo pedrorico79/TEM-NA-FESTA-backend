@@ -1,5 +1,7 @@
 package com.temnafesta.domain.ports.repository;
 
+import com.temnafesta.application.dto.relatorio.PedidosPeriodoOutput;
+import com.temnafesta.application.dto.relatorio.PedidosPorSemanaOutput;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
@@ -7,6 +9,8 @@ import com.temnafesta.domain.vo.StatusPagamentoEnum;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import com.temnafesta.domain.vo.TipoPagamentoEnum;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -113,6 +117,41 @@ class PedidoRepositoryPortContractTest {
         @Override
         public List<Pagamento> listarPagamentos(Long pedidoId) {
             return buscarPorId(pedidoId).map(p -> new ArrayList<>(p.getPagamentos())).orElseGet(ArrayList::new);
+        }
+
+        @Override
+        public Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime inicio, LocalDateTime fim) {
+            return banco.values().stream()
+                    .filter(p -> !p.getDataPedido().isBefore(inicio) && !p.getDataPedido().isAfter(fim))
+                    .count();
+        }
+
+        @Override
+        public Long countByStatusEPeriodo(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim) {
+            return banco.values().stream()
+                    .filter(p -> p.getStatusProducao() == status)
+                    .filter(p -> !p.getDataPedido().isBefore(inicio) && !p.getDataPedido().isAfter(fim))
+                    .count();
+        }
+
+        @Override
+        public BigDecimal somarFaturamentoNoPeriodo(LocalDateTime inicio, LocalDateTime fim) {
+            return BigDecimal.ZERO;
+        }
+
+        @Override
+        public List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public Page<PedidosPeriodoOutput> buscarPedidosPeriodoPaginado(LocalDateTime de, LocalDateTime ate, Pageable pageable) {
+            return Page.empty(pageable);
+        }
+
+        @Override
+        public List<PedidosPeriodoOutput> buscarRelatorioDinamico(Integer eventoId, LocalDateTime dataInicio, LocalDateTime dataFim) {
+            return new ArrayList<>();
         }
     }
 
