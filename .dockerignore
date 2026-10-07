@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# Build
+target/
+build/
+dist/
+*.class
+
+# Dependencies
+.m2/
+
+# Environment
+.env
+.env.*
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docs & Config
+README.md
+HELP.md
+docs/
+*.md
+LICENSE
+.editorconfig
+
+# OS
+.DS_Store
+Thumbs.db
+
