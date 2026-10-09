@@ -1,6 +1,7 @@
 package com.temnafesta.infrastructure.config;
 
 import com.temnafesta.application.usecase.*;
+import com.temnafesta.domain.ports.out.PedidoEventPublisherPort;
 import com.temnafesta.domain.ports.repository.*;
 import com.temnafesta.infrastructure.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
@@ -22,8 +23,9 @@ public class BeanConfiguration {
     public CriarPedidoInternoUseCase criarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
             ClienteRepositoryPort clienteRepositoryPort,
-            ProdutoRepositoryPort produtoRepositoryPort) {
-        return new CriarPedidoInternoUseCase(pedidoRepositoryPort, clienteRepositoryPort, produtoRepositoryPort);
+            ProdutoRepositoryPort produtoRepositoryPort,
+            PedidoEventPublisherPort pedidoEventPublisherPort) {
+        return new CriarPedidoInternoUseCase(pedidoRepositoryPort, clienteRepositoryPort, produtoRepositoryPort, pedidoEventPublisherPort);
     }
 
     @Bean

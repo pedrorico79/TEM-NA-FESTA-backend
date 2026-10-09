@@ -7,10 +7,12 @@ import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.model.Produto;
+import com.temnafesta.domain.ports.out.PedidoEventPublisherPort;
 import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import com.temnafesta.presentation.dto.PedidoResponseDto;
 
 import java.util.ArrayList;
 
@@ -19,15 +21,18 @@ public class CriarPedidoInternoUseCase {
     private final PedidoRepositoryPort pedidoRepositoryPort;
     private final ClienteRepositoryPort clienteRepositoryPort;
     private final ProdutoRepositoryPort produtoRepositoryPort;
+    private final PedidoEventPublisherPort pedidoEventPublisherPort;
+
 
     public CriarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
             ClienteRepositoryPort clienteRepositoryPort,
-            ProdutoRepositoryPort produtoRepositoryPort) {
+            ProdutoRepositoryPort produtoRepositoryPort, PedidoEventPublisherPort pedidoEventPublisherPort) {
 
         this.pedidoRepositoryPort = pedidoRepositoryPort;
         this.clienteRepositoryPort = clienteRepositoryPort;
         this.produtoRepositoryPort = produtoRepositoryPort;
+        this.pedidoEventPublisherPort = pedidoEventPublisherPort;
     }
 
     public Pedido executar(CriarPedidoCommand command) {
@@ -88,7 +93,13 @@ public class CriarPedidoInternoUseCase {
             novoPedido.adicionarItem(item);
         }
 
-        // 4. Persiste o pedido
-        return pedidoRepositoryPort.salvar(novoPedido);
+        // 4. Persiste o pedido + dispara evento
+        Pedido pedidoSalvo = pedidoRepositoryPort.salvar(novoPedido);
+        try {
+            pedidoEventPublisherPort.publicarPedidoCriado(pedidoSalvo);
+        } catch (Exception error) {
+            System.out.println("Não foi possível publicar o evento: " + error.getMessage());
+        }
+        return pedidoSalvo;
     }
 }
