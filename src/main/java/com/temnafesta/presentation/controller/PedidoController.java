@@ -14,6 +14,7 @@ import com.temnafesta.presentation.dto.*;
 import com.temnafesta.presentation.mapper.PedidoPresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/pedidos")
+@AllArgsConstructor
 public class PedidoController {
 
     private final CriarPedidoInternoUseCase criarPedidoInternoUseCase;
@@ -43,22 +45,6 @@ public class PedidoController {
     private final ListaPedidosPorSemanaUseCase listaPedidosPorSemanaUseCase;
     private final PedidoPresentationMapper mapper;
 
-    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, ExcluirPedidoUseCase excluirPedidoUseCase, ContarPorStatusUseCase contarPorStatusUseCase, ListarProximasRetiradasUseCase listarProximasRetiradasUseCase, ListarPedidosUseCase listarPedidosUseCase, ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase, ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase, ListarHistoricoStatusPedidoUseCase listarHistoricoStatusPedidoUseCase, ListaPedidosPorSemanaUseCase listaPedidosPorSemanaUseCase, PedidoPresentationMapper mapper) {
-        this.criarPedidoInternoUseCase = criarPedidoInternoUseCase;
-        this.alterarStatusPedidoUseCase = alterarStatusPedidoUseCase;
-        this.gerarReciboDigitalUseCase = gerarReciboDigitalUseCase;
-        this.listarPedidoPorIdUseCase = listarPedidoPorIdUseCase;
-        this.atualizarPedidoUseCase = atualizarPedidoUseCase;
-        this.excluirPedidoUseCase = excluirPedidoUseCase;
-        this.contarPorStatusUseCase = contarPorStatusUseCase;
-        this.listarProximasRetiradasUseCase = listarProximasRetiradasUseCase;
-        this.listarPedidosUseCase = listarPedidosUseCase;
-        this.listarItemPedidoPorIdUseCase = listarItemPedidoPorIdUseCase;
-        this.listarPagamentosPedidoUseCase = listarPagamentosPedidoUseCase;
-        this.listarHistoricoStatusPedidoUseCase = listarHistoricoStatusPedidoUseCase;
-        this.listaPedidosPorSemanaUseCase = listaPedidosPorSemanaUseCase;
-        this.mapper = mapper;
-    }
 
     @PostMapping
     @Transactional

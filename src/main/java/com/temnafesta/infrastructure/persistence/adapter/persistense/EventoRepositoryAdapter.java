@@ -1,4 +1,4 @@
-package com.temnafesta.infrastructure.persistence.adapter;
+package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.application.dto.relatorio.EventoComparativoOutput;
 import com.temnafesta.domain.model.Evento;

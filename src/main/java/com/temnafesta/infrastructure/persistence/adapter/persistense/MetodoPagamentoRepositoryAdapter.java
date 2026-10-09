@@ -1,4 +1,4 @@
-package com.temnafesta.infrastructure.persistence.adapter;
+package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.domain.model.MetodoPagamento;
 import com.temnafesta.domain.ports.repository.MetodoPagamentoRepositoryPort;
