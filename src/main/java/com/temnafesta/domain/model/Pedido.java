@@ -123,7 +123,8 @@ public class Pedido {
 
     // --- MÉTODOS DE ATUALIZAÇÃO ---
 
-    public void atualizarDadosBasicos(LocalDateTime dataEntrega, BigDecimal taxaEntrega, String observacao, Long enderecoEntregaId) {
+    public void atualizarDadosBasicos(LocalDateTime dataEntrega, BigDecimal taxaEntrega, String observacao,
+                                      Long eventoId, Long enderecoEntregaId) {
         if (List.of(StatusProducaoEnum.ENTREGUE, StatusProducaoEnum.CANCELADO).contains(this.statusProducao)) {
             throw new RegraDeNegocioException("Não é permitido alterar dados de um pedido finalizado ou cancelado.");
         }
@@ -131,6 +132,7 @@ public class Pedido {
         this.dataEntrega = dataEntrega;
         this.taxaEntrega = taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO;
         this.observacao = observacao;
+        this.eventoId = eventoId;
         this.enderecoEntregaId = enderecoEntregaId;
 
         recalcularValorTotal();

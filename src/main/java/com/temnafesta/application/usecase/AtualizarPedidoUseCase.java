@@ -31,6 +31,7 @@ public class AtualizarPedidoUseCase {
                 command.dataEntrega(),
                 command.taxaEntrega(),
                 command.observacao(),
+                command.eventoId(),
                 command.enderecoEntregaId()
         );
 
@@ -41,6 +42,11 @@ public class AtualizarPedidoUseCase {
             // Garante que o produto existe
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
                     .orElseThrow(() -> new RegraDeNegocioException("Produto não encontrado com o ID: " + itemDto.produtoId()));
+
+            if (!produto.isAtivo()) {
+                throw new RegraDeNegocioException(
+                        "Produto inativo não pode ser adicionado ao pedido. ID: " + itemDto.produtoId());
+            }
 
             novosItens.add(new ItemPedido(
                     null,

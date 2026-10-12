@@ -9,6 +9,7 @@ public record AtualizarPedidoCommand(
         LocalDateTime dataEntrega,
         BigDecimal taxaEntrega,
         String observacao,
+        Long eventoId,
         Long enderecoEntregaId,
         List<ItemCommand> itens
 ) {
