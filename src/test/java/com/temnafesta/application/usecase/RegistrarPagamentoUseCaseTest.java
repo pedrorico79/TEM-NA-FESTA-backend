@@ -39,7 +39,8 @@ class RegistrarPagamentoUseCaseTest {
         return new Pedido(1L, LocalDateTime.now(), LocalDateTime.now().plusDays(3),
                 BigDecimal.ZERO, null, status,
                 1L, 1L, null, null,
-                List.of(new ItemPedido(1L, 1L, 2, new BigDecimal("50.00"), null)), null);
+                List.of(new ItemPedido(1L, 1L, 2, new BigDecimal("50.00"), null)), null,
+                true, false);
     }
 
     @Test

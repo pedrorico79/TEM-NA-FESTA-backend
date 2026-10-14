@@ -27,7 +27,7 @@ class ApplicationDtosTest {
     @Test
     void deveConstruirAtualizarPedidoCommand() {
         AtualizarPedidoCommand command = new AtualizarPedidoCommand(1L,
-                LocalDateTime.of(2026, 12, 20, 18, 0), BigDecimal.ZERO, null, null,
+                LocalDateTime.of(2026, 12, 20, 18, 0), BigDecimal.ZERO, null, null, null,
                 List.of(new AtualizarPedidoCommand.ItemCommand(1L, 1, new BigDecimal("20.00"), "x")));
 
         assertEquals(1L, command.pedidoId());

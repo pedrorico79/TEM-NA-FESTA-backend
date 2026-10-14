@@ -20,7 +20,7 @@ public class Pedido {
     private Long clienteId;
     private Long usuarioId;
     private Long eventoId;            // NULL se não for pedido de evento sazonal
-    private Long enderecoEntregaId;   // NULL se for retirada na confeitaria
+    private Endereco enderecoEntrega; // Objeto completo para exibição no frontend (carregado via join)
     private List<ItemPedido> itens = new ArrayList<>();
     private List<Pagamento> pagamentos = new ArrayList<>();
     private boolean ativo = true;
@@ -30,8 +30,9 @@ public class Pedido {
                   BigDecimal taxaEntrega, String observacao,
                   StatusProducaoEnum statusProducao,
                   Long clienteId, Long usuarioId, Long eventoId,
-                  Long enderecoEntregaId,
-                  List<ItemPedido> itens, List<Pagamento> pagamentos) {
+                  Endereco enderecoEntrega,
+                  List<ItemPedido> itens, List<Pagamento> pagamentos,
+                  boolean ativo, boolean deletado) {
 
         this.id = id;
         this.dataPedido = dataPedido != null ? dataPedido : LocalDateTime.now();
@@ -46,7 +47,9 @@ public class Pedido {
         this.clienteId = clienteId;
         this.usuarioId = usuarioId;
         this.eventoId = eventoId;
-        this.enderecoEntregaId = enderecoEntregaId;
+        this.enderecoEntrega = enderecoEntrega;
+        this.ativo = ativo;
+        this.deletado = deletado;
         this.valorTotal = BigDecimal.ZERO;
         // Garante que a lista interna seja mutável para os métodos adicionarItem e adicionarPagamento
         if (itens != null) {
@@ -123,8 +126,7 @@ public class Pedido {
 
     // --- MÉTODOS DE ATUALIZAÇÃO ---
 
-    public void atualizarDadosBasicos(LocalDateTime dataEntrega, BigDecimal taxaEntrega, String observacao,
-                                      Long eventoId, Long enderecoEntregaId) {
+    public void atualizarDadosBasicos(LocalDateTime dataEntrega, BigDecimal taxaEntrega, String observacao, Endereco enderecoEntrega) {
         if (List.of(StatusProducaoEnum.ENTREGUE, StatusProducaoEnum.CANCELADO).contains(this.statusProducao)) {
             throw new RegraDeNegocioException("Não é permitido alterar dados de um pedido finalizado ou cancelado.");
         }
@@ -132,10 +134,13 @@ public class Pedido {
         this.dataEntrega = dataEntrega;
         this.taxaEntrega = taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO;
         this.observacao = observacao;
-        this.eventoId = eventoId;
-        this.enderecoEntregaId = enderecoEntregaId;
+        this.enderecoEntrega = enderecoEntrega;
 
         recalcularValorTotal();
+    }
+
+    public void atualizarEventoId(Long eventoId) {
+        this.eventoId = eventoId;
     }
 
     public void substituirItens(List<ItemPedido> novosItens) {
@@ -224,7 +229,10 @@ public class Pedido {
     public Long getClienteId() { return clienteId; }
     public Long getUsuarioId() { return usuarioId; }
     public Long getEventoId() { return eventoId; }
-    public Long getEnderecoEntregaId() { return enderecoEntregaId; }
+    public Endereco getEnderecoEntrega() { return enderecoEntrega; }
+    public void setEnderecoEntrega(Endereco enderecoEntrega) {
+        this.enderecoEntrega = enderecoEntrega;
+    }
     public List<ItemPedido> getItens() { return Collections.unmodifiableList(itens); }
     public List<Pagamento> getPagamentos() { return Collections.unmodifiableList(pagamentos); }
     public boolean isAtivo() { return ativo; }

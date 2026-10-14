@@ -54,7 +54,8 @@ class PedidoLeituraUseCasesTest {
         return new Pedido(1L, LocalDateTime.now(), LocalDateTime.now().plusDays(2),
                 BigDecimal.ZERO, null, StatusProducaoEnum.RASCUNHO,
                 1L, 1L, null, null,
-                List.of(new ItemPedido(5L, 1L, 1, new BigDecimal("20.00"), null)), null);
+                List.of(new ItemPedido(5L, 1L, 1, new BigDecimal("20.00"), null)), null,
+                true, false);
     }
 
     @Nested

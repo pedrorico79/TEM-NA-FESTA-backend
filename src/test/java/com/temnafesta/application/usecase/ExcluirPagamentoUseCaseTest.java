@@ -41,7 +41,8 @@ class ExcluirPagamentoUseCaseTest {
         Pedido pedido = new Pedido(1L, LocalDateTime.now(), LocalDateTime.now().plusDays(3),
                 BigDecimal.ZERO, null, StatusProducaoEnum.RASCUNHO,
                 1L, 1L, null, null,
-                List.of(new ItemPedido(1L, 1L, 2, new BigDecimal("50.00"), null)), null);
+                List.of(new ItemPedido(1L, 1L, 2, new BigDecimal("50.00"), null)), null,
+                true, false);
 
         pedido.adicionarPagamento(new Pagamento(pagamentoId, new BigDecimal("30.00"), LocalDateTime.now(),
                 TipoPagamentoEnum.SINAL, StatusPagamentoEnum.CONFIRMADO, 5L, 9L));

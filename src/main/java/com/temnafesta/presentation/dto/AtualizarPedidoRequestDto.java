@@ -22,7 +22,8 @@ public record AtualizarPedidoRequestDto(
 
         Long eventoId,
 
-        Long enderecoEntregaId,
+        @Valid
+        EnderecoRequestDto enderecoEntrega,
 
         @NotEmpty(message = "O pedido deve conter pelo menos um item.")
         @Valid

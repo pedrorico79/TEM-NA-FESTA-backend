@@ -25,6 +25,7 @@ public interface SpringDataPedidoRepository
     @Query("""
         SELECT p
         FROM PedidoJpaEntity p
+        LEFT JOIN FETCH p.enderecoEntrega
         WHERE (:status IS NULL OR p.statusProducao = :status)
           AND (:inicio IS NULL OR p.dataEntrega >= :inicio)
           AND (:fim IS NULL OR p.dataEntrega <= :fim)
@@ -68,6 +69,7 @@ public interface SpringDataPedidoRepository
     @Query("""
         SELECT p
         FROM PedidoJpaEntity p
+        LEFT JOIN FETCH p.enderecoEntrega
         WHERE p.dataEntrega <= :limite
           AND p.statusProducao NOT IN (
               com.temnafesta.domain.vo.StatusProducaoEnum.ENTREGUE,
@@ -81,30 +83,28 @@ public interface SpringDataPedidoRepository
     );
 
 
-    /*
+/*
      * Busca pedidos por cliente, ID, status e evento.
      *
      * Evento é opcional no banco, portanto LEFT JOIN.
      */
-    @Query(value = """
-    SELECT p.*
-    FROM pedido p
-    INNER JOIN cliente c
-        ON p.cliente_id = c.id
-    LEFT JOIN evento e
-        ON p.evento_id = e.id
-    WHERE p.is_deletado = FALSE
-      AND (
-          :busca IS NULL
-          OR :busca = ''
-          OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%'))
-          OR CAST(p.id AS CHAR) LIKE CONCAT('%', :busca, '%')
-      )
-      AND (:status IS NULL OR p.status_producao = :status)
-      AND (:eventoId IS NULL OR p.evento_id = :eventoId)
-    ORDER BY p.data_entrega ASC
-    """,
-            nativeQuery = true)
+    @Query("""
+        SELECT p
+        FROM PedidoJpaEntity p
+        JOIN p.cliente c
+        LEFT JOIN p.evento e
+        LEFT JOIN FETCH p.enderecoEntrega
+        WHERE p.deletado = false
+          AND (
+                :busca IS NULL
+                OR :busca = ''
+                OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%'))
+                OR CAST(p.id AS STRING) LIKE CONCAT('%', :busca, '%')
+            )
+          AND (:status IS NULL OR p.statusProducao = :status)
+          AND (:eventoId IS NULL OR p.evento.id = :eventoId)
+        ORDER BY p.dataEntrega ASC
+        """)
     List<PedidoJpaEntity> listarPedidos(
             @Param("busca") String busca,
             @Param("status") StatusProducaoEnum status,

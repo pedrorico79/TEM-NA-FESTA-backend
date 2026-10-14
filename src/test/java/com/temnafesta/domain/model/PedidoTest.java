@@ -39,7 +39,8 @@ class PedidoTest {
         return new Pedido(null, null, LocalDateTime.now().plusDays(7),
                 new BigDecimal("10.00"), null, null,
                 1L, 1L, null, null,
-                List.of(item(new BigDecimal("50.00"), 2)), null);
+                List.of(item(new BigDecimal("50.00"), 2)), null,
+                true, false);
     }
 
     @Test
@@ -57,7 +58,8 @@ class PedidoTest {
     void deveAssumirTaxaZeroQuandoNula() {
         Pedido pedido = new Pedido(null, null, LocalDateTime.now().plusDays(7),
                 null, null, null, 1L, 1L, null, null,
-                List.of(item(new BigDecimal("50.00"), 2)), null);
+                List.of(item(new BigDecimal("50.00"), 2)), null,
+                true, false);
 
         assertTrue(pedido.getTaxaEntrega().compareTo(BigDecimal.ZERO) == 0);
         assertTrue(pedido.getValorTotal().compareTo(new BigDecimal("100.00")) == 0);
