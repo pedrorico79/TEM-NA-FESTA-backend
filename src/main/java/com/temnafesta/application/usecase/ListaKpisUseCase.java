@@ -32,20 +32,20 @@ public class ListaKpisUseCase  {
 
         Long totalPedidos = pedidoRepositoryPort.countByDataPedidoBetweenAndDeletadoFalse(
                 de.atStartOfDay(),
-                ate.atTime(23, 59, 59),
+                ate.atTime(23, 59, 59, 999_999_999),
                 eventoId
         );
 
         Long totalEntregues = pedidoRepositoryPort.countByStatusEPeriodo(
                 statusEntregueProducao,
                 de.atStartOfDay(),
-                ate.atTime(23, 59, 59),
+                ate.atTime(23, 59, 59, 999_999_999),
                 eventoId
         );
 
         BigDecimal faturamento = pedidoRepositoryPort.somarFaturamentoNoPeriodo(
                 de.atStartOfDay(),
-                ate.atTime(23, 59, 59),
+                ate.atTime(23, 59, 59, 999_999_999),
                 eventoId
         );
 

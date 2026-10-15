@@ -34,18 +34,18 @@ public interface SpringDataProdutoRepository extends JpaRepository<ProdutoJpaEnt
             "  prod.nome AS item, " +
             "  CAST(SUM(item.quantidade) AS SIGNED) AS qtdeVendida, " +
             "  SUM(item.quantidade * item.preco_unitario) AS faturamento, " +
-            "  ROUND((SUM(item.quantidade * item.preco_unitario) / " +
+            "  COALESCE(ROUND((SUM(item.quantidade * item.preco_unitario) / NULLIF(" +
             "    (SELECT SUM(it.quantidade * it.preco_unitario) " +
             "     FROM item_pedido it " +
             "     INNER JOIN pedido pe ON it.pedido_id = pe.id " +
             "     WHERE pe.data_pedido BETWEEN :de AND :ate " +
-            "       AND pe.is_deletado = FALSE " +
-            "       AND (:eventoId IS NULL OR pe.evento_id = :eventoId))) * 100, 2) AS porcentagemDoTotal " +
+            "       AND pe.status_producao <> 'CANCELADO' " +
+            "       AND (:eventoId IS NULL OR pe.evento_id = :eventoId)), 0)) * 100, 2), 0) AS porcentagemDoTotal " +
             "FROM pedido p " +
             "INNER JOIN item_pedido item ON item.pedido_id = p.id " +
             "INNER JOIN produto prod ON item.produto_id = prod.id " +
             "WHERE p.data_pedido BETWEEN :de AND :ate " +
-            "  AND p.is_deletado = FALSE " +
+            "  AND p.status_producao <> 'CANCELADO' " +
             "  AND (:eventoId IS NULL OR p.evento_id = :eventoId) " +
             "GROUP BY prod.id, prod.nome " +
             "ORDER BY qtdeVendida DESC",
@@ -53,7 +53,7 @@ public interface SpringDataProdutoRepository extends JpaRepository<ProdutoJpaEnt
                     "FROM pedido p " +
                     "INNER JOIN item_pedido item ON item.pedido_id = p.id " +
                     "WHERE p.data_pedido BETWEEN :de AND :ate " +
-                    "  AND p.is_deletado = FALSE " +
+                    "  AND p.status_producao <> 'CANCELADO' " +
                     "  AND (:eventoId IS NULL OR p.evento_id = :eventoId)",
             nativeQuery = true)
     Page<MaisVendidosProjection> buscarProdutosMaisVendidosPaginado(

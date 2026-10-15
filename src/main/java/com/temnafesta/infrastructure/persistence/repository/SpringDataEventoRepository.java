@@ -20,14 +20,26 @@ public interface SpringDataEventoRepository extends JpaRepository<EventoJpaEntit
     @Query(value = """
         SELECT
           e.nome AS evento,
-          COUNT(DISTINCT CASE WHEN p.data_pedido BETWEEN :de AND :ate THEN p.id END) AS pedidosTotais,
-          COUNT(DISTINCT pag.pedido_id) AS vendasObtidas,
-          COALESCE(SUM(pag.valor), 0) AS faturamento,
-          ROUND(COALESCE(SUM(pag.valor), 0) / NULLIF(COUNT(DISTINCT pag.pedido_id), 0), 2) AS ticketMedio
-        FROM pedido p
+          COUNT(DISTINCT CASE WHEN p.is_deletado = FALSE THEN p.id END) AS pedidosTotais,
+          COUNT(DISTINCT p.id) AS vendasObtidas,
+          COALESCE(SUM(p.valor_vendido), 0) AS faturamento,
+          ROUND(COALESCE(SUM(p.valor_vendido), 0) / NULLIF(COUNT(DISTINCT p.id), 0), 2) AS ticketMedio
+        FROM (
+          SELECT pedido.id,
+                 pedido.evento_id,
+                 pedido.is_deletado,
+                 pedido.status_producao,
+                 pedido.data_pedido,
+                 COALESCE(SUM(item.quantidade * item.preco_unitario), 0)
+                     + COALESCE(pedido.taxa_entrega, 0) AS valor_vendido
+          FROM pedido
+          LEFT JOIN item_pedido item ON item.pedido_id = pedido.id
+          GROUP BY pedido.id, pedido.evento_id, pedido.is_deletado,
+                   pedido.status_producao, pedido.data_pedido, pedido.taxa_entrega
+        ) p
         INNER JOIN evento e ON p.evento_id = e.id
-        LEFT JOIN pagamento pag ON pag.pedido_id = p.id AND pag.data_pagamento BETWEEN :de AND :ate
-        WHERE (p.data_pedido BETWEEN :de AND :ate OR pag.data_pagamento BETWEEN :de AND :ate)
+        WHERE p.status_producao <> 'CANCELADO'
+          AND p.data_pedido BETWEEN :de AND :ate
         GROUP BY e.id, e.nome
         ORDER BY faturamento DESC
     """, nativeQuery = true)
@@ -47,30 +59,26 @@ public interface SpringDataEventoRepository extends JpaRepository<EventoJpaEntit
                      WHEN :agruparPorAno = true THEN DATE_FORMAT(p.data_pedido, '%Y')
                      ELSE DATE_FORMAT(p.data_pedido, '%Y-%m')
                    END AS periodo,
-                   COUNT(DISTINCT p.id) AS pedidosTotais,
-                   0 AS vendasObtidas,
-                   0 AS faturamento
-            FROM pedido p
-            WHERE p.evento_id = :eventoId
-              AND p.is_deletado = FALSE
-              AND p.data_pedido BETWEEN :inicio AND :fim
-            GROUP BY periodo
-
-            UNION ALL
-
-            SELECT CASE
-                     WHEN :agruparPorAno = true THEN DATE_FORMAT(pag.data_pagamento, '%Y')
-                     ELSE DATE_FORMAT(pag.data_pagamento, '%Y-%m')
-                   END AS periodo,
-                   0 AS pedidosTotais,
+                   COUNT(DISTINCT CASE WHEN p.is_deletado = FALSE THEN p.id END) AS pedidosTotais,
                    COUNT(DISTINCT p.id) AS vendasObtidas,
-                   COALESCE(SUM(pag.valor), 0) AS faturamento
-            FROM pagamento pag
-            INNER JOIN pedido p ON pag.pedido_id = p.id
-            WHERE p.evento_id = :eventoId
-              AND p.is_deletado = FALSE
-              AND pag.data_pagamento BETWEEN :inicio AND :fim
+                   COALESCE(SUM(p.valor_vendido), 0) AS faturamento
+            FROM (
+                SELECT pedido.id,
+                       pedido.is_deletado,
+                       pedido.status_producao,
+                       pedido.data_pedido,
+                       COALESCE(SUM(item.quantidade * item.preco_unitario), 0)
+                           + COALESCE(pedido.taxa_entrega, 0) AS valor_vendido
+                FROM pedido
+                LEFT JOIN item_pedido item ON item.pedido_id = pedido.id
+                WHERE pedido.evento_id = :eventoId
+                  AND pedido.status_producao <> 'CANCELADO'
+                  AND pedido.data_pedido BETWEEN :inicio AND :fim
+                GROUP BY pedido.id, pedido.is_deletado, pedido.status_producao,
+                         pedido.data_pedido, pedido.taxa_entrega
+            ) p
             GROUP BY periodo
+
         ) AS dados
         GROUP BY periodo
         ORDER BY periodo

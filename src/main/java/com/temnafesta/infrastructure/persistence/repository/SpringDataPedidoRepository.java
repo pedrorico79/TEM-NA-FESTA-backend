@@ -135,6 +135,7 @@ public interface SpringDataPedidoRepository
         FROM pedido p
         WHERE p.data_pedido BETWEEN :de AND :ate
           AND p.is_deletado = FALSE
+          AND p.status_producao <> 'CANCELADO'
           AND (:eventoId IS NULL OR p.evento_id = :eventoId)
         """, nativeQuery = true)
     Long countByDataPedidoBetweenAndDeletadoFalse(
@@ -165,16 +166,25 @@ public interface SpringDataPedidoRepository
 
 
     /*
-     * Faturamento por período.
+     * Faturamento bruto no período: valor total dos pedidos pela data da venda.
      */
-    @Query("""
-    SELECT COALESCE(SUM(p.valorTotal), 0)
-    FROM PedidoJpaEntity p
-    WHERE p.dataPedido BETWEEN :inicio AND :fim
-      AND p.deletado = false
-      AND p.statusProducao = 'ENTREGUE'
-      AND (:eventoId IS NULL OR p.evento.id = :eventoId)
-""")
+    @Query(value = """
+        SELECT COALESCE(SUM(v.valor_vendido), 0)
+        FROM (
+            SELECT p.id,
+                   p.evento_id,
+                   p.status_producao,
+                   p.data_pedido,
+                   COALESCE(SUM(i.quantidade * i.preco_unitario), 0)
+                       + COALESCE(p.taxa_entrega, 0) AS valor_vendido
+            FROM pedido p
+            LEFT JOIN item_pedido i ON i.pedido_id = p.id
+            GROUP BY p.id, p.evento_id, p.status_producao, p.data_pedido, p.taxa_entrega
+        ) v
+        WHERE v.data_pedido BETWEEN :inicio AND :fim
+          AND v.status_producao <> 'CANCELADO'
+          AND (:eventoId IS NULL OR v.evento_id = :eventoId)
+        """, nativeQuery = true)
     BigDecimal somarFaturamentoNoPeriodo(
             @Param("inicio") LocalDateTime inicio,
             @Param("fim") LocalDateTime fim,
@@ -210,6 +220,7 @@ public interface SpringDataPedidoRepository
 
                 WHERE p.data_pedido BETWEEN :de AND :ate
                   AND p.is_deletado = FALSE
+                  AND p.status_producao <> 'CANCELADO'
                   AND (:eventoId IS NULL OR p.evento_id = :eventoId)
 
                 GROUP BY WEEK(p.data_pedido)
@@ -256,6 +267,7 @@ public interface SpringDataPedidoRepository
 
             WHERE p.data_pedido BETWEEN :de AND :ate
               AND p.is_deletado = FALSE
+              AND p.status_producao <> 'CANCELADO'
 
             GROUP BY
                 p.id,
@@ -273,6 +285,7 @@ public interface SpringDataPedidoRepository
             FROM pedido p
             WHERE p.data_pedido BETWEEN :de AND :ate
               AND p.is_deletado = FALSE
+              AND p.status_producao <> 'CANCELADO'
             """,
 
             nativeQuery = true
@@ -318,6 +331,7 @@ public interface SpringDataPedidoRepository
                 ON p.evento_id = e.id
 
             WHERE p.is_deletado = FALSE
+              AND p.status_producao <> 'CANCELADO'
               AND (:eventoId IS NULL OR p.evento_id = :eventoId)
               AND (:dataInicio IS NULL OR p.data_pedido >= :dataInicio)
               AND (:dataFim IS NULL OR p.data_pedido <= :dataFim)
