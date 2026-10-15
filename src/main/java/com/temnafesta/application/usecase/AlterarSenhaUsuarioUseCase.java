@@ -15,6 +15,9 @@ public class AlterarSenhaUsuarioUseCase {
     }
 
     public void executar(Long id, String senha) {
+        if (senha == null || senha.length() < 8 || senha.length() > 72) {
+            throw new IllegalArgumentException("A senha deve ter entre 8 e 72 caracteres.");
+        }
         Usuario usuario = usuarioRepositoryPort.buscarPorId(id)
                 .filter(usuarioEncontrado -> !usuarioEncontrado.isDeletado())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado com o ID: " + id));

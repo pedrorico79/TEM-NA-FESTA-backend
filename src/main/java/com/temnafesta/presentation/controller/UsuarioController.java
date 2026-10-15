@@ -5,6 +5,8 @@ import com.temnafesta.application.usecase.AtualizarUsuarioUseCase;
 import com.temnafesta.application.usecase.AlterarAtivoUsuarioUseCase;
 import com.temnafesta.application.usecase.AlterarSenhaUsuarioUseCase;
 import com.temnafesta.application.usecase.AutenticarUsuarioUseCase;
+import com.temnafesta.application.exception.FalhaAutenticacaoException;
+import com.temnafesta.infrastructure.security.LimiteTentativasLogin;
 import com.temnafesta.application.usecase.CriarUsuarioUseCase;
 import com.temnafesta.application.usecase.DeletarUsuarioUseCase;
 import com.temnafesta.application.usecase.ListarUsuarioUseCase;
@@ -14,6 +16,7 @@ import com.temnafesta.infrastructure.security.user.UsuarioAutenticado;
 import com.temnafesta.presentation.dto.*;
 import com.temnafesta.presentation.mapper.UsuarioPresentationMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -41,6 +44,7 @@ public class UsuarioController {
     private final AutenticarUsuarioUseCase autenticarUsuarioUseCase;
     private final JwtTokenProvider jwtTokenProvider;
     private final UsuarioPresentationMapper mapper;
+    private final LimiteTentativasLogin limiteTentativasLogin;
 
     @Value("${app.jwt.cookie-name:auth_token}")
     private String jwtCookieName;
@@ -65,7 +69,8 @@ public class UsuarioController {
                             DeletarUsuarioUseCase deletarUsuarioUseCase,
                             AutenticarUsuarioUseCase autenticarUsuarioUseCase,
                             JwtTokenProvider jwtTokenProvider,
-                            UsuarioPresentationMapper mapper) {
+                            UsuarioPresentationMapper mapper,
+                            LimiteTentativasLogin limiteTentativasLogin) {
         this.listarUsuarioUseCase = listarUsuarioUseCase;
         this.criarUsuarioUseCase = criarUsuarioUseCase;
         this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
@@ -75,6 +80,7 @@ public class UsuarioController {
         this.autenticarUsuarioUseCase = autenticarUsuarioUseCase;
         this.jwtTokenProvider = jwtTokenProvider;
         this.mapper = mapper;
+        this.limiteTentativasLogin = limiteTentativasLogin;
     }
 
     @GetMapping
@@ -99,9 +105,19 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequestDto request, HttpServletResponse response) {
+    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequestDto request, HttpServletResponse response,
+                                      HttpServletRequest httpRequest) {
         boolean jwtValidityRememberMe = Boolean.TRUE.equals(request.jwtValidityRememberMe());
-        String token = autenticarUsuarioUseCase.executar(request.email(), request.senha(), jwtValidityRememberMe);
+        String ip = httpRequest.getRemoteAddr();
+        limiteTentativasLogin.validarTentativa(ip, request.email());
+        String token;
+        try {
+            token = autenticarUsuarioUseCase.executar(request.email(), request.senha(), jwtValidityRememberMe);
+            limiteTentativasLogin.registrarSucesso(ip, request.email());
+        } catch (FalhaAutenticacaoException ex) {
+            limiteTentativasLogin.registrarFalha(ip, request.email());
+            throw ex;
+        }
         response.addHeader(HttpHeaders.SET_COOKIE, criarCookieJwt(token, jwtValidityRememberMe).toString());
         return ResponseEntity.noContent().build();
     }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
 
 @Component
 public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
@@ -78,6 +79,7 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
 
     @Override
     public Optional<Usuario> buscarPorEmail(String email) {
-        return repository.findByEmail(email).map(mapper::toDomain);
+        if (email == null) return Optional.empty();
+        return repository.findByEmailIgnoreCase(email.trim().toLowerCase(Locale.ROOT)).map(mapper::toDomain);
     }
 }

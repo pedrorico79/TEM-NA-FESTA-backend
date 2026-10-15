@@ -6,6 +6,8 @@ import com.temnafesta.domain.model.Usuario;
 import com.temnafesta.domain.ports.repository.PerfilRepositoryPort;
 import com.temnafesta.domain.ports.repository.UsuarioRepositoryPort;
 
+import java.util.Locale;
+
 public class AtualizarUsuarioUseCase {
 
     private final UsuarioRepositoryPort usuarioRepositoryPort;
@@ -74,6 +76,6 @@ public class AtualizarUsuarioUseCase {
     }
 
     private String normalizarEmail(String email) {
-        return email.trim().toLowerCase();
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 }

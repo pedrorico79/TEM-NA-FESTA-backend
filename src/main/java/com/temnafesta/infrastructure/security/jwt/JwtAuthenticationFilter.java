@@ -49,7 +49,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String metodo = request.getMethod();
         return "OPTIONS".equalsIgnoreCase(metodo)
                 || ("POST".equalsIgnoreCase(metodo)
-                    && (caminho.endsWith("/usuarios/login") || caminho.endsWith("/usuarios/logout")));
+                    && (caminho.endsWith("/usuarios/login") || caminho.endsWith("/auth/login")
+                        || caminho.endsWith("/usuarios/logout")));
     }
 
     @Override
