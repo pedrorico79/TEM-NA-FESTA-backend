@@ -3,6 +3,7 @@ package com.temnafesta.presentation.handler;
 import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -93,6 +94,16 @@ public class GlobalExceptionHandler {
                 List.of(ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErroResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflito de dados",
+                List.of("Os dados enviados conflitam com um registro existente.")
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erroResponse);
     }
 
     /**
