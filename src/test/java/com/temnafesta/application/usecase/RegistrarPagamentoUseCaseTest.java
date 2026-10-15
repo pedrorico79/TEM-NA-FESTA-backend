@@ -2,7 +2,9 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.ItemPedido;
+import com.temnafesta.domain.model.MetodoPagamento;
 import com.temnafesta.domain.model.Pedido;
+import com.temnafesta.domain.ports.repository.MetodoPagamentoRepositoryPort;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.vo.StatusPagamentoEnum;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
@@ -10,14 +12,15 @@ import com.temnafesta.domain.vo.TipoPagamentoEnum;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,8 +35,19 @@ class RegistrarPagamentoUseCaseTest {
     @Mock
     private PedidoRepositoryPort pedidoRepositoryPort;
 
-    @InjectMocks
+    @Mock
+    private MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort;
+
     private RegistrarPagamentoUseCase useCase;
+
+    @BeforeEach
+    void configurarUseCase() {
+        useCase = new RegistrarPagamentoUseCase(pedidoRepositoryPort, metodoPagamentoRepositoryPort);
+        when(metodoPagamentoRepositoryPort.buscarPorId(5L))
+                .thenReturn(Optional.of(new MetodoPagamento(5L, "Pix")));
+        when(pedidoRepositoryPort.buscarPorChaveIdempotencia(any()))
+                .thenReturn(Optional.empty());
+    }
 
     private static Pedido pedido(StatusProducaoEnum status) {
         return new Pedido(1L, LocalDateTime.now(), LocalDateTime.now().plusDays(3),
@@ -46,12 +60,12 @@ class RegistrarPagamentoUseCaseTest {
     @Test
     void deveRegistrarPagamentoConfirmadoESalvar() {
         Pedido pedido = pedido(StatusProducaoEnum.RASCUNHO);
-        when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(pedido));
+        when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.of(pedido));
         when(pedidoRepositoryPort.salvar(any(Pedido.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         Pedido resultado = useCase.executar(1L, new BigDecimal("30.00"),
-                TipoPagamentoEnum.SINAL, 5L, 9L);
+                TipoPagamentoEnum.SINAL, 5L, 9L, null, UUID.randomUUID().toString());
 
         assertEquals(1, resultado.getPagamentos().size());
         assertEquals(StatusPagamentoEnum.CONFIRMADO, resultado.getPagamentos().get(0).getStatusPagamento());
@@ -62,33 +76,35 @@ class RegistrarPagamentoUseCaseTest {
     @Test
     void deveConfirmarAutomaticamenteQuandoSinalAtingidoEmAguardandoSinal() {
         Pedido pedido = pedido(StatusProducaoEnum.AGUARDANDO_SINAL);
-        when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(pedido));
+        when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.of(pedido));
         when(pedidoRepositoryPort.salvar(any(Pedido.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         Pedido resultado = useCase.executar(1L, new BigDecimal("50.00"),
-                TipoPagamentoEnum.SINAL, 5L, 9L);
+                TipoPagamentoEnum.SINAL, 5L, 9L, null, UUID.randomUUID().toString());
 
         assertEquals(StatusProducaoEnum.CONFIRMADO, resultado.getStatusProducao());
     }
 
     @Test
     void naoDeveRegistrarQuandoPedidoNaoEncontrado() {
-        when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
+        when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.empty());
 
         assertThrows(RegraDeNegocioException.class, () -> useCase.executar(
-                1L, new BigDecimal("10.00"), TipoPagamentoEnum.SINAL, 5L, 9L));
+                1L, new BigDecimal("10.00"), TipoPagamentoEnum.SINAL, 5L, 9L,
+                null, UUID.randomUUID().toString()));
         verify(pedidoRepositoryPort, never()).salvar(any());
     }
 
     @Test
     void devePersistirMetodoEUsuarioDoPagamento() {
         Pedido pedido = pedido(StatusProducaoEnum.RASCUNHO);
-        when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(pedido));
+        when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.of(pedido));
         when(pedidoRepositoryPort.salvar(any(Pedido.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        useCase.executar(1L, new BigDecimal("10.00"), TipoPagamentoEnum.QUITACAO, 5L, 9L);
+        useCase.executar(1L, new BigDecimal("10.00"), TipoPagamentoEnum.QUITACAO, 5L, 9L,
+                null, UUID.randomUUID().toString());
 
         ArgumentCaptor<Pedido> captor = ArgumentCaptor.forClass(Pedido.class);
         verify(pedidoRepositoryPort).salvar(captor.capture());

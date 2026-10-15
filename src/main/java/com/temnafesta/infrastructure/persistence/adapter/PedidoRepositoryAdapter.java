@@ -47,6 +47,16 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     }
 
     @Override
+    public Optional<Pedido> buscarPorIdParaRegistrarPagamento(Long id) {
+        return repository.buscarPorIdParaRegistrarPagamento(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Pedido> buscarPorChaveIdempotencia(String chave) {
+        return repository.buscarPorChaveIdempotencia(chave).map(mapper::toDomain);
+    }
+
+    @Override
     public List<Pedido> listarPorFiltros(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim) {
         return repository.listarPorFiltros(status, inicio, fim).stream()
                 .map(mapper::toDomain)
@@ -68,6 +78,11 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     @Override
     public long contarPorStatus(StatusProducaoEnum status) {
         return repository.countByStatusProducaoAndDeletadoFalse(status);
+    }
+
+    @Override
+    public long contarPedidosComPagamentoPendente() {
+        return repository.contarPedidosComPagamentoPendente();
     }
 
     @Override

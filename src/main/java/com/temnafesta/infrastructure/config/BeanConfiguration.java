@@ -34,8 +34,14 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public RegistrarPagamentoUseCase registrarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
-        return new RegistrarPagamentoUseCase(pedidoRepositoryPort);
+    public RegistrarPagamentoUseCase registrarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort,
+                                                                MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
+        return new RegistrarPagamentoUseCase(pedidoRepositoryPort, metodoPagamentoRepositoryPort);
+    }
+
+    @Bean
+    public ConfirmarPagamentoUseCase confirmarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ConfirmarPagamentoUseCase(pedidoRepositoryPort);
     }
 
     @Bean

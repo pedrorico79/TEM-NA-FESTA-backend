@@ -8,6 +8,7 @@ import com.temnafesta.infrastructure.projection.PedidosPorSemanaProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.LockModeType;
 
 public interface SpringDataPedidoRepository
         extends JpaRepository<PedidoJpaEntity, Long> {
@@ -61,6 +63,36 @@ public interface SpringDataPedidoRepository
      * Quantidade de pedidos por status.
      */
     long countByStatusProducaoAndDeletadoFalse(StatusProducaoEnum status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM PedidoJpaEntity p WHERE p.id = :id")
+    Optional<PedidoJpaEntity> buscarPorIdParaRegistrarPagamento(@Param("id") Long id);
+
+    @Query("""
+        SELECT DISTINCT p
+        FROM PedidoJpaEntity p
+        LEFT JOIN FETCH p.pagamentos
+        WHERE p.id = (
+            SELECT pagamento.pedido.id
+            FROM PagamentoJpaEntity pagamento
+            WHERE pagamento.chaveIdempotencia = :chave
+        )
+        """)
+    Optional<PedidoJpaEntity> buscarPorChaveIdempotencia(@Param("chave") String chave);
+
+    @Query("""
+        SELECT COUNT(p)
+        FROM PedidoJpaEntity p
+        WHERE p.deletado = false
+          AND p.statusProducao <> com.temnafesta.domain.vo.StatusProducaoEnum.CANCELADO
+          AND p.valorTotal > COALESCE((
+              SELECT SUM(pag.valor)
+              FROM PagamentoJpaEntity pag
+              WHERE pag.pedido = p
+                AND pag.statusPagamento = com.temnafesta.domain.vo.StatusPagamentoEnum.CONFIRMADO
+          ), 0.00)
+        """)
+    long contarPedidosComPagamentoPendente();
 
 
     /*

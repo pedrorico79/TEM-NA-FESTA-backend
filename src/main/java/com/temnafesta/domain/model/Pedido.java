@@ -2,6 +2,7 @@ package com.temnafesta.domain.model;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import com.temnafesta.domain.vo.StatusPagamentoEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -94,7 +95,56 @@ public class Pedido {
     }
 
     public void adicionarPagamento(Pagamento pagamento) {
+        if (pagamento == null) {
+            throw new RegraDeNegocioException("O pagamento é obrigatório.");
+        }
+        if (deletado || StatusProducaoEnum.CANCELADO.equals(statusProducao)) {
+            throw new RegraDeNegocioException("Não é possível registrar pagamento em pedido cancelado ou excluído.");
+        }
+        if (pagamento.getValor() == null || pagamento.getValor().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RegraDeNegocioException("O valor do pagamento deve ser maior que zero.");
+        }
+        if (StatusPagamentoEnum.CANCELADO.equals(pagamento.getStatusPagamento())) {
+            throw new RegraDeNegocioException("Não é possível registrar um pagamento já cancelado.");
+        }
+        if (pagamento.getChaveIdempotencia() != null && pagamentos.stream()
+                .anyMatch(atual -> pagamento.getChaveIdempotencia().equals(atual.getChaveIdempotencia()))) {
+            throw new RegraDeNegocioException("Esta tentativa de pagamento já foi registrada.");
+        }
+        BigDecimal totalComprometido = pagamentos.stream()
+                .filter(atual -> !StatusPagamentoEnum.CANCELADO.equals(atual.getStatusPagamento()))
+                .map(Pagamento::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (totalComprometido.add(pagamento.getValor()).compareTo(valorTotal) > 0) {
+            throw new RegraDeNegocioException("O pagamento ultrapassa o saldo restante do pedido.");
+        }
         this.pagamentos.add(pagamento);
+    }
+
+    public void confirmarPagamento(Long pagamentoId) {
+        if (deletado || StatusProducaoEnum.CANCELADO.equals(statusProducao)) {
+            throw new RegraDeNegocioException("Não é possível confirmar pagamento de pedido cancelado ou excluído.");
+        }
+        encontrarPagamento(pagamentoId).confirmar();
+    }
+
+    public void cancelarPagamento(Long pagamentoId) {
+        encontrarPagamento(pagamentoId).cancelar();
+    }
+
+    public Pagamento buscarPagamentoPorChaveIdempotencia(String chave) {
+        if (chave == null) return null;
+        return pagamentos.stream()
+                .filter(pagamento -> chave.equals(pagamento.getChaveIdempotencia()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Pagamento encontrarPagamento(Long pagamentoId) {
+        return pagamentos.stream()
+                .filter(pagamento -> pagamentoId != null && pagamentoId.equals(pagamento.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RegraDeNegocioException("Pagamento não encontrado neste pedido."));
     }
 
     public void removerPagamento(Long pagamentoId) {
@@ -115,6 +165,13 @@ public class Pedido {
     public BigDecimal calcularTotalPago() {
         return pagamentos.stream()
                 .filter(Pagamento::isConfirmado)
+                .map(Pagamento::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal calcularTotalComprometido() {
+        return pagamentos.stream()
+                .filter(pagamento -> !StatusPagamentoEnum.CANCELADO.equals(pagamento.getStatusPagamento()))
                 .map(Pagamento::getValor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
