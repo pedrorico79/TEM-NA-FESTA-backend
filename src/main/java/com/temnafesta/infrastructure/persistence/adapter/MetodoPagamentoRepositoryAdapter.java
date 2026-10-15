@@ -6,6 +6,7 @@ import com.temnafesta.infrastructure.persistence.mapper.GeralPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataMetodoPagamentoRepository;
 import org.springframework.stereotype.Component;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class MetodoPagamentoRepositoryAdapter implements MetodoPagamentoRepositoryPort {
@@ -23,5 +24,11 @@ public class MetodoPagamentoRepositoryAdapter implements MetodoPagamentoReposito
         return repository.findAll().stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<MetodoPagamento> buscarPorId(Long id) {
+        if (id == null) return Optional.empty();
+        return repository.findById(id).map(mapper::toDomain);
     }
 }

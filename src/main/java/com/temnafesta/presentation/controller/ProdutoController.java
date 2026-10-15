@@ -60,10 +60,12 @@ public class ProdutoController {
     }
 
     @GetMapping
-    @Operation(summary = "Lista os produtos não deletados, com filtro opcional por nome e ativos primeiro")
+    @Operation(summary = "Lista produtos não deletados, com filtro opcional por nome e ativos",
+            description = "Por padrão, inclui ativos e inativos. Use ativos=true para retornar apenas ativos.")
     public ResponseEntity<List<ProdutoResponseDto>> listar(
-            @RequestParam(required = false) String nome) {
-        List<ProdutoResponseDto> response = listarProdutosUseCase.executar(nome)
+            @RequestParam(required = false) String nome,
+            @RequestParam(defaultValue = "false") boolean ativos) {
+        List<ProdutoResponseDto> response = listarProdutosUseCase.executar(nome, ativos)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();

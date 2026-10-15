@@ -46,6 +46,10 @@ public class PedidoJpaEntity {
     @Column(name = "cliente_id", nullable = false)
     private Long clienteId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id", insertable = false, updatable = false)
+    private ClienteJpaEntity cliente;
+
     @Column(name = "usuario_id", nullable = false)
     private Long usuarioId;
 

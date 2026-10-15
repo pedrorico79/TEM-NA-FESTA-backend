@@ -41,12 +41,13 @@ class AtualizarPedidoUseCaseTest {
         return new Pedido(1L, LocalDateTime.now(), LocalDateTime.now().plusDays(3),
                 BigDecimal.ZERO, null, StatusProducaoEnum.RASCUNHO,
                 1L, 1L, null, null,
-                List.of(new ItemPedido(1L, 1L, 1, new BigDecimal("20.00"), null)), null);
+                List.of(new ItemPedido(1L, 1L, 1, new BigDecimal("20.00"), null)), null,
+                true, false);
     }
 
     private static AtualizarPedidoCommand command() {
         return new AtualizarPedidoCommand(1L, LocalDateTime.now().plusDays(5),
-                new BigDecimal("5.00"), "Nova obs", null,
+                new BigDecimal("5.00"), "Nova obs", null, null,
                 List.of(new AtualizarPedidoCommand.ItemCommand(1L, 2, new BigDecimal("25.00"), null)));
     }
 

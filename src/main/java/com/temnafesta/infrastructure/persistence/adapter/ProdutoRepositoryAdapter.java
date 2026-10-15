@@ -32,7 +32,12 @@ public class ProdutoRepositoryAdapter implements ProdutoRepositoryPort {
 
     @Override
     public List<Produto> listarPorNome(String nome) {
-        return repository.findByDeletadoFalseAndNomeContainingIgnoreCaseOrderByAtivoDesc(nome).stream()
+        return listarPorNome(nome, false);
+    }
+
+    @Override
+    public List<Produto> listarPorNome(String nome, boolean ativos) {
+        return repository.buscarPorNomeNaoDeletados(nome, ativos).stream()
                 .map(mapper::toDomain)
                 .toList();
     }
@@ -43,9 +48,9 @@ public class ProdutoRepositoryAdapter implements ProdutoRepositoryPort {
     }
 
     @Override
-    public Page<ProdutosMaisVendidosOutput> buscarProdutosMaisVendidosPaginado(LocalDateTime de, LocalDateTime ate, Pageable pageable) {
+    public Page<ProdutosMaisVendidosOutput> buscarProdutosMaisVendidosPaginado(LocalDateTime de, LocalDateTime ate, Long eventoId, Pageable pageable) {
         Page<MaisVendidosProjection> maisVendidosProjections =
-                repository.buscarProdutosMaisVendidosPaginado(de, ate, pageable);
+                repository.buscarProdutosMaisVendidosPaginado(de, ate, eventoId, pageable);
 
         return maisVendidosProjections.map(p -> new ProdutosMaisVendidosOutput(
                 p.getItem(),

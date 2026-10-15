@@ -63,7 +63,8 @@ class PedidoRepositoryPortContractTest {
             return new Pedido(id, pedido.getDataPedido(), pedido.getDataEntrega(),
                     pedido.getTaxaEntrega(), pedido.getObservacao(), pedido.getStatusProducao(),
                     pedido.getClienteId(), pedido.getUsuarioId(), pedido.getEventoId(),
-                    pedido.getEnderecoEntregaId(), pedido.getItens(), pedido.getPagamentos());
+                    pedido.getEnderecoEntrega(), pedido.getItens(), pedido.getPagamentos(),
+                    pedido.isAtivo(), pedido.isDeletado());
         }
 
         @Override
@@ -159,7 +160,8 @@ class PedidoRepositoryPortContractTest {
         return new Pedido(null, LocalDateTime.now(), LocalDateTime.now().plusDays(3),
                 BigDecimal.ZERO, null, StatusProducaoEnum.RASCUNHO,
                 clienteId, 1L, null, null,
-                List.of(new ItemPedido(10L, 1L, 1, new BigDecimal("20.00"), null)), null);
+                List.of(new ItemPedido(10L, 1L, 1, new BigDecimal("20.00"), null)), null,
+                true, false);
     }
 
     private final PedidoRepositoryPort port = new PedidoRepositoryPortFake();
@@ -184,12 +186,12 @@ class PedidoRepositoryPortContractTest {
 
         Pedido entregue = new Pedido(emAndamento.getId(), emAndamento.getDataPedido(),
                 emAndamento.getDataEntrega(), BigDecimal.ZERO, null, StatusProducaoEnum.ENTREGUE,
-                8L, 1L, null, null, List.of(), null);
+                8L, 1L, null, null, List.of(), null, true, false);
         port.salvar(entregue);
         assertFalse(port.existePedidoEmAndamentoPorCliente(8L));
         Pedido cancelado = new Pedido(77L, emAndamento.getDataPedido(),
                 emAndamento.getDataEntrega(), BigDecimal.ZERO, null, StatusProducaoEnum.CANCELADO,
-                9L, 1L, null, null, List.of(), null);
+                9L, 1L, null, null, List.of(), null, true, false);
         port.salvar(cancelado);
         assertFalse(port.existePedidoEmAndamentoPorCliente(9L));
         assertFalse(port.existePedidoEmAndamentoPorCliente(999L));

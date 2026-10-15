@@ -2,9 +2,13 @@ package com.temnafesta.presentation.handler;
 
 import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.application.exception.FalhaAutenticacaoException;
+import com.temnafesta.application.exception.TentativasLoginExcedidasException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +19,19 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(FalhaAutenticacaoException.class)
+    public ResponseEntity<ErroResponse> handleFalhaAutenticacao(FalhaAutenticacaoException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErroResponse(
+                HttpStatus.UNAUTHORIZED.value(), "Não autenticado", List.of(ex.getMessage())));
+    }
+
+    @ExceptionHandler(TentativasLoginExcedidasException.class)
+    public ResponseEntity<ErroResponse> handleTentativasLoginExcedidas(TentativasLoginExcedidasException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, Long.toString(ex.getSegundosParaTentarNovamente()))
+                .body(new ErroResponse(HttpStatus.TOO_MANY_REQUESTS.value(), "Muitas tentativas", List.of(ex.getMessage())));
+    }
 
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<ErroResponse> handleRecursoNaoEncontradoException(
@@ -93,6 +110,16 @@ public class GlobalExceptionHandler {
                 List.of(ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErroResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        ErroResponse erroResponse = new ErroResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflito de dados",
+                List.of("Os dados enviados conflitam com um registro existente.")
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erroResponse);
     }
 
     /**

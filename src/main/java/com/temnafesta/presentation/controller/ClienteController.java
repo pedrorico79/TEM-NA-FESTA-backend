@@ -60,14 +60,15 @@ public class ClienteController {
 
 
     @GetMapping
-    @Operation(summary = "Lista os clientes não deletados, com busca opcional e ativos primeiro",
-            description = "A busca considera nome, telefone, WhatsApp e Instagram.")
+    @Operation(summary = "Lista clientes não deletados, com busca opcional e filtro de ativos",
+            description = "Por padrão, inclui ativos e inativos. Use ativos=true para retornar apenas ativos. A busca considera nome, telefone, WhatsApp e Instagram.")
     public ResponseEntity<List<ClienteResponseDto>> listar(
-            @RequestParam(required = false) String busca
+            @RequestParam(required = false) String busca,
+            @RequestParam(defaultValue = "false") boolean ativos
     ) {
         //TODO: alterar DTO de retorno para objeto mais simples (sem info de endereço/denecessárias)
         // para tornar as requisições mais eficientes
-        List<ClienteResponseDto> response = listarClientesUseCase.executar(busca)
+        List<ClienteResponseDto> response = listarClientesUseCase.executar(busca, ativos)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();

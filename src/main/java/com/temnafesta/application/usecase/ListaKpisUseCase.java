@@ -23,23 +23,30 @@ public class ListaKpisUseCase  {
     }
 
     public KpiOutput execute(LocalDate de, LocalDate ate) {
+        return execute(de, ate, null);
+    }
+
+    public KpiOutput execute(LocalDate de, LocalDate ate, Long eventoId) {
         Long dias = ChronoUnit.DAYS.between(de, ate); // intervalo entre as datas
         StatusProducaoEnum statusEntregueProducao = StatusProducaoEnum.ENTREGUE; // alterar com base no Id correspondente no bd.
 
         Long totalPedidos = pedidoRepositoryPort.countByDataPedidoBetweenAndDeletadoFalse(
                 de.atStartOfDay(),
-                ate.atTime(23, 59, 59)
+                ate.atTime(23, 59, 59, 999_999_999),
+                eventoId
         );
 
         Long totalEntregues = pedidoRepositoryPort.countByStatusEPeriodo(
                 statusEntregueProducao,
                 de.atStartOfDay(),
-                ate.atTime(23, 59, 59)
+                ate.atTime(23, 59, 59, 999_999_999),
+                eventoId
         );
 
         BigDecimal faturamento = pedidoRepositoryPort.somarFaturamentoNoPeriodo(
                 de.atStartOfDay(),
-                ate.atTime(23, 59, 59)
+                ate.atTime(23, 59, 59, 999_999_999),
+                eventoId
         );
 
         double taxaConclusao =  0.0;
@@ -56,5 +63,4 @@ public class ListaKpisUseCase  {
         );
     }
 }
-
 

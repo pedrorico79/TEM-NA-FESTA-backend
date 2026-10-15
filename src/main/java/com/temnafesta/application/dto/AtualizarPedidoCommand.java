@@ -1,5 +1,6 @@
 package com.temnafesta.application.dto;
 
+import com.temnafesta.domain.model.Endereco;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +11,7 @@ public record AtualizarPedidoCommand(
         BigDecimal taxaEntrega,
         String observacao,
         Long eventoId,
-        Long enderecoEntregaId,
+        Endereco enderecoEntrega,
         List<ItemCommand> itens
 ) {
     public record ItemCommand(

@@ -15,7 +15,7 @@ public record PedidoResponseDto(
         Long clienteId,
         Long usuarioId,
         Long eventoId,
-        Long enderecoEntregaId,
+        EnderecoResponseDto enderecoEntrega,
 
         // As listas de filhos aninhadas de forma segura
         List<ItemPedidoResponseDto> itens,

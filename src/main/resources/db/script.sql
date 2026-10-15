@@ -90,6 +90,8 @@ CREATE TABLE pagamento (
                            tipo_pagamento VARCHAR(30) NOT NULL DEFAULT 'INTEGRAL', -- Ex: SINAL, QUITACAO, INTEGRAL
                            status_pagamento VARCHAR(30) NOT NULL DEFAULT 'CONFIRMADO', -- Ex: PENDENTE, CONFIRMADO, CANCELADO
                            metodo_pagamento_id INT NOT NULL,
+                           chave_idempotencia VARCHAR(36) UNIQUE,
+                           assinatura_requisicao VARCHAR(64),
                            pedido_id INT NOT NULL,
                            usuario_id INT NOT NULL,
                            FOREIGN KEY (pedido_id) REFERENCES pedido(id),

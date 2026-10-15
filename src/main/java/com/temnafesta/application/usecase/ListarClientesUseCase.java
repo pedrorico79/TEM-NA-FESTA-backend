@@ -13,8 +13,13 @@ public class ListarClientesUseCase {
         this.clienteRepositoryPort = clienteRepositoryPort;
     }
 
-    public List<Cliente> executar(String busca) {
+    public List<Cliente> executar(String busca, boolean ativos) {
         String filtro = busca == null ? "" : busca.trim();
-        return clienteRepositoryPort.listarNaoDeletadosPorBusca(filtro);
+        if (!ativos) return clienteRepositoryPort.listarNaoDeletadosPorBusca(filtro);
+        return clienteRepositoryPort.listarNaoDeletadosPorBusca(filtro, ativos);
+    }
+
+    public List<Cliente> executar(String busca) {
+        return executar(busca, false);
     }
 }

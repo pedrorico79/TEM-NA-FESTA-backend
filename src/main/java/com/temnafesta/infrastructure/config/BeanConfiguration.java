@@ -34,8 +34,14 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public RegistrarPagamentoUseCase registrarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
-        return new RegistrarPagamentoUseCase(pedidoRepositoryPort);
+    public RegistrarPagamentoUseCase registrarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort,
+                                                                MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
+        return new RegistrarPagamentoUseCase(pedidoRepositoryPort, metodoPagamentoRepositoryPort);
+    }
+
+    @Bean
+    public ConfirmarPagamentoUseCase confirmarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort) {
+        return new ConfirmarPagamentoUseCase(pedidoRepositoryPort);
     }
 
     @Bean
@@ -249,6 +255,17 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public AlterarAtivoUsuarioUseCase alterarAtivoUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
+        return new AlterarAtivoUsuarioUseCase(usuarioRepositoryPort);
+    }
+
+    @Bean
+    public AlterarSenhaUsuarioUseCase alterarSenhaUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort,
+                                                                 PasswordEncoder passwordEncoder) {
+        return new AlterarSenhaUsuarioUseCase(usuarioRepositoryPort, passwordEncoder);
+    }
+
+    @Bean
     public DeletarUsuarioUseCase deletarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
         return new DeletarUsuarioUseCase(usuarioRepositoryPort);
     }
@@ -276,6 +293,11 @@ public class BeanConfiguration {
     @Bean
     ListaComparativoEventosUseCase listaComparativoEventosUseCase(EventoRepositoryPort eventoRepositoryPort) {
         return new ListaComparativoEventosUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
+    ListaEvolucaoEventoUseCase listaEvolucaoEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new ListaEvolucaoEventoUseCase(eventoRepositoryPort);
     }
 
     @Bean

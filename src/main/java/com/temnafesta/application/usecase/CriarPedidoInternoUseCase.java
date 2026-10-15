@@ -54,9 +54,11 @@ public class CriarPedidoInternoUseCase {
                 command.clienteId(),
                 command.usuarioId(),
                 command.eventoId(),
-                command.enderecoEntregaId(),
+                command.enderecoEntrega(),
                 new ArrayList<>(),
-                new ArrayList<>()
+                new ArrayList<>(),
+                true,
+                false
         );
 
         // 3. Monta os itens

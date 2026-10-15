@@ -18,6 +18,10 @@ public class ListaProdutosMaisVendidosUseCase {
     }
 
     public Page<ProdutosMaisVendidosOutput> execute(LocalDate de, LocalDate ate, Pageable pageable) {
+        return execute(de, ate, null, pageable);
+    }
+
+    public Page<ProdutosMaisVendidosOutput> execute(LocalDate de, LocalDate ate, Long eventoId, Pageable pageable) {
         Objects.requireNonNull(de, "data 'de' não pode ser nula");
         Objects.requireNonNull(ate, "data 'ate' não pode ser nula");
         Objects.requireNonNull(pageable, "pageable não pode ser nulo");
@@ -30,7 +34,7 @@ public class ListaProdutosMaisVendidosUseCase {
         LocalDateTime fim = ate.atTime(23, 59, 59, 999_999_999);
 
         Page<ProdutosMaisVendidosOutput> resultado =
-                produtoRepositoryPort.buscarProdutosMaisVendidosPaginado(inicio, fim, pageable);
+                produtoRepositoryPort.buscarProdutosMaisVendidosPaginado(inicio, fim, eventoId, pageable);
 
         return resultado == null ? Page.empty() : resultado;
     }

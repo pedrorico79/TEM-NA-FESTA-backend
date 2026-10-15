@@ -2,6 +2,7 @@ package com.temnafesta.domain.model;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import com.temnafesta.domain.vo.StatusPagamentoEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class Pedido {
     private Long clienteId;
     private Long usuarioId;
     private Long eventoId;            // NULL se não for pedido de evento sazonal
-    private Long enderecoEntregaId;   // NULL se for retirada na confeitaria
+    private Endereco enderecoEntrega; // Objeto completo para exibição no frontend (carregado via join)
     private List<ItemPedido> itens = new ArrayList<>();
     private List<Pagamento> pagamentos = new ArrayList<>();
     private boolean ativo = true;
@@ -30,8 +31,9 @@ public class Pedido {
                   BigDecimal taxaEntrega, String observacao,
                   StatusProducaoEnum statusProducao,
                   Long clienteId, Long usuarioId, Long eventoId,
-                  Long enderecoEntregaId,
-                  List<ItemPedido> itens, List<Pagamento> pagamentos) {
+                  Endereco enderecoEntrega,
+                  List<ItemPedido> itens, List<Pagamento> pagamentos,
+                  boolean ativo, boolean deletado) {
 
         this.id = id;
         this.dataPedido = dataPedido != null ? dataPedido : LocalDateTime.now();
@@ -46,7 +48,9 @@ public class Pedido {
         this.clienteId = clienteId;
         this.usuarioId = usuarioId;
         this.eventoId = eventoId;
-        this.enderecoEntregaId = enderecoEntregaId;
+        this.enderecoEntrega = enderecoEntrega;
+        this.ativo = ativo;
+        this.deletado = deletado;
         this.valorTotal = BigDecimal.ZERO;
         // Garante que a lista interna seja mutável para os métodos adicionarItem e adicionarPagamento
         if (itens != null) {
@@ -91,7 +95,56 @@ public class Pedido {
     }
 
     public void adicionarPagamento(Pagamento pagamento) {
+        if (pagamento == null) {
+            throw new RegraDeNegocioException("O pagamento é obrigatório.");
+        }
+        if (deletado || StatusProducaoEnum.CANCELADO.equals(statusProducao)) {
+            throw new RegraDeNegocioException("Não é possível registrar pagamento em pedido cancelado ou excluído.");
+        }
+        if (pagamento.getValor() == null || pagamento.getValor().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RegraDeNegocioException("O valor do pagamento deve ser maior que zero.");
+        }
+        if (StatusPagamentoEnum.CANCELADO.equals(pagamento.getStatusPagamento())) {
+            throw new RegraDeNegocioException("Não é possível registrar um pagamento já cancelado.");
+        }
+        if (pagamento.getChaveIdempotencia() != null && pagamentos.stream()
+                .anyMatch(atual -> pagamento.getChaveIdempotencia().equals(atual.getChaveIdempotencia()))) {
+            throw new RegraDeNegocioException("Esta tentativa de pagamento já foi registrada.");
+        }
+        BigDecimal totalComprometido = pagamentos.stream()
+                .filter(atual -> !StatusPagamentoEnum.CANCELADO.equals(atual.getStatusPagamento()))
+                .map(Pagamento::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (totalComprometido.add(pagamento.getValor()).compareTo(valorTotal) > 0) {
+            throw new RegraDeNegocioException("O pagamento ultrapassa o saldo restante do pedido.");
+        }
         this.pagamentos.add(pagamento);
+    }
+
+    public void confirmarPagamento(Long pagamentoId) {
+        if (deletado || StatusProducaoEnum.CANCELADO.equals(statusProducao)) {
+            throw new RegraDeNegocioException("Não é possível confirmar pagamento de pedido cancelado ou excluído.");
+        }
+        encontrarPagamento(pagamentoId).confirmar();
+    }
+
+    public void cancelarPagamento(Long pagamentoId) {
+        encontrarPagamento(pagamentoId).cancelar();
+    }
+
+    public Pagamento buscarPagamentoPorChaveIdempotencia(String chave) {
+        if (chave == null) return null;
+        return pagamentos.stream()
+                .filter(pagamento -> chave.equals(pagamento.getChaveIdempotencia()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Pagamento encontrarPagamento(Long pagamentoId) {
+        return pagamentos.stream()
+                .filter(pagamento -> pagamentoId != null && pagamentoId.equals(pagamento.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RegraDeNegocioException("Pagamento não encontrado neste pedido."));
     }
 
     public void removerPagamento(Long pagamentoId) {
@@ -116,6 +169,13 @@ public class Pedido {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    public BigDecimal calcularTotalComprometido() {
+        return pagamentos.stream()
+                .filter(pagamento -> !StatusPagamentoEnum.CANCELADO.equals(pagamento.getStatusPagamento()))
+                .map(Pagamento::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
     public boolean isSinalPago() {
         BigDecimal valorMinimoSinal = this.valorTotal.multiply(new BigDecimal("0.50")); // 50%
         return calcularTotalPago().compareTo(valorMinimoSinal) >= 0;
@@ -123,8 +183,7 @@ public class Pedido {
 
     // --- MÉTODOS DE ATUALIZAÇÃO ---
 
-    public void atualizarDadosBasicos(LocalDateTime dataEntrega, BigDecimal taxaEntrega, String observacao,
-                                      Long eventoId, Long enderecoEntregaId) {
+    public void atualizarDadosBasicos(LocalDateTime dataEntrega, BigDecimal taxaEntrega, String observacao, Endereco enderecoEntrega) {
         if (List.of(StatusProducaoEnum.ENTREGUE, StatusProducaoEnum.CANCELADO).contains(this.statusProducao)) {
             throw new RegraDeNegocioException("Não é permitido alterar dados de um pedido finalizado ou cancelado.");
         }
@@ -132,10 +191,13 @@ public class Pedido {
         this.dataEntrega = dataEntrega;
         this.taxaEntrega = taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO;
         this.observacao = observacao;
-        this.eventoId = eventoId;
-        this.enderecoEntregaId = enderecoEntregaId;
+        this.enderecoEntrega = enderecoEntrega;
 
         recalcularValorTotal();
+    }
+
+    public void atualizarEventoId(Long eventoId) {
+        this.eventoId = eventoId;
     }
 
     public void substituirItens(List<ItemPedido> novosItens) {
@@ -224,7 +286,10 @@ public class Pedido {
     public Long getClienteId() { return clienteId; }
     public Long getUsuarioId() { return usuarioId; }
     public Long getEventoId() { return eventoId; }
-    public Long getEnderecoEntregaId() { return enderecoEntregaId; }
+    public Endereco getEnderecoEntrega() { return enderecoEntrega; }
+    public void setEnderecoEntrega(Endereco enderecoEntrega) {
+        this.enderecoEntrega = enderecoEntrega;
+    }
     public List<ItemPedido> getItens() { return Collections.unmodifiableList(itens); }
     public List<Pagamento> getPagamentos() { return Collections.unmodifiableList(pagamentos); }
     public boolean isAtivo() { return ativo; }

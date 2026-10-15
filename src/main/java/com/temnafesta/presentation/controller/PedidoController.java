@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/pedidos")
@@ -128,8 +130,11 @@ public class PedidoController {
     }
 
     @GetMapping("/count-by-status")
-    public ResponseEntity<?> contarPorStatus() {
-        return ResponseEntity.ok(contarPorStatusUseCase.executar());
+    public ResponseEntity<Map<String, Long>> contarPorStatus() {
+        Map<String, Long> contagens = new LinkedHashMap<>();
+        contarPorStatusUseCase.executar().forEach((status, quantidade) -> contagens.put(status.name(), quantidade));
+        contagens.put("PAGAMENTOS_PENDENTES", contarPorStatusUseCase.contarPagamentosPendentes());
+        return ResponseEntity.ok(contagens);
     }
 
     @GetMapping("/proximas-retiradas")

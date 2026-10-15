@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
 
 @Component
 public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
@@ -44,12 +45,22 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
 
     @Override
     public Page<Usuario> listarPorNomePaginado(String nome, Pageable pageable) {
+        return listarPorNomePaginado(nome, false, pageable);
+    }
+
+    @Override
+    public Page<Usuario> listarPorNomePaginado(String nome, boolean ativos, Pageable pageable) {
         String filtro = nome == null ? "" : nome.trim();
         if (filtro.isBlank()) {
-            return repository.findByDeletadoFalse(pageable).map(mapper::toDomain);
+            Page<UsuarioJpaEntity> usuarios = ativos
+                    ? repository.findByAtivoTrueAndDeletadoFalse(pageable)
+                    : repository.findByDeletadoFalse(pageable);
+            return usuarios.map(mapper::toDomain);
         }
-        return repository.findByDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable)
-                .map(mapper::toDomain);
+        Page<UsuarioJpaEntity> usuarios = ativos
+                ? repository.findByAtivoTrueAndDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable)
+                : repository.findByDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable);
+        return usuarios.map(mapper::toDomain);
     }
 
     @Override
@@ -68,6 +79,7 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
 
     @Override
     public Optional<Usuario> buscarPorEmail(String email) {
-        return repository.findByEmail(email).map(mapper::toDomain);
+        if (email == null) return Optional.empty();
+        return repository.findByEmailIgnoreCase(email.trim().toLowerCase(Locale.ROOT)).map(mapper::toDomain);
     }
 }

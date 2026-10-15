@@ -8,6 +8,7 @@ import com.temnafesta.infrastructure.projection.PedidosPorSemanaProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.LockModeType;
 
 public interface SpringDataPedidoRepository
         extends JpaRepository<PedidoJpaEntity, Long> {
@@ -25,6 +27,7 @@ public interface SpringDataPedidoRepository
     @Query("""
         SELECT p
         FROM PedidoJpaEntity p
+        LEFT JOIN FETCH p.enderecoEntrega
         WHERE (:status IS NULL OR p.statusProducao = :status)
           AND (:inicio IS NULL OR p.dataEntrega >= :inicio)
           AND (:fim IS NULL OR p.dataEntrega <= :fim)
@@ -61,6 +64,36 @@ public interface SpringDataPedidoRepository
      */
     long countByStatusProducaoAndDeletadoFalse(StatusProducaoEnum status);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM PedidoJpaEntity p WHERE p.id = :id")
+    Optional<PedidoJpaEntity> buscarPorIdParaRegistrarPagamento(@Param("id") Long id);
+
+    @Query("""
+        SELECT DISTINCT p
+        FROM PedidoJpaEntity p
+        LEFT JOIN FETCH p.pagamentos
+        WHERE p.id = (
+            SELECT pagamento.pedido.id
+            FROM PagamentoJpaEntity pagamento
+            WHERE pagamento.chaveIdempotencia = :chave
+        )
+        """)
+    Optional<PedidoJpaEntity> buscarPorChaveIdempotencia(@Param("chave") String chave);
+
+    @Query("""
+        SELECT COUNT(p)
+        FROM PedidoJpaEntity p
+        WHERE p.deletado = false
+          AND p.statusProducao <> com.temnafesta.domain.vo.StatusProducaoEnum.CANCELADO
+          AND p.valorTotal > COALESCE((
+              SELECT SUM(pag.valor)
+              FROM PagamentoJpaEntity pag
+              WHERE pag.pedido = p
+                AND pag.statusPagamento = com.temnafesta.domain.vo.StatusPagamentoEnum.CONFIRMADO
+          ), 0.00)
+        """)
+    long contarPedidosComPagamentoPendente();
+
 
     /*
      * Próximas retiradas/entregas.
@@ -68,6 +101,7 @@ public interface SpringDataPedidoRepository
     @Query("""
         SELECT p
         FROM PedidoJpaEntity p
+        LEFT JOIN FETCH p.enderecoEntrega
         WHERE p.dataEntrega <= :limite
           AND p.statusProducao NOT IN (
               com.temnafesta.domain.vo.StatusProducaoEnum.ENTREGUE,
@@ -81,30 +115,28 @@ public interface SpringDataPedidoRepository
     );
 
 
-    /*
+/*
      * Busca pedidos por cliente, ID, status e evento.
      *
      * Evento é opcional no banco, portanto LEFT JOIN.
      */
-    @Query(value = """
-    SELECT p.*
-    FROM pedido p
-    INNER JOIN cliente c
-        ON p.cliente_id = c.id
-    LEFT JOIN evento e
-        ON p.evento_id = e.id
-    WHERE p.is_deletado = FALSE
-      AND (
-          :busca IS NULL
-          OR :busca = ''
-          OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%'))
-          OR CAST(p.id AS CHAR) LIKE CONCAT('%', :busca, '%')
-      )
-      AND (:status IS NULL OR p.status_producao = :status)
-      AND (:eventoId IS NULL OR p.evento_id = :eventoId)
-    ORDER BY p.data_entrega ASC
-    """,
-            nativeQuery = true)
+    @Query("""
+        SELECT p
+        FROM PedidoJpaEntity p
+        JOIN p.cliente c
+        LEFT JOIN p.evento e
+        LEFT JOIN FETCH p.enderecoEntrega
+        WHERE p.deletado = false
+          AND (
+                :busca IS NULL
+                OR :busca = ''
+                OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%'))
+                OR CAST(p.id AS STRING) LIKE CONCAT('%', :busca, '%')
+            )
+          AND (:status IS NULL OR p.statusProducao = :status)
+          AND (:eventoId IS NULL OR p.evento.id = :eventoId)
+        ORDER BY p.dataEntrega ASC
+        """)
     List<PedidoJpaEntity> listarPedidos(
             @Param("busca") String busca,
             @Param("status") StatusProducaoEnum status,
@@ -130,9 +162,18 @@ public interface SpringDataPedidoRepository
     /*
      * Quantidade de pedidos realizados em determinado período.
      */
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM pedido p
+        WHERE p.data_pedido BETWEEN :de AND :ate
+          AND p.is_deletado = FALSE
+          AND p.status_producao <> 'CANCELADO'
+          AND (:eventoId IS NULL OR p.evento_id = :eventoId)
+        """, nativeQuery = true)
     Long countByDataPedidoBetweenAndDeletadoFalse(
-            LocalDateTime de,
-            LocalDateTime ate
+            @Param("de") LocalDateTime de,
+            @Param("ate") LocalDateTime ate,
+            @Param("eventoId") Long eventoId
     );
 
 
@@ -146,27 +187,40 @@ public interface SpringDataPedidoRepository
         WHERE p.statusProducao = :status
           AND p.dataPedido BETWEEN :de AND :ate
           AND p.deletado = false
+          AND (:eventoId IS NULL OR p.evento.id = :eventoId)
         """)
     Long countByStatusEPeriodo(
             @Param("status") StatusProducaoEnum status,
             @Param("de") LocalDateTime de,
-            @Param("ate") LocalDateTime ate
+            @Param("ate") LocalDateTime ate,
+            @Param("eventoId") Long eventoId
     );
 
 
     /*
-     * Faturamento por período.
+     * Faturamento bruto no período: valor total dos pedidos pela data da venda.
      */
-    @Query("""
-    SELECT COALESCE(SUM(p.valorTotal), 0)
-    FROM PedidoJpaEntity p
-    WHERE p.dataPedido BETWEEN :inicio AND :fim
-      AND p.deletado = false
-      AND p.statusProducao = 'ENTREGUE'
-""")
+    @Query(value = """
+        SELECT COALESCE(SUM(v.valor_vendido), 0)
+        FROM (
+            SELECT p.id,
+                   p.evento_id,
+                   p.status_producao,
+                   p.data_pedido,
+                   COALESCE(SUM(i.quantidade * i.preco_unitario), 0)
+                       + COALESCE(p.taxa_entrega, 0) AS valor_vendido
+            FROM pedido p
+            LEFT JOIN item_pedido i ON i.pedido_id = p.id
+            GROUP BY p.id, p.evento_id, p.status_producao, p.data_pedido, p.taxa_entrega
+        ) v
+        WHERE v.data_pedido BETWEEN :inicio AND :fim
+          AND v.status_producao <> 'CANCELADO'
+          AND (:eventoId IS NULL OR v.evento_id = :eventoId)
+        """, nativeQuery = true)
     BigDecimal somarFaturamentoNoPeriodo(
             @Param("inicio") LocalDateTime inicio,
-            @Param("fim") LocalDateTime fim
+            @Param("fim") LocalDateTime fim,
+            @Param("eventoId") Long eventoId
     );
 
 
@@ -198,6 +252,8 @@ public interface SpringDataPedidoRepository
 
                 WHERE p.data_pedido BETWEEN :de AND :ate
                   AND p.is_deletado = FALSE
+                  AND p.status_producao <> 'CANCELADO'
+                  AND (:eventoId IS NULL OR p.evento_id = :eventoId)
 
                 GROUP BY WEEK(p.data_pedido)
             ) t
@@ -208,7 +264,8 @@ public interface SpringDataPedidoRepository
     )
     List<PedidosPorSemanaProjection> buscarPedidosAgrupadosPorSemana(
             @Param("de") LocalDateTime de,
-            @Param("ate") LocalDateTime ate
+            @Param("ate") LocalDateTime ate,
+            @Param("eventoId") Long eventoId
     );
 
 
@@ -242,6 +299,7 @@ public interface SpringDataPedidoRepository
 
             WHERE p.data_pedido BETWEEN :de AND :ate
               AND p.is_deletado = FALSE
+              AND p.status_producao <> 'CANCELADO'
 
             GROUP BY
                 p.id,
@@ -259,6 +317,7 @@ public interface SpringDataPedidoRepository
             FROM pedido p
             WHERE p.data_pedido BETWEEN :de AND :ate
               AND p.is_deletado = FALSE
+              AND p.status_producao <> 'CANCELADO'
             """,
 
             nativeQuery = true
@@ -304,6 +363,7 @@ public interface SpringDataPedidoRepository
                 ON p.evento_id = e.id
 
             WHERE p.is_deletado = FALSE
+              AND p.status_producao <> 'CANCELADO'
               AND (:eventoId IS NULL OR p.evento_id = :eventoId)
               AND (:dataInicio IS NULL OR p.data_pedido >= :dataInicio)
               AND (:dataFim IS NULL OR p.data_pedido <= :dataFim)

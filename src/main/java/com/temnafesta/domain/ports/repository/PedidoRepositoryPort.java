@@ -18,6 +18,8 @@ public interface PedidoRepositoryPort {
     Pedido salvar(Pedido pedido);
 
     Optional<Pedido> buscarPorId(Long id);
+    default Optional<Pedido> buscarPorIdParaRegistrarPagamento(Long id) { return buscarPorId(id); }
+    default Optional<Pedido> buscarPorChaveIdempotencia(String chave) { return Optional.empty(); }
 
 
     // O adaptador desta porta no JPA deverá buscar pedidos do cliente cujo
@@ -26,19 +28,20 @@ public interface PedidoRepositoryPort {
 
     Pedido atualizar(Pedido pedido);
     long contarPorStatus(StatusProducaoEnum status);
+    default long contarPedidosComPagamentoPendente() { return 0L; }
     List<Pedido> listarProximasRetiradas(LocalDateTime limite);
     List<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId);
     Optional<ItemPedido> buscarItemPorId(Long pedidoId, Long itemId);
     List<Pagamento> listarPagamentos(Long pedidoId);
     List<Pedido> listarPorFiltros(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim);
 
-    Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime localDateTime, LocalDateTime localDateTime1);
+    Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime localDateTime, LocalDateTime localDateTime1, Long eventoId);
 
-    Long countByStatusEPeriodo(StatusProducaoEnum statusEntregueProducao, LocalDateTime localDateTime, LocalDateTime localDateTime1);
+    Long countByStatusEPeriodo(StatusProducaoEnum statusEntregueProducao, LocalDateTime localDateTime, LocalDateTime localDateTime1, Long eventoId);
 
-    BigDecimal somarFaturamentoNoPeriodo(LocalDateTime localDateTime, LocalDateTime localDateTime1);
+    BigDecimal somarFaturamentoNoPeriodo(LocalDateTime localDateTime, LocalDateTime localDateTime1, Long eventoId);
 
-    List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate);
+    List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate, Long eventoId);
 
     Page<PedidosPeriodoOutput> buscarPedidosPeriodoPaginado(LocalDateTime de, LocalDateTime ate, Pageable pageable);
 

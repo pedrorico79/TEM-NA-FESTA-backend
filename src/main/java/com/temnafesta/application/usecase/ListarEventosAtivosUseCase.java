@@ -13,6 +13,10 @@ public class ListarEventosAtivosUseCase {
         this.eventoRepositoryPort = eventoRepositoryPort;
     }
 
+    public List<Evento> executar(boolean ativos) {
+        return eventoRepositoryPort.listarEventos(ativos);
+    }
+
     public List<Evento> executar() {
         return eventoRepositoryPort.listarEventosAtivos();
     }

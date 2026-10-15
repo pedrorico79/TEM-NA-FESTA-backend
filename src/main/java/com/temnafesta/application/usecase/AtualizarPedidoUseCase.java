@@ -31,22 +31,21 @@ public class AtualizarPedidoUseCase {
                 command.dataEntrega(),
                 command.taxaEntrega(),
                 command.observacao(),
-                command.eventoId(),
-                command.enderecoEntregaId()
+                command.enderecoEntrega()
         );
 
-        // 3. Monta a nova lista de itens acatando o preço negociado na interface
+        // 3. Atualiza eventoId se informado
+        if (command.eventoId() != null) {
+            pedido.atualizarEventoId(command.eventoId());
+        }
+
+        // 4. Monta a nova lista de itens acatando o preço negociado na interface
         List<ItemPedido> novosItens = new ArrayList<>();
         for (AtualizarPedidoCommand.ItemCommand itemDto : command.itens()) {
 
             // Garante que o produto existe
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
                     .orElseThrow(() -> new RegraDeNegocioException("Produto não encontrado com o ID: " + itemDto.produtoId()));
-
-            if (!produto.isAtivo()) {
-                throw new RegraDeNegocioException(
-                        "Produto inativo não pode ser adicionado ao pedido. ID: " + itemDto.produtoId());
-            }
 
             novosItens.add(new ItemPedido(
                     null,
@@ -56,11 +55,7 @@ public class AtualizarPedidoUseCase {
                     itemDto.observacaoItem()
             ));
         }
-
-        // 4. Delega a substituição segura para a Raiz de Agregação (recalcula total automaticamente)
         pedido.substituirItens(novosItens);
-
-        // 5. Persiste as alterações no banco de dados
         return pedidoRepositoryPort.atualizar(pedido);
     }
 }
