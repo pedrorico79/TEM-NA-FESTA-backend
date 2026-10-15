@@ -11,5 +11,7 @@ public interface SpringDataUsuarioRepository extends JpaRepository<UsuarioJpaEnt
     Optional<UsuarioJpaEntity> findByEmail(String email);
     Page<UsuarioJpaEntity> findByDeletadoFalseAndNomeContainingIgnoreCase(String nome, Pageable pageable);
     Page<UsuarioJpaEntity> findByDeletadoFalse(Pageable pageable);
+    Page<UsuarioJpaEntity> findByAtivoTrueAndDeletadoFalseAndNomeContainingIgnoreCase(String nome, Pageable pageable);
+    Page<UsuarioJpaEntity> findByAtivoTrueAndDeletadoFalse(Pageable pageable);
     Optional<UsuarioJpaEntity> findByIdAndDeletadoFalse(Long id);
 }

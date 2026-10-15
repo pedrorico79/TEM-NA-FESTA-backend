@@ -130,9 +130,17 @@ public interface SpringDataPedidoRepository
     /*
      * Quantidade de pedidos realizados em determinado período.
      */
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM pedido p
+        WHERE p.data_pedido BETWEEN :de AND :ate
+          AND p.is_deletado = FALSE
+          AND (:eventoId IS NULL OR p.evento_id = :eventoId)
+        """, nativeQuery = true)
     Long countByDataPedidoBetweenAndDeletadoFalse(
-            LocalDateTime de,
-            LocalDateTime ate
+            @Param("de") LocalDateTime de,
+            @Param("ate") LocalDateTime ate,
+            @Param("eventoId") Long eventoId
     );
 
 
@@ -146,11 +154,13 @@ public interface SpringDataPedidoRepository
         WHERE p.statusProducao = :status
           AND p.dataPedido BETWEEN :de AND :ate
           AND p.deletado = false
+          AND (:eventoId IS NULL OR p.evento.id = :eventoId)
         """)
     Long countByStatusEPeriodo(
             @Param("status") StatusProducaoEnum status,
             @Param("de") LocalDateTime de,
-            @Param("ate") LocalDateTime ate
+            @Param("ate") LocalDateTime ate,
+            @Param("eventoId") Long eventoId
     );
 
 
@@ -163,10 +173,12 @@ public interface SpringDataPedidoRepository
     WHERE p.dataPedido BETWEEN :inicio AND :fim
       AND p.deletado = false
       AND p.statusProducao = 'ENTREGUE'
+      AND (:eventoId IS NULL OR p.evento.id = :eventoId)
 """)
     BigDecimal somarFaturamentoNoPeriodo(
             @Param("inicio") LocalDateTime inicio,
-            @Param("fim") LocalDateTime fim
+            @Param("fim") LocalDateTime fim,
+            @Param("eventoId") Long eventoId
     );
 
 
@@ -198,6 +210,7 @@ public interface SpringDataPedidoRepository
 
                 WHERE p.data_pedido BETWEEN :de AND :ate
                   AND p.is_deletado = FALSE
+                  AND (:eventoId IS NULL OR p.evento_id = :eventoId)
 
                 GROUP BY WEEK(p.data_pedido)
             ) t
@@ -208,7 +221,8 @@ public interface SpringDataPedidoRepository
     )
     List<PedidosPorSemanaProjection> buscarPedidosAgrupadosPorSemana(
             @Param("de") LocalDateTime de,
-            @Param("ate") LocalDateTime ate
+            @Param("ate") LocalDateTime ate,
+            @Param("eventoId") Long eventoId
     );
 
 

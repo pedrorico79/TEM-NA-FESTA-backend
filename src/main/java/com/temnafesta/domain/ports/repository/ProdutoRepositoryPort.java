@@ -15,12 +15,17 @@ public interface ProdutoRepositoryPort {
     Optional<Produto> buscarPorId(Long id);
 
     List<Produto> listarPorNome(String nome);
+    default List<Produto> listarPorNome(String nome, boolean ativos) {
+        List<Produto> produtos = listarPorNome(nome);
+        return ativos ? produtos.stream().filter(Produto::isAtivo).toList() : produtos;
+    }
 
     Produto salvar(Produto produto);
 
     Page<ProdutosMaisVendidosOutput> buscarProdutosMaisVendidosPaginado(
             LocalDateTime de,
             LocalDateTime ate,
+            Long eventoId,
             Pageable pageable
     );
 }

@@ -44,12 +44,22 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
 
     @Override
     public Page<Usuario> listarPorNomePaginado(String nome, Pageable pageable) {
+        return listarPorNomePaginado(nome, false, pageable);
+    }
+
+    @Override
+    public Page<Usuario> listarPorNomePaginado(String nome, boolean ativos, Pageable pageable) {
         String filtro = nome == null ? "" : nome.trim();
         if (filtro.isBlank()) {
-            return repository.findByDeletadoFalse(pageable).map(mapper::toDomain);
+            Page<UsuarioJpaEntity> usuarios = ativos
+                    ? repository.findByAtivoTrueAndDeletadoFalse(pageable)
+                    : repository.findByDeletadoFalse(pageable);
+            return usuarios.map(mapper::toDomain);
         }
-        return repository.findByDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable)
-                .map(mapper::toDomain);
+        Page<UsuarioJpaEntity> usuarios = ativos
+                ? repository.findByAtivoTrueAndDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable)
+                : repository.findByDeletadoFalseAndNomeContainingIgnoreCase(filtro, pageable);
+        return usuarios.map(mapper::toDomain);
     }
 
     @Override

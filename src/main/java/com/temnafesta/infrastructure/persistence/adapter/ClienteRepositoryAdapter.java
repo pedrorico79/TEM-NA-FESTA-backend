@@ -37,7 +37,12 @@ public class ClienteRepositoryAdapter implements ClienteRepositoryPort {
 
     @Override
     public List<Cliente> listarNaoDeletadosPorBusca(String busca) {
-        return repository.buscarClientesNaoDeletados(busca)
+        return listarNaoDeletadosPorBusca(busca, false);
+    }
+
+    @Override
+    public List<Cliente> listarNaoDeletadosPorBusca(String busca, boolean ativos) {
+        return repository.buscarClientesNaoDeletados(busca, ativos)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();

@@ -15,6 +15,7 @@ public interface SpringDataClienteRepository extends JpaRepository<ClienteJpaEnt
     @Query("""
             SELECT c FROM ClienteJpaEntity c
             WHERE c.deletado = false
+              AND (:ativos = false OR c.ativo = true)
               AND (:busca = ''
                    OR UPPER(c.nome) LIKE UPPER(CONCAT('%', :busca, '%'))
                    OR UPPER(c.telefone) LIKE UPPER(CONCAT('%', :busca, '%'))
@@ -22,6 +23,9 @@ public interface SpringDataClienteRepository extends JpaRepository<ClienteJpaEnt
                    OR UPPER(c.instagram) LIKE UPPER(CONCAT('%', :busca, '%')))
             ORDER BY c.ativo DESC
             """)
-    List<ClienteJpaEntity> buscarClientesNaoDeletados(@Param("busca") String busca);
+    List<ClienteJpaEntity> buscarClientesNaoDeletados(
+            @Param("busca") String busca,
+            @Param("ativos") boolean ativos
+    );
 
 }

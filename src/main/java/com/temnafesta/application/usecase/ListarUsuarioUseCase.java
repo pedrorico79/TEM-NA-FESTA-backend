@@ -13,7 +13,12 @@ public class ListarUsuarioUseCase {
         this.usuarioRepositoryPort = usuarioRepositoryPort;
     }
 
+    public Page<Usuario> executar(String nome, boolean ativos, Pageable pageable) {
+        if (!ativos) return usuarioRepositoryPort.listarPorNomePaginado(nome, pageable);
+        return usuarioRepositoryPort.listarPorNomePaginado(nome, ativos, pageable);
+    }
+
     public Page<Usuario> executar(String nome, Pageable pageable) {
-        return usuarioRepositoryPort.listarPorNomePaginado(nome, pageable);
+        return executar(nome, false, pageable);
     }
 }

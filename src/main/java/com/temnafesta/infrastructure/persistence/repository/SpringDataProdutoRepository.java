@@ -14,7 +14,17 @@ import java.util.Optional;
 
 public interface SpringDataProdutoRepository extends JpaRepository<ProdutoJpaEntity, Long> {
 
-    List<ProdutoJpaEntity> findByDeletadoFalseAndNomeContainingIgnoreCaseOrderByAtivoDesc(String nome);
+    @Query("""
+            SELECT p FROM ProdutoJpaEntity p
+            WHERE p.deletado = false
+              AND (:ativos = false OR p.ativo = true)
+              AND LOWER(p.nome) LIKE LOWER(CONCAT('%', :nome, '%'))
+            ORDER BY p.ativo DESC
+            """)
+    List<ProdutoJpaEntity> buscarPorNomeNaoDeletados(
+            @Param("nome") String nome,
+            @Param("ativos") boolean ativos
+    );
 
     Optional<ProdutoJpaEntity> findByIdAndDeletadoFalse(Long id);
 
@@ -28,21 +38,28 @@ public interface SpringDataProdutoRepository extends JpaRepository<ProdutoJpaEnt
             "    (SELECT SUM(it.quantidade * it.preco_unitario) " +
             "     FROM item_pedido it " +
             "     INNER JOIN pedido pe ON it.pedido_id = pe.id " +
-            "     WHERE pe.data_pedido BETWEEN :de AND :ate)) * 100, 2) AS porcentagemDoTotal " +
+            "     WHERE pe.data_pedido BETWEEN :de AND :ate " +
+            "       AND pe.is_deletado = FALSE " +
+            "       AND (:eventoId IS NULL OR pe.evento_id = :eventoId))) * 100, 2) AS porcentagemDoTotal " +
             "FROM pedido p " +
             "INNER JOIN item_pedido item ON item.pedido_id = p.id " +
             "INNER JOIN produto prod ON item.produto_id = prod.id " +
             "WHERE p.data_pedido BETWEEN :de AND :ate " +
+            "  AND p.is_deletado = FALSE " +
+            "  AND (:eventoId IS NULL OR p.evento_id = :eventoId) " +
             "GROUP BY prod.id, prod.nome " +
             "ORDER BY qtdeVendida DESC",
             countQuery = "SELECT COUNT(DISTINCT item.produto_id) " +
                     "FROM pedido p " +
                     "INNER JOIN item_pedido item ON item.pedido_id = p.id " +
-                    "WHERE p.data_pedido BETWEEN :de AND :ate",
+                    "WHERE p.data_pedido BETWEEN :de AND :ate " +
+                    "  AND p.is_deletado = FALSE " +
+                    "  AND (:eventoId IS NULL OR p.evento_id = :eventoId)",
             nativeQuery = true)
     Page<MaisVendidosProjection> buscarProdutosMaisVendidosPaginado(
             @Param("de") LocalDateTime de,
             @Param("ate") LocalDateTime ate,
+            @Param("eventoId") Long eventoId,
             Pageable pageable
     );
 }

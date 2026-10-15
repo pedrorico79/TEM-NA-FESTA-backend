@@ -249,6 +249,17 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public AlterarAtivoUsuarioUseCase alterarAtivoUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
+        return new AlterarAtivoUsuarioUseCase(usuarioRepositoryPort);
+    }
+
+    @Bean
+    public AlterarSenhaUsuarioUseCase alterarSenhaUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort,
+                                                                 PasswordEncoder passwordEncoder) {
+        return new AlterarSenhaUsuarioUseCase(usuarioRepositoryPort, passwordEncoder);
+    }
+
+    @Bean
     public DeletarUsuarioUseCase deletarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort) {
         return new DeletarUsuarioUseCase(usuarioRepositoryPort);
     }
@@ -276,6 +287,11 @@ public class BeanConfiguration {
     @Bean
     ListaComparativoEventosUseCase listaComparativoEventosUseCase(EventoRepositoryPort eventoRepositoryPort) {
         return new ListaComparativoEventosUseCase(eventoRepositoryPort);
+    }
+
+    @Bean
+    ListaEvolucaoEventoUseCase listaEvolucaoEventoUseCase(EventoRepositoryPort eventoRepositoryPort) {
+        return new ListaEvolucaoEventoUseCase(eventoRepositoryPort);
     }
 
     @Bean

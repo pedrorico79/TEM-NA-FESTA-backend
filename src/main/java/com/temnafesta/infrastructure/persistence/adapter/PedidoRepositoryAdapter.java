@@ -104,23 +104,23 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     }
 
     @Override
-    public Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime de, LocalDateTime ate) {
-        return repository.countByDataPedidoBetweenAndDeletadoFalse(de, ate);
+    public Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime de, LocalDateTime ate, Long eventoId) {
+        return repository.countByDataPedidoBetweenAndDeletadoFalse(de, ate, eventoId);
     }
 
     @Override
-    public Long countByStatusEPeriodo(StatusProducaoEnum statusId, LocalDateTime de, LocalDateTime ate) {
-        return repository.countByStatusEPeriodo(statusId, de, ate);
+    public Long countByStatusEPeriodo(StatusProducaoEnum statusId, LocalDateTime de, LocalDateTime ate, Long eventoId) {
+        return repository.countByStatusEPeriodo(statusId, de, ate, eventoId);
     }
 
     @Override
-    public BigDecimal somarFaturamentoNoPeriodo(LocalDateTime de, LocalDateTime ate) {
-        return repository.somarFaturamentoNoPeriodo(de, ate);
+    public BigDecimal somarFaturamentoNoPeriodo(LocalDateTime de, LocalDateTime ate, Long eventoId) {
+        return repository.somarFaturamentoNoPeriodo(de, ate, eventoId);
     }
 
     @Override
-    public List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate) {
-        List<PedidosPorSemanaProjection> resultado = repository.buscarPedidosAgrupadosPorSemana(de, ate);
+    public List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate, Long eventoId) {
+        List<PedidosPorSemanaProjection> resultado = repository.buscarPedidosAgrupadosPorSemana(de, ate, eventoId);
         if (resultado == null) return List.of();
 
         return resultado.stream()

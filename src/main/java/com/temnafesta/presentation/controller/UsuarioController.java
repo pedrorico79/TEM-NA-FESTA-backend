@@ -2,6 +2,8 @@ package com.temnafesta.presentation.controller;
 
 import com.temnafesta.application.dto.CriarUsuarioCommand;
 import com.temnafesta.application.usecase.AtualizarUsuarioUseCase;
+import com.temnafesta.application.usecase.AlterarAtivoUsuarioUseCase;
+import com.temnafesta.application.usecase.AlterarSenhaUsuarioUseCase;
 import com.temnafesta.application.usecase.AutenticarUsuarioUseCase;
 import com.temnafesta.application.usecase.CriarUsuarioUseCase;
 import com.temnafesta.application.usecase.DeletarUsuarioUseCase;
@@ -33,6 +35,8 @@ public class UsuarioController {
     private final ListarUsuarioUseCase listarUsuarioUseCase;
     private final CriarUsuarioUseCase criarUsuarioUseCase;
     private final AtualizarUsuarioUseCase atualizarUsuarioUseCase;
+    private final AlterarAtivoUsuarioUseCase alterarAtivoUsuarioUseCase;
+    private final AlterarSenhaUsuarioUseCase alterarSenhaUsuarioUseCase;
     private final DeletarUsuarioUseCase deletarUsuarioUseCase;
     private final AutenticarUsuarioUseCase autenticarUsuarioUseCase;
     private final JwtTokenProvider jwtTokenProvider;
@@ -56,6 +60,8 @@ public class UsuarioController {
     public UsuarioController(ListarUsuarioUseCase listarUsuarioUseCase,
                             CriarUsuarioUseCase criarUsuarioUseCase,
                             AtualizarUsuarioUseCase atualizarUsuarioUseCase,
+                            AlterarAtivoUsuarioUseCase alterarAtivoUsuarioUseCase,
+                            AlterarSenhaUsuarioUseCase alterarSenhaUsuarioUseCase,
                             DeletarUsuarioUseCase deletarUsuarioUseCase,
                             AutenticarUsuarioUseCase autenticarUsuarioUseCase,
                             JwtTokenProvider jwtTokenProvider,
@@ -63,6 +69,8 @@ public class UsuarioController {
         this.listarUsuarioUseCase = listarUsuarioUseCase;
         this.criarUsuarioUseCase = criarUsuarioUseCase;
         this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
+        this.alterarAtivoUsuarioUseCase = alterarAtivoUsuarioUseCase;
+        this.alterarSenhaUsuarioUseCase = alterarSenhaUsuarioUseCase;
         this.deletarUsuarioUseCase = deletarUsuarioUseCase;
         this.autenticarUsuarioUseCase = autenticarUsuarioUseCase;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -72,11 +80,12 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDto>> listarUsuarios(
             @RequestParam(required = false) String nome,
+            @RequestParam(defaultValue = "false") boolean ativos,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<UsuarioResponseDto> response = listarUsuarioUseCase.executar(nome, pageable)
+        Page<UsuarioResponseDto> response = listarUsuarioUseCase.executar(nome, ativos, pageable)
                 .map(mapper::toResponse);
         return ResponseEntity.ok(response);
     }
@@ -93,25 +102,34 @@ public class UsuarioController {
     public ResponseEntity<Void> login(@Valid @RequestBody LoginRequestDto request, HttpServletResponse response) {
         boolean jwtValidityRememberMe = Boolean.TRUE.equals(request.jwtValidityRememberMe());
         String token = autenticarUsuarioUseCase.executar(request.email(), request.senha(), jwtValidityRememberMe);
-
-        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(jwtCookieName, token)
-                .httpOnly(true)
-                .secure(jwtCookieSecure)
-                .path(jwtCookiePath)
-                .sameSite(jwtCookieSameSite)
-                .maxAge(Duration.ofMillis(jwtTokenProvider.getExpiracaoMs(jwtValidityRememberMe)));
-
-        if (jwtCookieDomain != null && !jwtCookieDomain.isBlank()) {
-            cookieBuilder.domain(jwtCookieDomain);
-        }
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, criarCookieJwt(token, jwtValidityRememberMe).toString());
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")
     public ResponseEntity<MeResponseDto> me(@AuthenticationPrincipal UsuarioAutenticado usuario) {
         return ResponseEntity.ok(MeResponseDto.from(usuario));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UsuarioResponseDto> atualizarMeuPerfil(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado,
+            @Valid @RequestBody AtualizarMeuPerfilRequestDto request,
+            HttpServletResponse response) {
+        Usuario usuarioAtualizado = atualizarUsuarioUseCase.executar(
+                usuarioAutenticado.getId(), request.nome(), request.email());
+        String token = jwtTokenProvider.gerarToken(
+                usuarioAtualizado.getEmail(), usuarioAtualizado.getPerfil().getNome(), false);
+        response.addHeader(HttpHeaders.SET_COOKIE, criarCookieJwt(token, false).toString());
+        return ResponseEntity.ok(mapper.toResponse(usuarioAtualizado));
+    }
+
+    @PatchMapping("/me/senha")
+    public ResponseEntity<Void> alterarMinhaSenha(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado,
+            @Valid @RequestBody AlterarSenhaUsuarioRequestDto request) {
+        alterarSenhaUsuarioUseCase.executar(usuarioAutenticado.getId(), request.senha());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/logout")
@@ -150,5 +168,35 @@ public class UsuarioController {
     public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
         deletarUsuarioUseCase.executar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/ativo")
+    public ResponseEntity<UsuarioResponseDto> alterarAtivoUsuario(
+            @PathVariable Long id,
+            @Valid @RequestBody AlterarAtivoUsuarioRequestDto request) {
+        Usuario usuarioAtualizado = alterarAtivoUsuarioUseCase.executar(id, request.ativo());
+        return ResponseEntity.ok(mapper.toResponse(usuarioAtualizado));
+    }
+
+    @PatchMapping("/{id}/senha")
+    public ResponseEntity<Void> alterarSenhaUsuario(
+            @PathVariable Long id,
+            @Valid @RequestBody AlterarSenhaUsuarioRequestDto request) {
+        alterarSenhaUsuarioUseCase.executar(id, request.senha());
+        return ResponseEntity.noContent().build();
+    }
+
+    private ResponseCookie criarCookieJwt(String token, boolean lembrarAcesso) {
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(jwtCookieName, token)
+                .httpOnly(true)
+                .secure(jwtCookieSecure)
+                .path(jwtCookiePath)
+                .sameSite(jwtCookieSameSite)
+                .maxAge(Duration.ofMillis(jwtTokenProvider.getExpiracaoMs(lembrarAcesso)));
+
+        if (jwtCookieDomain != null && !jwtCookieDomain.isBlank()) {
+            cookieBuilder.domain(jwtCookieDomain);
+        }
+        return cookieBuilder.build();
     }
 }

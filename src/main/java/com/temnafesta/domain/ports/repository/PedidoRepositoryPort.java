@@ -32,13 +32,13 @@ public interface PedidoRepositoryPort {
     List<Pagamento> listarPagamentos(Long pedidoId);
     List<Pedido> listarPorFiltros(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim);
 
-    Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime localDateTime, LocalDateTime localDateTime1);
+    Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime localDateTime, LocalDateTime localDateTime1, Long eventoId);
 
-    Long countByStatusEPeriodo(StatusProducaoEnum statusEntregueProducao, LocalDateTime localDateTime, LocalDateTime localDateTime1);
+    Long countByStatusEPeriodo(StatusProducaoEnum statusEntregueProducao, LocalDateTime localDateTime, LocalDateTime localDateTime1, Long eventoId);
 
-    BigDecimal somarFaturamentoNoPeriodo(LocalDateTime localDateTime, LocalDateTime localDateTime1);
+    BigDecimal somarFaturamentoNoPeriodo(LocalDateTime localDateTime, LocalDateTime localDateTime1, Long eventoId);
 
-    List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate);
+    List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate, Long eventoId);
 
     Page<PedidosPeriodoOutput> buscarPedidosPeriodoPaginado(LocalDateTime de, LocalDateTime ate, Pageable pageable);
 

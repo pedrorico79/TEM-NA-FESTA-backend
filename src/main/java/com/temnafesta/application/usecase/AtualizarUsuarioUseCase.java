@@ -20,12 +20,7 @@ public class AtualizarUsuarioUseCase {
         Usuario usuario = usuarioRepositoryPort.buscarPorId(id)
                 .orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado com o ID: " + id));
 
-        if (nome == null || nome.isBlank()) {
-            throw new RegraDeNegocioException("O nome do usuário é obrigatório.");
-        }
-        if (email == null || email.isBlank()) {
-            throw new RegraDeNegocioException("O email do usuário é obrigatório.");
-        }
+        validarDados(id, nome, email);
 
         Perfil perfil = perfilRepositoryPort.buscarPorId(perfilId)
                 .orElseThrow(() -> new IllegalArgumentException("Perfil não encontrado com o ID: " + perfilId));
@@ -33,7 +28,7 @@ public class AtualizarUsuarioUseCase {
         Usuario atualizado = new Usuario(
                 usuario.getId(),
                 nome.trim(),
-                email.trim(),
+                normalizarEmail(email),
                 usuario.getSenha(),
                 usuario.isAtivo(),
                 usuario.isDeletado(),
@@ -42,5 +37,43 @@ public class AtualizarUsuarioUseCase {
         );
 
         return usuarioRepositoryPort.atualizar(atualizado);
+    }
+
+    public Usuario executar(Long id, String nome, String email) {
+        Usuario usuario = usuarioRepositoryPort.buscarPorId(id)
+                .orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado com o ID: " + id));
+
+        validarDados(id, nome, email);
+        Usuario atualizado = new Usuario(
+                usuario.getId(),
+                nome.trim(),
+                normalizarEmail(email),
+                usuario.getSenha(),
+                usuario.isAtivo(),
+                usuario.isDeletado(),
+                usuario.getDataCriacao(),
+                usuario.getPerfil()
+        );
+        return usuarioRepositoryPort.atualizar(atualizado);
+    }
+
+    private void validarDados(Long id, String nome, String email) {
+        if (nome == null || nome.isBlank()) {
+            throw new RegraDeNegocioException("O nome do usuário é obrigatório.");
+        }
+        if (email == null || email.isBlank()) {
+            throw new RegraDeNegocioException("O email do usuário é obrigatório.");
+        }
+
+        String emailNormalizado = normalizarEmail(email);
+        usuarioRepositoryPort.buscarPorEmail(emailNormalizado)
+                .filter(usuarioExistente -> !usuarioExistente.getId().equals(id))
+                .ifPresent(usuarioExistente -> {
+                    throw new RegraDeNegocioException("Já existe um usuário cadastrado com este email.");
+                });
+    }
+
+    private String normalizarEmail(String email) {
+        return email.trim().toLowerCase();
     }
 }

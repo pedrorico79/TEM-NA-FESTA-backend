@@ -10,4 +10,8 @@ public interface ClienteRepositoryPort {
     Optional<Cliente> buscarPorIdIncluindoDeletados(Long id);
     Cliente salvar(Cliente cliente);
     List<Cliente> listarNaoDeletadosPorBusca(String busca);
+    default List<Cliente> listarNaoDeletadosPorBusca(String busca, boolean ativos) {
+        List<Cliente> clientes = listarNaoDeletadosPorBusca(busca);
+        return ativos ? clientes.stream().filter(Cliente::isAtivo).toList() : clientes;
+    }
 }
