@@ -25,6 +25,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,9 +44,9 @@ class RegistrarPagamentoUseCaseTest {
     @BeforeEach
     void configurarUseCase() {
         useCase = new RegistrarPagamentoUseCase(pedidoRepositoryPort, metodoPagamentoRepositoryPort);
-        when(metodoPagamentoRepositoryPort.buscarPorId(5L))
+        lenient().when(metodoPagamentoRepositoryPort.buscarPorId(5L))
                 .thenReturn(Optional.of(new MetodoPagamento(5L, "Pix")));
-        when(pedidoRepositoryPort.buscarPorChaveIdempotencia(any()))
+        lenient().when(pedidoRepositoryPort.buscarPorChaveIdempotencia(any()))
                 .thenReturn(Optional.empty());
     }
 

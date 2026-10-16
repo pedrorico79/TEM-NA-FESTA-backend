@@ -37,9 +37,13 @@ public class ProdutoRepositoryAdapter implements ProdutoRepositoryPort {
 
     @Override
     public List<Produto> listarPorNome(String nome, boolean ativos) {
-        return repository.buscarPorNomeNaoDeletados(nome, ativos).stream()
-                .map(mapper::toDomain)
-                .toList();
+        return listarPorNome(nome, ativos, Pageable.unpaged()).getContent();
+    }
+
+    @Override
+    public Page<Produto> listarPorNome(String nome, boolean ativos, Pageable pageable) {
+        return repository.buscarPorNomeNaoDeletados(nome, ativos, pageable)
+                .map(mapper::toDomain);
     }
 
     @Override

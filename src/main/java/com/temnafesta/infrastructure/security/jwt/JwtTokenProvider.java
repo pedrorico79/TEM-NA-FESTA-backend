@@ -13,6 +13,16 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
+    // HS256 exige ao menos 256 bits (32 bytes). Falha rápida no startup em vez de
+    // aceitar um secret fraco e só descobrir em produção.
+    @jakarta.annotation.PostConstruct
+    void validarSecret() {
+        if (jwtSecret == null || jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException(
+                    "app.jwt.secret deve ter ao menos 32 caracteres. Configure JWT_SECRET com valor forte.");
+        }
+    }
+
     @Value("${app.jwt.secret}")
     private String jwtSecret;
 

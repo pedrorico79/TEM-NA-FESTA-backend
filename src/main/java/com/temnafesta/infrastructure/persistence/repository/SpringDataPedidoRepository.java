@@ -24,6 +24,50 @@ public interface SpringDataPedidoRepository
     /*
      * Lista pedidos aplicando filtros de status e período.
      */
+    @Query(value = """
+    SELECT p.*
+    FROM pedido p
+    INNER JOIN cliente c
+        ON p.cliente_id = c.id
+    LEFT JOIN evento e
+        ON p.evento_id = e.id
+    WHERE p.is_deletado = FALSE
+      AND (
+          :busca IS NULL
+          OR :busca = ''
+          OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%'))
+          OR CAST(p.id AS CHAR) LIKE CONCAT('%', :busca, '%')
+      )
+      AND (:status IS NULL OR p.status_producao = :status)
+      AND (:eventoId IS NULL OR p.evento_id = :eventoId)
+    ORDER BY p.data_entrega ASC
+    """,
+            countQuery = """
+    SELECT COUNT(*)
+    FROM pedido p
+    INNER JOIN cliente c
+        ON p.cliente_id = c.id
+    WHERE p.is_deletado = FALSE
+      AND (
+          :busca IS NULL
+          OR :busca = ''
+          OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%'))
+          OR CAST(p.id AS CHAR) LIKE CONCAT('%', :busca, '%')
+      )
+      AND (:status IS NULL OR p.status_producao = :status)
+      AND (:eventoId IS NULL OR p.evento_id = :eventoId)
+    """,
+            nativeQuery = true)
+    Page<PedidoJpaEntity> listarPedidos(
+            @Param("busca") String busca,
+            @Param("status") StatusProducaoEnum status,
+            @Param("eventoId") Long eventoId,
+            Pageable pageable
+    );
+
+    /*
+     * Lista pedidos aplicando filtros de status e período (usado por relatórios internos).
+     */
     @Query("""
         SELECT p
         FROM PedidoJpaEntity p
@@ -38,7 +82,6 @@ public interface SpringDataPedidoRepository
             @Param("inicio") LocalDateTime inicio,
             @Param("fim") LocalDateTime fim
     );
-
 
     /*
      * Verifica se o cliente possui pedido em andamento.

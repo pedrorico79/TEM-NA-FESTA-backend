@@ -6,6 +6,7 @@ import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.ports.repository.HistoricoStatusPedidoRepositoryPort;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class AlterarStatusPedidoUseCase {
         this.historicoRepositoryPort = historicoRepositoryPort;
     }
 
+    @Transactional
     public Pedido executar(Long pedidoId, StatusProducaoEnum novoStatus, Long usuarioLogadoId, String observacao) {
         Pedido pedido = pedidoRepositoryPort.buscarPorId(pedidoId)
                 .orElseThrow(() -> new RegraDeNegocioException("Pedido não encontrado com ID: " + pedidoId));

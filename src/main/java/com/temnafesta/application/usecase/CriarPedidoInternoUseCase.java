@@ -11,6 +11,7 @@ import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
@@ -30,9 +31,9 @@ public class CriarPedidoInternoUseCase {
         this.produtoRepositoryPort = produtoRepositoryPort;
     }
 
+    @Transactional
     public Pedido executar(CriarPedidoCommand command) {
 
-        // 1. Valida se o cliente existe e está disponível para novos pedidos
         Cliente cliente = clienteRepositoryPort.buscarPorId(command.clienteId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Cliente não encontrado com o ID: " + command.clienteId()));
@@ -43,7 +44,6 @@ public class CriarPedidoInternoUseCase {
                             + command.clienteId());
         }
 
-        // 2. Instancia o Pedido
         Pedido novoPedido = new Pedido(
                 null,
                 null,
@@ -61,7 +61,6 @@ public class CriarPedidoInternoUseCase {
                 false
         );
 
-        // 3. Monta os itens
         for (CriarPedidoCommand.ItemCommand itemDto : command.itens()) {
 
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
@@ -84,13 +83,11 @@ public class CriarPedidoInternoUseCase {
                     itemDto.observacaoItem()
             );
 
-            // Mantém o produto completo no domínio
             item.setProduto(produto);
 
             novoPedido.adicionarItem(item);
         }
 
-        // 4. Persiste o pedido
         return pedidoRepositoryPort.salvar(novoPedido);
     }
 }

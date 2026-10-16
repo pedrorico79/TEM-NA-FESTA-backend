@@ -59,12 +59,13 @@ CREATE TABLE status_producao (
 
 CREATE TABLE pedido (
                         id INT AUTO_INCREMENT PRIMARY KEY,
+                        versao BIGINT NOT NULL DEFAULT 0,
                         data_pedido DATETIME NOT NULL,
                         data_entrega DATETIME NOT NULL,
                         valor_total DECIMAL(10,2) NOT NULL,
                         taxa_entrega DECIMAL(10,2) DEFAULT 0.00,
                         observacao TEXT,
-                        status_producao_id INT NOT NULL,
+                        status_producao VARCHAR(50) NOT NULL,
                         cliente_id INT NOT NULL,
                         usuario_id INT NOT NULL,
                         evento_id INT NULL, -- Opcional: Nem todo pedido pertence a um evento
@@ -74,7 +75,6 @@ CREATE TABLE pedido (
                         FOREIGN KEY (cliente_id) REFERENCES cliente(id),
                         FOREIGN KEY (usuario_id) REFERENCES usuario(id),
                         FOREIGN KEY (evento_id) REFERENCES evento(id),
-                        FOREIGN KEY (status_producao_id) REFERENCES status_producao(id),
                         FOREIGN KEY (endereco_entrega_id) REFERENCES endereco(id)
 );
 
@@ -103,12 +103,11 @@ CREATE TABLE historico_status_pedido (
                                          id INT AUTO_INCREMENT PRIMARY KEY,
                                          data_alteracao DATETIME NOT NULL,
                                          observacao TEXT,
-                                         status_producao_id INT NOT NULL,
+                                          status_producao VARCHAR(50) NOT NULL,
                                          pedido_id INT NOT NULL,
                                          usuario_id INT NOT NULL,
                                          FOREIGN KEY (pedido_id) REFERENCES pedido(id),
-                                         FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-                                         FOREIGN KEY (status_producao_id) REFERENCES status_producao(id)
+                                          FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );
 
 CREATE TABLE produto (

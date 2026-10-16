@@ -24,6 +24,9 @@ public class PedidoJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long versao;
+
     @Column(name = "data_pedido", nullable = false)
     private LocalDateTime dataPedido;
 

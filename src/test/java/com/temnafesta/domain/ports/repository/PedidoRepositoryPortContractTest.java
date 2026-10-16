@@ -10,6 +10,7 @@ import com.temnafesta.domain.vo.StatusProducaoEnum;
 import com.temnafesta.domain.vo.TipoPagamentoEnum;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
@@ -73,6 +74,24 @@ class PedidoRepositoryPortContractTest {
         }
 
         @Override
+        public Optional<Pedido> buscarPorIdParaRegistrarPagamento(Long id) {
+            return buscarPorId(id);
+        }
+
+        @Override
+        public Optional<Pedido> buscarPorChaveIdempotencia(String chave) {
+            if (chave == null) return Optional.empty();
+            return banco.values().stream()
+                    .filter(p -> p.buscarPagamentoPorChaveIdempotencia(chave) != null)
+                    .findFirst();
+        }
+
+        @Override
+        public long contarPedidosComPagamentoPendente() {
+            return 0L;
+        }
+
+        @Override
         public List<Pedido> listarPorFiltros(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim) {
             return banco.values().stream()
                     .filter(p -> status == null || p.getStatusProducao() == status)
@@ -103,10 +122,16 @@ class PedidoRepositoryPortContractTest {
 
         @Override
         public List<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId) {
-            return banco.values().stream()
+            return listarPedidos(busca, status, eventoId, Pageable.unpaged()).getContent();
+        }
+
+        @Override
+        public Page<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId, Pageable pageable) {
+            List<Pedido> filtrados = banco.values().stream()
                     .filter(p -> status == null || p.getStatusProducao() == status)
                     .filter(p -> eventoId == null || eventoId.equals(p.getEventoId()))
                     .toList();
+            return new PageImpl<>(filtrados, pageable, filtrados.size());
         }
 
         @Override
@@ -121,14 +146,14 @@ class PedidoRepositoryPortContractTest {
         }
 
         @Override
-        public Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime inicio, LocalDateTime fim) {
+        public Long countByDataPedidoBetweenAndDeletadoFalse(LocalDateTime inicio, LocalDateTime fim, Long eventoId) {
             return banco.values().stream()
                     .filter(p -> !p.getDataPedido().isBefore(inicio) && !p.getDataPedido().isAfter(fim))
                     .count();
         }
 
         @Override
-        public Long countByStatusEPeriodo(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim) {
+        public Long countByStatusEPeriodo(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim, Long eventoId) {
             return banco.values().stream()
                     .filter(p -> p.getStatusProducao() == status)
                     .filter(p -> !p.getDataPedido().isBefore(inicio) && !p.getDataPedido().isAfter(fim))
@@ -136,12 +161,12 @@ class PedidoRepositoryPortContractTest {
         }
 
         @Override
-        public BigDecimal somarFaturamentoNoPeriodo(LocalDateTime inicio, LocalDateTime fim) {
+        public BigDecimal somarFaturamentoNoPeriodo(LocalDateTime inicio, LocalDateTime fim, Long eventoId) {
             return BigDecimal.ZERO;
         }
 
         @Override
-        public List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate) {
+        public List<PedidosPorSemanaOutput> buscarPedidosAgrupadosPorSemana(LocalDateTime de, LocalDateTime ate, Long eventoId) {
             return new ArrayList<>();
         }
 

@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -62,16 +64,15 @@ public class ClienteController {
     @GetMapping
     @Operation(summary = "Lista clientes não deletados, com busca opcional e filtro de ativos",
             description = "Por padrão, inclui ativos e inativos. Use ativos=true para retornar apenas ativos. A busca considera nome, telefone, WhatsApp e Instagram.")
-    public ResponseEntity<List<ClienteResponseDto>> listar(
+    public ResponseEntity<Page<ClienteResponseDto>> listar(
             @RequestParam(required = false) String busca,
-            @RequestParam(defaultValue = "false") boolean ativos
+            @RequestParam(defaultValue = "false") boolean ativos,
+            Pageable pageable
     ) {
         //TODO: alterar DTO de retorno para objeto mais simples (sem info de endereço/denecessárias)
         // para tornar as requisições mais eficientes
-        List<ClienteResponseDto> response = listarClientesUseCase.executar(busca, ativos)
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
+        Page<ClienteResponseDto> response = listarClientesUseCase.executar(busca, ativos, pageable)
+                .map(mapper::toResponse);
 
         return ResponseEntity.ok(response);
     }

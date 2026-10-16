@@ -19,6 +19,7 @@ public interface ProdutoRepositoryPort {
         List<Produto> produtos = listarPorNome(nome);
         return ativos ? produtos.stream().filter(Produto::isAtivo).toList() : produtos;
     }
+    Page<Produto> listarPorNome(String nome, boolean ativos, Pageable pageable);
 
     Produto salvar(Produto produto);
 

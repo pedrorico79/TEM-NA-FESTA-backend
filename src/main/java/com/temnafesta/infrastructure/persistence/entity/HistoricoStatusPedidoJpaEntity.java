@@ -28,7 +28,7 @@ public class HistoricoStatusPedidoJpaEntity {
     private String observacao;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status_producao_id", nullable = false, length = 50)
+    @Column(name = "status_producao", nullable = false, length = 50)
     private StatusProducaoEnum statusProducao;
 
     @Column(name = "pedido_id", nullable = false)
