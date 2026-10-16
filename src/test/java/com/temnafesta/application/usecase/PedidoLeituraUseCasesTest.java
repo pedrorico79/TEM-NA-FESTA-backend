@@ -15,6 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -79,18 +81,19 @@ class PedidoLeituraUseCasesTest {
     class Listar {
         @Test
         void deveTrimarBuscaAntesDeDelegar() {
-            when(pedidoRepositoryPort.listarPedidos("bolo", StatusProducaoEnum.RASCUNHO, null))
-                    .thenReturn(List.of(pedido()));
+            when(pedidoRepositoryPort.listarPedidos(eq("bolo"), eq(StatusProducaoEnum.RASCUNHO), isNull(), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(pedido())));
 
-            assertEquals(1, listarPedidosUseCase.executar("  bolo  ", StatusProducaoEnum.RASCUNHO, null).size());
+            assertEquals(1, listarPedidosUseCase.executar("  bolo  ", StatusProducaoEnum.RASCUNHO, null, Pageable.unpaged()).getContent().size());
         }
 
         @Test
         void deveConverterBuscaVaziaEmNulo() {
-            when(pedidoRepositoryPort.listarPedidos(null, null, 3L)).thenReturn(List.of());
+            when(pedidoRepositoryPort.listarPedidos(isNull(), isNull(), eq(3L), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of()));
 
-            assertTrue(listarPedidosUseCase.executar("   ", null, 3L).isEmpty());
-            verify(pedidoRepositoryPort).listarPedidos(null, null, 3L);
+            assertTrue(listarPedidosUseCase.executar("   ", null, 3L, Pageable.unpaged()).isEmpty());
+            verify(pedidoRepositoryPort).listarPedidos(null, null, 3L, Pageable.unpaged());
         }
 
         @Test
@@ -158,10 +161,10 @@ class PedidoLeituraUseCasesTest {
 
     @Test
     void deveListarPedidosComFiltrosNulos() {
-        when(pedidoRepositoryPort.listarPedidos(isNull(), isNull(), isNull()))
-                .thenReturn(List.of(pedido(), pedido()));
+        when(pedidoRepositoryPort.listarPedidos(isNull(), isNull(), isNull(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(pedido(), pedido())));
 
-        assertEquals(2, listarPedidosUseCase.executar(null, null, null).size());
-        verify(pedidoRepositoryPort).listarPedidos(eq(null), eq(null), eq(null));
+        assertEquals(2, listarPedidosUseCase.executar(null, null, null, Pageable.unpaged()).getContent().size());
+        verify(pedidoRepositoryPort).listarPedidos(eq(null), eq(null), eq(null), any(Pageable.class));
     }
 }

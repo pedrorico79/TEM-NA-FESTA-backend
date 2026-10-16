@@ -8,6 +8,7 @@ import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.vo.StatusPagamentoEnum;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import com.temnafesta.domain.vo.TipoPagamentoEnum;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +30,7 @@ public class RegistrarPagamentoUseCase {
         this.metodoPagamentoRepositoryPort = metodoPagamentoRepositoryPort;
     }
 
+    @Transactional
     public Pedido executar(Long pedidoId, BigDecimal valor, TipoPagamentoEnum tipo,
                            Long metodoPagamentoId, Long usuarioId, StatusPagamentoEnum status,
                            String chaveIdempotencia) {

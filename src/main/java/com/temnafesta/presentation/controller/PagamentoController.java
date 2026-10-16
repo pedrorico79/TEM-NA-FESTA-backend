@@ -1,10 +1,9 @@
 package com.temnafesta.presentation.controller;
 
+import com.temnafesta.application.usecase.ConfirmarPagamentoUseCase;
 import com.temnafesta.application.usecase.ExcluirPagamentoUseCase;
 import com.temnafesta.application.usecase.RegistrarPagamentoUseCase;
-import com.temnafesta.application.usecase.ConfirmarPagamentoUseCase;
 import com.temnafesta.domain.model.Pedido;
-import com.temnafesta.domain.vo.StatusPagamentoEnum;
 import com.temnafesta.infrastructure.security.user.UsuarioAutenticado;
 import com.temnafesta.presentation.dto.PedidoResponseDto;
 import com.temnafesta.presentation.dto.RegistrarPagamentoRequestDto;
@@ -14,9 +13,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/pedidos/{pedidoId}/pagamentos")
@@ -38,30 +37,35 @@ public class PagamentoController {
     }
 
     @PostMapping
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Operation(summary = "Registra um pagamento em um pedido",
+            description = "O autor é extraído do token autenticado. O status inicial é sempre CONFIRMADO.")
     public ResponseEntity<PedidoResponseDto> registrarPagamento(
             @PathVariable Long pedidoId,
-            @RequestHeader("Idempotency-Key") String chaveIdempotencia,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chaveIdempotencia,
             @Valid @RequestBody RegistrarPagamentoRequestDto request,
             @AuthenticationPrincipal UsuarioAutenticado usuario) {
 
-        // Executa a regra que adiciona o pagamento e verifica se o pedido muda para CONFIRMADO
+        // Idempotência: se o cliente não enviar a chave, gera uma para esta requisição.
+        // Reenvios com a mesma chave retornam o pagamento original sem duplicar.
+        String chave = (chaveIdempotencia == null || chaveIdempotencia.isBlank())
+                ? UUID.randomUUID().toString()
+                : chaveIdempotencia;
+
         Pedido pedidoAtualizado = registrarPagamentoUseCase.executar(
                 pedidoId,
                 request.valor(),
                 request.tipoPagamento(),
                 request.metodoPagamentoId(),
                 usuario.getId(),
-                request.statusPagamento() == null ? StatusPagamentoEnum.CONFIRMADO : request.statusPagamento(),
-                chaveIdempotencia
+                null,
+                chave
         );
 
-        // Retornamos o estado atualizado do pedido (com totais e novo status)
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(pedidoAtualizado));
     }
 
     @PatchMapping("/{pagamentoId}/confirmar")
-    @Transactional
+    @Operation(summary = "Confirma um pagamento pendente")
     public ResponseEntity<PedidoResponseDto> confirmarPagamento(
             @PathVariable Long pedidoId,
             @PathVariable Long pagamentoId) {
@@ -70,7 +74,6 @@ public class PagamentoController {
     }
 
     @DeleteMapping("/{pagamentoId}")
-    @Transactional
     @Operation(summary = "Cancela um pagamento de um pedido", description = "Marca o pagamento como cancelado e preserva seu histórico.")
     public ResponseEntity<Void> excluirPagamento(
             @PathVariable Long pedidoId,
@@ -82,12 +85,11 @@ public class PagamentoController {
     }
 
     @PatchMapping("/{pagamentoId}/cancelar")
-    @Transactional
+    @Operation(summary = "Cancela um pagamento de um pedido", description = "Marca o pagamento como cancelado e preserva seu histórico.")
     public ResponseEntity<PedidoResponseDto> cancelarPagamento(
             @PathVariable Long pedidoId,
             @PathVariable Long pagamentoId) {
         Pedido pedidoAtualizado = excluirPagamentoUseCase.executar(pedidoId, pagamentoId);
         return ResponseEntity.ok(mapper.toResponse(pedidoAtualizado));
     }
-
 }

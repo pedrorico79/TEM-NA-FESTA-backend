@@ -1,7 +1,6 @@
 package com.temnafesta.presentation.dto;
 
 import com.temnafesta.domain.vo.TipoPagamentoEnum;
-import com.temnafesta.domain.vo.StatusPagamentoEnum;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +16,5 @@ public record RegistrarPagamentoRequestDto(
         TipoPagamentoEnum tipoPagamento,
 
         @NotNull(message = "O ID do método de pagamento é obrigatório.")
-        Long metodoPagamentoId,
-
-        StatusPagamentoEnum statusPagamento
+        Long metodoPagamentoId
 ) {}

@@ -26,6 +26,18 @@ public interface SpringDataProdutoRepository extends JpaRepository<ProdutoJpaEnt
             @Param("ativos") boolean ativos
     );
 
+    @Query("""
+            SELECT p FROM ProdutoJpaEntity p
+            WHERE p.deletado = false
+              AND (:ativos = false OR p.ativo = true)
+              AND LOWER(p.nome) LIKE LOWER(CONCAT('%', :nome, '%'))
+            """)
+    Page<ProdutoJpaEntity> buscarPorNomeNaoDeletados(
+            @Param("nome") String nome,
+            @Param("ativos") boolean ativos,
+            Pageable pageable
+    );
+
     Optional<ProdutoJpaEntity> findByIdAndDeletadoFalse(Long id);
 
 

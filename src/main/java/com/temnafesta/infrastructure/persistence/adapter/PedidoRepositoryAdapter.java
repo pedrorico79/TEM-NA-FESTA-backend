@@ -15,6 +15,7 @@ import com.temnafesta.infrastructure.projection.PedidosPorSemanaProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
+@Transactional(readOnly = true)
 public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
 
     private final SpringDataPedidoRepository repository;
@@ -35,8 +37,12 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     }
 
     @Override
+    @Transactional
     public Pedido salvar(Pedido pedido) {
         PedidoJpaEntity entity = mapper.toEntity(pedido);
+        if (pedido.getId() != null) {
+            repository.findById(pedido.getId()).ifPresent(existente -> entity.setVersao(existente.getVersao()));
+        }
         PedidoJpaEntity entitySalva = repository.save(entity);
         return mapper.toDomain(entitySalva);
     }
@@ -69,8 +75,12 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     }
 
     @Override
+    @Transactional
     public Pedido atualizar(Pedido pedido) {
         PedidoJpaEntity entity = mapper.toEntity(pedido);
+        if (pedido.getId() != null) {
+            repository.findById(pedido.getId()).ifPresent(existente -> entity.setVersao(existente.getVersao()));
+        }
         PedidoJpaEntity entityAtualizada = repository.save(entity);
         return mapper.toDomain(entityAtualizada);
     }
@@ -94,9 +104,13 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
 
     @Override
     public List<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId) {
-        return repository.listarPedidos(busca, status, eventoId).stream()
-                .map(mapper::toDomain)
-                .toList();
+        return listarPedidos(busca, status, eventoId, Pageable.unpaged()).getContent();
+    }
+
+    @Override
+    public Page<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId, Pageable pageable) {
+        return repository.listarPedidos(busca, status, eventoId, pageable)
+                .map(mapper::toDomain);
     }
 
     @Override
