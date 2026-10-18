@@ -75,11 +75,12 @@ public class CriarPedidoInternoUseCase {
                         "Produto inativo não pode ser adicionado ao pedido. ID: " + itemDto.produtoId());
             }
 
-            ItemPedido item = new ItemPedido(
+            ItemPedido item = ItemPedido.comAcrescimo(
                     null,
                     produto.getId(),
                     itemDto.quantidade(),
                     itemDto.precoUnitario(),
+                    itemDto.acrescimo(),
                     itemDto.observacaoItem()
             );
 
@@ -87,6 +88,8 @@ public class CriarPedidoInternoUseCase {
 
             novoPedido.adicionarItem(item);
         }
+
+        novoPedido.definirDescontoPedido(command.descontoPedido());
 
         return pedidoRepositoryPort.salvar(novoPedido);
     }

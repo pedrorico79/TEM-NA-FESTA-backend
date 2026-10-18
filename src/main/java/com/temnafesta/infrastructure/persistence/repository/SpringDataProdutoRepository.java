@@ -45,9 +45,18 @@ public interface SpringDataProdutoRepository extends JpaRepository<ProdutoJpaEnt
     @Query(value = "SELECT " +
             "  prod.nome AS item, " +
             "  CAST(SUM(item.quantidade) AS SIGNED) AS qtdeVendida, " +
-            "  SUM(item.quantidade * item.preco_unitario) AS faturamento, " +
-            "  COALESCE(ROUND((SUM(item.quantidade * item.preco_unitario) / NULLIF(" +
-            "    (SELECT SUM(it.quantidade * it.preco_unitario) " +
+            "  SUM((item.quantidade * item.preco_unitario + item.acrescimo) * " +
+            "    (1 - COALESCE(p.desconto_pedido, 0) / NULLIF((SELECT " +
+            "      COALESCE(SUM(it.quantidade * it.preco_unitario + it.acrescimo), 0) + COALESCE(p.taxa_entrega, 0) " +
+            "      FROM item_pedido it WHERE it.pedido_id = p.id), 0))) AS faturamento, " +
+            "  COALESCE(ROUND((SUM((item.quantidade * item.preco_unitario + item.acrescimo) * " +
+            "    (1 - COALESCE(p.desconto_pedido, 0) / NULLIF((SELECT " +
+            "      COALESCE(SUM(it.quantidade * it.preco_unitario + it.acrescimo), 0) + COALESCE(p.taxa_entrega, 0) " +
+            "      FROM item_pedido it WHERE it.pedido_id = p.id), 0))) / NULLIF(" +
+            "    (SELECT SUM((it.quantidade * it.preco_unitario + it.acrescimo) * " +
+            "      (1 - COALESCE(pe.desconto_pedido, 0) / NULLIF((SELECT " +
+            "        COALESCE(SUM(it2.quantidade * it2.preco_unitario + it2.acrescimo), 0) + COALESCE(pe.taxa_entrega, 0) " +
+            "        FROM item_pedido it2 WHERE it2.pedido_id = pe.id), 0))) " +
             "     FROM item_pedido it " +
             "     INNER JOIN pedido pe ON it.pedido_id = pe.id " +
             "     WHERE pe.data_pedido BETWEEN :de AND :ate " +

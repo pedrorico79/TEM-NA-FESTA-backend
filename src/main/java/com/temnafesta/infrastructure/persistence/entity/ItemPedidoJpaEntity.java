@@ -32,6 +32,9 @@ public class ItemPedidoJpaEntity {
     @Column(name = "preco_unitario", nullable = false, precision = 10, scale = 2)
     private BigDecimal precoUnitario;
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal acrescimo = BigDecimal.ZERO;
+
     @Column(name = "observacao_item", columnDefinition = "TEXT")
     private String observacaoItem;
 }

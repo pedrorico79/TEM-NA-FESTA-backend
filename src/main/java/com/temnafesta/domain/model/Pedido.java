@@ -15,6 +15,7 @@ public class Pedido {
     private LocalDateTime dataPedido;
     private LocalDateTime dataEntrega;
     private BigDecimal valorTotal;
+    private BigDecimal descontoPedido = BigDecimal.ZERO;
     private BigDecimal taxaEntrega;
     private String observacao;
     private StatusProducaoEnum statusProducao;
@@ -71,13 +72,6 @@ public class Pedido {
             throw new RegraDeNegocioException(
                     String.format("Não é permitida a transição direta do status %s para %s.",
                             this.statusProducao, novoStatus)
-            );
-        }
-
-        // Regra de Negócio: Não permite iniciar produção se o sinal (mínimo 50%) não estiver pago
-        if (StatusProducaoEnum.EM_PRODUCAO.equals(novoStatus) && !isSinalPago()) {
-            throw new RegraDeNegocioException(
-                    "Não é possível iniciar a produção. É necessário a confirmação do pagamento do sinal (mínimo 50%)."
             );
         }
 
@@ -159,7 +153,23 @@ public class Pedido {
         BigDecimal totalItens = itens.stream()
                 .map(ItemPedido::calcularSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        this.valorTotal = totalItens.add(this.taxaEntrega);
+        this.valorTotal = totalItens.add(this.taxaEntrega).subtract(descontoPedido);
+    }
+
+    public void definirDescontoPedido(BigDecimal descontoPedido) {
+        BigDecimal desconto = descontoPedido != null ? descontoPedido : BigDecimal.ZERO;
+        if (desconto.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RegraDeNegocioException("O desconto do pedido não pode ser negativo.");
+        }
+        BigDecimal valorBruto = itens.stream()
+                .map(ItemPedido::calcularSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .add(taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO);
+        if (desconto.compareTo(valorBruto) > 0) {
+            throw new RegraDeNegocioException("O desconto do pedido não pode ultrapassar o valor total.");
+        }
+        this.descontoPedido = desconto;
+        recalcularValorTotal();
     }
 
     public BigDecimal calcularTotalPago() {
@@ -225,6 +235,20 @@ public class Pedido {
         recalcularValorTotal();
     }
 
+    public void substituirItens(List<ItemPedido> novosItens, BigDecimal novoDescontoPedido) {
+        BigDecimal desconto = novoDescontoPedido != null ? novoDescontoPedido : BigDecimal.ZERO;
+        BigDecimal valorBruto = novosItens.stream()
+                .map(ItemPedido::calcularSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .add(taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO);
+        if (desconto.compareTo(BigDecimal.ZERO) < 0 || desconto.compareTo(valorBruto) > 0) {
+            throw new RegraDeNegocioException("O desconto do pedido deve estar entre R$ 0,00 e o valor total.");
+        }
+        substituirItens(novosItens);
+        this.descontoPedido = desconto;
+        recalcularValorTotal();
+    }
+
     private boolean itensIguais(List<ItemPedido> itensAtuais, List<ItemPedido> novosItens) {
 
         if (itensAtuais.size() != novosItens.size()) {
@@ -245,6 +269,10 @@ public class Pedido {
             }
 
             if (atual.getPrecoUnitario().compareTo(novo.getPrecoUnitario()) != 0) {
+                return false;
+            }
+
+            if (atual.getAcrescimo().compareTo(novo.getAcrescimo()) != 0) {
                 return false;
             }
 
@@ -280,6 +308,8 @@ public class Pedido {
     public LocalDateTime getDataPedido() { return dataPedido; }
     public LocalDateTime getDataEntrega() { return dataEntrega; }
     public BigDecimal getValorTotal() { return valorTotal; }
+    public BigDecimal getDescontoPedido() { return descontoPedido; }
+    public void setDescontoPedido(BigDecimal descontoPedido) { definirDescontoPedido(descontoPedido); }
     public BigDecimal getTaxaEntrega() { return taxaEntrega; }
     public String getObservacao() { return observacao; }
     public StatusProducaoEnum getStatusProducao() { return statusProducao; }

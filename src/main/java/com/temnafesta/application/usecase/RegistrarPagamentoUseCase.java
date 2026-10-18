@@ -67,8 +67,7 @@ public class RegistrarPagamentoUseCase {
         pedido.adicionarPagamento(pagamento);
 
         if (statusInicial == StatusPagamentoEnum.CONFIRMADO
-                && StatusProducaoEnum.AGUARDANDO_SINAL.equals(pedido.getStatusProducao())
-                && pedido.isSinalPago()) {
+                && StatusProducaoEnum.AGUARDANDO_SINAL.equals(pedido.getStatusProducao())) {
             pedido.transitarPara(StatusProducaoEnum.CONFIRMADO);
         }
 

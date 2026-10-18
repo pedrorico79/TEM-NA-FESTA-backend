@@ -253,21 +253,11 @@ public interface SpringDataPedidoRepository
      * Faturamento bruto no período: valor total dos pedidos pela data da venda.
      */
     @Query(value = """
-        SELECT COALESCE(SUM(v.valor_vendido), 0)
-        FROM (
-            SELECT p.id,
-                   p.evento_id,
-                   p.status_producao,
-                   p.data_pedido,
-                   COALESCE(SUM(i.quantidade * i.preco_unitario), 0)
-                       + COALESCE(p.taxa_entrega, 0) AS valor_vendido
-            FROM pedido p
-            LEFT JOIN item_pedido i ON i.pedido_id = p.id
-            GROUP BY p.id, p.evento_id, p.status_producao, p.data_pedido, p.taxa_entrega
-        ) v
-        WHERE v.data_pedido BETWEEN :inicio AND :fim
-          AND v.status_producao <> 'CANCELADO'
-          AND (:eventoId IS NULL OR v.evento_id = :eventoId)
+        SELECT COALESCE(SUM(p.valor_total), 0)
+        FROM pedido p
+        WHERE p.data_pedido BETWEEN :inicio AND :fim
+          AND p.status_producao <> 'CANCELADO'
+          AND (:eventoId IS NULL OR p.evento_id = :eventoId)
         """, nativeQuery = true)
     BigDecimal somarFaturamentoNoPeriodo(
             @Param("inicio") LocalDateTime inicio,

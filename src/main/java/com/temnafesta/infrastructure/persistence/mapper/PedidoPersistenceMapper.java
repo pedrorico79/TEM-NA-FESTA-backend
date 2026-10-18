@@ -42,6 +42,20 @@ public interface PedidoPersistenceMapper {
 
     ItemPedidoJpaEntity toEntity(ItemPedido domain);
 
+    @AfterMapping
+    default void aplicarAcrescimo(
+            ItemPedidoJpaEntity entity,
+            @MappingTarget ItemPedido domain) {
+        domain.definirAcrescimo(entity.getAcrescimo());
+    }
+
+    @AfterMapping
+    default void aplicarDescontoPedido(
+            PedidoJpaEntity entity,
+            @MappingTarget Pedido domain) {
+        domain.definirDescontoPedido(entity.getDescontoPedido());
+    }
+
     Pagamento toDomain(PagamentoJpaEntity entity);
 
     PagamentoJpaEntity toEntity(Pagamento domain);

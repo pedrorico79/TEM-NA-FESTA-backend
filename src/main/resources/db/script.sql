@@ -63,6 +63,7 @@ CREATE TABLE pedido (
                         data_pedido DATETIME NOT NULL,
                         data_entrega DATETIME NOT NULL,
                         valor_total DECIMAL(10,2) NOT NULL,
+                        desconto_pedido DECIMAL(10,2) NOT NULL DEFAULT 0.00,
                         taxa_entrega DECIMAL(10,2) DEFAULT 0.00,
                         observacao TEXT,
                         status_producao VARCHAR(50) NOT NULL,
@@ -125,6 +126,7 @@ CREATE TABLE item_pedido (
                              produto_id INT NOT NULL,
                              quantidade INT NOT NULL,
                              preco_unitario DECIMAL(10,2) NOT NULL,
+                             acrescimo DECIMAL(10,2) NOT NULL DEFAULT 0.00,
                              observacao_item TEXT, -- Ex: "Sem lactose", "Texto: Parabéns Ana"
                              FOREIGN KEY (pedido_id) REFERENCES pedido(id),
                              FOREIGN KEY (produto_id) REFERENCES produto(id)

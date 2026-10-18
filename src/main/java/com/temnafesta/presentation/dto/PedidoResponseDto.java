@@ -9,6 +9,7 @@ public record PedidoResponseDto(
         LocalDateTime dataPedido,
         LocalDateTime dataEntrega,
         BigDecimal valorTotal,
+        BigDecimal descontoPedido,
         BigDecimal taxaEntrega,
         String observacao,
         String statusProducao,

@@ -36,6 +36,9 @@ public class PedidoJpaEntity {
     @Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
     private BigDecimal valorTotal;
 
+    @Column(name = "desconto_pedido", nullable = false, precision = 10, scale = 2)
+    private BigDecimal descontoPedido = BigDecimal.ZERO;
+
     @Column(name = "taxa_entrega", precision = 10, scale = 2)
     private BigDecimal taxaEntrega;
 

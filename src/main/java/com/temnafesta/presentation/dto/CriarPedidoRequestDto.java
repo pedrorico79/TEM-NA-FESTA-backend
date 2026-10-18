@@ -5,6 +5,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.DecimalMin;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,6 +22,9 @@ public record CriarPedidoRequestDto(
         @Min(value = 0, message = "A taxa de entrega não pode ser um valor negativo.")
         BigDecimal taxaEntrega,
 
+        @DecimalMin(value = "0.00", message = "O desconto do pedido não pode ser negativo.")
+        BigDecimal descontoPedido,
+
         String observacao,
 
         Long eventoId,
@@ -31,4 +35,11 @@ public record CriarPedidoRequestDto(
         @NotEmpty(message = "O pedido deve conter pelo menos um item.")
         @Valid
         List<ItemPedidoRequestDto> itens
-) {}
+) {
+    public CriarPedidoRequestDto(Long clienteId, LocalDateTime dataEntrega, BigDecimal taxaEntrega,
+                                 String observacao, Long eventoId, EnderecoRequestDto enderecoEntrega,
+                                 List<ItemPedidoRequestDto> itens) {
+        this(clienteId, dataEntrega, taxaEntrega, BigDecimal.ZERO,
+                observacao, eventoId, enderecoEntrega, itens);
+    }
+}

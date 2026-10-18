@@ -9,6 +9,7 @@ public class ItemPedido {
     private Produto produto;
     private Integer quantidade;
     private BigDecimal precoUnitario; // Preço congelado no momento da venda
+    private BigDecimal acrescimo;      // Acréscimo em reais aplicado à linha do item
     private String observacaoItem;    // Personalizações do item
 
     public ItemPedido(
@@ -29,16 +30,31 @@ public class ItemPedido {
                     "O preço unitário não pode ser negativo."
             );
         }
-
         this.id = id;
         this.produtoId = produtoId;
         this.quantidade = quantidade;
         this.precoUnitario = precoUnitario;
+        this.acrescimo = BigDecimal.ZERO;
         this.observacaoItem = observacaoItem;
     }
 
+    public static ItemPedido comAcrescimo(Long id, Long produtoId, Integer quantidade,
+                                          BigDecimal precoUnitario, BigDecimal acrescimo,
+                                          String observacaoItem) {
+        ItemPedido item = new ItemPedido(id, produtoId, quantidade, precoUnitario, observacaoItem);
+        item.definirAcrescimo(acrescimo);
+        return item;
+    }
+
+    public void definirAcrescimo(BigDecimal acrescimo) {
+        if (acrescimo != null && acrescimo.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O acréscimo do item não pode ser negativo.");
+        }
+        this.acrescimo = acrescimo != null ? acrescimo : BigDecimal.ZERO;
+    }
+
     public BigDecimal calcularSubtotal() {
-        return precoUnitario.multiply(BigDecimal.valueOf(quantidade));
+        return precoUnitario.multiply(BigDecimal.valueOf(quantidade)).add(acrescimo);
     }
 
     // Getters
@@ -47,6 +63,7 @@ public class ItemPedido {
     public Produto getProduto() { return produto; }
     public Integer getQuantidade() { return quantidade; }
     public BigDecimal getPrecoUnitario() { return precoUnitario; }
+    public BigDecimal getAcrescimo() { return acrescimo; }
     public String getObservacaoItem() { return observacaoItem; }
 
     // Setter

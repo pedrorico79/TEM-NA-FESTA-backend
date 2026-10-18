@@ -22,21 +22,9 @@ public interface SpringDataEventoRepository extends JpaRepository<EventoJpaEntit
           e.nome AS evento,
           COUNT(DISTINCT CASE WHEN p.is_deletado = FALSE THEN p.id END) AS pedidosTotais,
           COUNT(DISTINCT p.id) AS vendasObtidas,
-          COALESCE(SUM(p.valor_vendido), 0) AS faturamento,
-          ROUND(COALESCE(SUM(p.valor_vendido), 0) / NULLIF(COUNT(DISTINCT p.id), 0), 2) AS ticketMedio
-        FROM (
-          SELECT pedido.id,
-                 pedido.evento_id,
-                 pedido.is_deletado,
-                 pedido.status_producao,
-                 pedido.data_pedido,
-                 COALESCE(SUM(item.quantidade * item.preco_unitario), 0)
-                     + COALESCE(pedido.taxa_entrega, 0) AS valor_vendido
-          FROM pedido
-          LEFT JOIN item_pedido item ON item.pedido_id = pedido.id
-          GROUP BY pedido.id, pedido.evento_id, pedido.is_deletado,
-                   pedido.status_producao, pedido.data_pedido, pedido.taxa_entrega
-        ) p
+          COALESCE(SUM(p.valor_total), 0) AS faturamento,
+          ROUND(COALESCE(SUM(p.valor_total), 0) / NULLIF(COUNT(DISTINCT p.id), 0), 2) AS ticketMedio
+        FROM pedido p
         INNER JOIN evento e ON p.evento_id = e.id
         WHERE p.status_producao <> 'CANCELADO'
           AND p.data_pedido BETWEEN :de AND :ate
@@ -61,22 +49,11 @@ public interface SpringDataEventoRepository extends JpaRepository<EventoJpaEntit
                    END AS periodo,
                    COUNT(DISTINCT CASE WHEN p.is_deletado = FALSE THEN p.id END) AS pedidosTotais,
                    COUNT(DISTINCT p.id) AS vendasObtidas,
-                   COALESCE(SUM(p.valor_vendido), 0) AS faturamento
-            FROM (
-                SELECT pedido.id,
-                       pedido.is_deletado,
-                       pedido.status_producao,
-                       pedido.data_pedido,
-                       COALESCE(SUM(item.quantidade * item.preco_unitario), 0)
-                           + COALESCE(pedido.taxa_entrega, 0) AS valor_vendido
-                FROM pedido
-                LEFT JOIN item_pedido item ON item.pedido_id = pedido.id
-                WHERE pedido.evento_id = :eventoId
-                  AND pedido.status_producao <> 'CANCELADO'
-                  AND pedido.data_pedido BETWEEN :inicio AND :fim
-                GROUP BY pedido.id, pedido.is_deletado, pedido.status_producao,
-                         pedido.data_pedido, pedido.taxa_entrega
-            ) p
+                   COALESCE(SUM(p.valor_total), 0) AS faturamento
+            FROM pedido p
+            WHERE p.evento_id = :eventoId
+              AND p.status_producao <> 'CANCELADO'
+              AND p.data_pedido BETWEEN :inicio AND :fim
             GROUP BY periodo
 
         ) AS dados
