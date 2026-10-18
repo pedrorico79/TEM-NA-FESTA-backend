@@ -129,7 +129,7 @@ class PedidoTest {
     void deveSomarSomentePagamentosConfirmados() {
         Pedido pedido = pedidoRascunho();
         pedido.adicionarPagamento(pagamentoConfirmado("30.00"));
-        pedido.adicionarPagamento(pagamentoPendente("100.00"));
+        pedido.adicionarPagamento(pagamentoPendente("80.00"));
 
         assertTrue(pedido.calcularTotalPago().compareTo(new BigDecimal("30.00")) == 0);
     }

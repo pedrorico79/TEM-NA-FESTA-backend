@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AtualizarPedidoUseCase {
 
@@ -34,25 +36,48 @@ public class AtualizarPedidoUseCase {
                 command.enderecoEntrega()
         );
 
-        if (command.eventoId() != null) {
-            pedido.atualizarEventoId(command.eventoId());
-        }
+        pedido.atualizarEventoId(command.eventoId());
 
         List<ItemPedido> novosItens = new ArrayList<>();
-        for (AtualizarPedidoCommand.ItemCommand itemDto : command.itens()) {
-            Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
-                    .orElseThrow(() -> new RegraDeNegocioException("Produto não encontrado com o ID: " + itemDto.produtoId()));
+        Set<Long> produtoIdsAtuais = pedido.getItens().stream()
+                .map(ItemPedido::getProdutoId)
+                .collect(Collectors.toSet());
 
-            novosItens.add(new ItemPedido(
+        for (AtualizarPedidoCommand.ItemCommand itemDto : command.itens()) {
+            ItemPedido itemExistente = pedido.getItens().stream()
+                    .filter(item -> item.getProdutoId().equals(itemDto.produtoId()))
+                    .findFirst()
+                    .orElse(null);
+
+            // Um produto removido do catálogo pode continuar associado a um pedido antigo.
+            Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
+                    .orElse(itemExistente != null ? itemExistente.getProduto() : null);
+            if (produto == null) {
+                throw new RegraDeNegocioException("Produto não encontrado com o ID: " + itemDto.produtoId());
+            }
+
+            if (!produto.isAtivo() && !produtoIdsAtuais.contains(produto.getId())) {
+                throw new RegraDeNegocioException(
+                        "Produto inativo não pode ser adicionado ao pedido. ID: " + itemDto.produtoId());
+            }
+
+            ItemPedido novoItem = new ItemPedido(
                     null,
                     produto.getId(),
                     itemDto.quantidade(),
                     itemDto.precoUnitario(),
                     itemDto.observacaoItem()
-            ));
+            );
+            novoItem.setProduto(produto);
+            novosItens.add(novoItem);
         }
 
         pedido.substituirItens(novosItens);
+
+        if (pedido.calcularTotalComprometido().compareTo(pedido.getValorTotal()) > 0) {
+            throw new RegraDeNegocioException(
+                    "O novo total do pedido não pode ser menor que os pagamentos confirmados ou pendentes.");
+        }
 
         return pedidoRepositoryPort.atualizar(pedido);
     }
