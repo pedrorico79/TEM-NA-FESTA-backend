@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
@@ -20,6 +21,14 @@ import jakarta.persistence.LockModeType;
 
 public interface SpringDataPedidoRepository
         extends JpaRepository<PedidoJpaEntity, Long> {
+
+    @Modifying
+    @Query(value = "UPDATE pedido SET versao = 0 WHERE versao IS NULL", nativeQuery = true)
+    int inicializarVersoesNulas();
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM PedidoJpaEntity p WHERE p.id = :id")
+    Optional<PedidoJpaEntity> buscarPorIdParaAtualizarStatus(@Param("id") Long id);
 
     /*
      * Lista pedidos aplicando filtros de status e período.

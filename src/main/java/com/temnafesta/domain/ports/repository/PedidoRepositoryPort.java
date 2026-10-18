@@ -16,6 +16,7 @@ import java.util.Optional;
 
 public interface PedidoRepositoryPort {
     Pedido salvar(Pedido pedido);
+    Pedido atualizarStatus(Long pedidoId, StatusProducaoEnum novoStatus);
 
     Optional<Pedido> buscarPorId(Long id);
     Optional<Pedido> buscarPorIdParaRegistrarPagamento(Long id);

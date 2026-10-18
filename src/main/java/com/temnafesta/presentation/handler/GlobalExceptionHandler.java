@@ -6,6 +6,7 @@ import com.temnafesta.application.exception.FalhaAutenticacaoException;
 import com.temnafesta.application.exception.TentativasLoginExcedidasException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.hibernate.PropertyValueException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
@@ -119,6 +120,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErroResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        if (encontrarCausa(ex, PropertyValueException.class) != null) {
+            String detalhe = "O pedido está com dados de controle desatualizados. Atualize a página e tente novamente.";
+            log.error("Falha ao persistir entidade com valor obrigatório ausente.", ex);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErroResponse(
+                    HttpStatus.CONFLICT.value(), "Não foi possível atualizar o pedido", List.of(detalhe)));
+        }
+
         SQLException sqlException = encontrarSqlException(ex);
         String sqlState = sqlException == null ? null : sqlException.getSQLState();
         int codigoFornecedor = sqlException == null ? 0 : sqlException.getErrorCode();
@@ -135,15 +143,43 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erroResponse);
     }
 
+    private <T extends Throwable> T encontrarCausa(Throwable erro, Class<T> tipo) {
+        Throwable atual = erro;
+        while (atual != null) {
+            if (tipo.isInstance(atual)) {
+                return tipo.cast(atual);
+            }
+            atual = atual.getCause();
+        }
+        return null;
+    }
+
     private SQLException encontrarSqlException(Throwable erro) {
         Throwable atual = erro;
         while (atual != null) {
             if (atual instanceof SQLException sqlException) {
+                SQLException encadeada = sqlException;
+                while (encadeada != null) {
+                    if (sqlStateConhecido(encadeada.getSQLState()) || codigoBancoConhecido(encadeada.getErrorCode())) {
+                        return encadeada;
+                    }
+                    encadeada = encadeada.getNextException();
+                }
                 return sqlException;
             }
             atual = atual.getCause();
         }
         return null;
+    }
+
+    private boolean sqlStateConhecido(String sqlState) {
+        return "23505".equals(sqlState) || "23503".equals(sqlState)
+                || "23502".equals(sqlState) || "23514".equals(sqlState);
+    }
+
+    private boolean codigoBancoConhecido(int codigoFornecedor) {
+        return codigoFornecedor == 1062 || codigoFornecedor == 1451 || codigoFornecedor == 1452
+                || codigoFornecedor == 1048 || codigoFornecedor == 3819 || codigoFornecedor == 4025;
     }
 
     private String detalheIntegridade(String sqlState, int codigoFornecedor) {
@@ -157,7 +193,10 @@ public class GlobalExceptionHandler {
                 || codigoFornecedor == 1048 || codigoFornecedor == 3819 || codigoFornecedor == 4025) {
             return "Algum dado obrigatório ou regra de validação impediu a operação. Revise as informações e tente novamente.";
         }
-        return "Não foi possível concluir a operação devido a um conflito entre os dados relacionados. Atualize a tela e tente novamente. Se o erro continuar, contate o suporte.";
+        if (sqlState != null && sqlState.startsWith("23")) {
+            return "O banco recusou a operação por uma restrição de integridade dos dados. Atualize as informações e tente novamente.";
+        }
+        return "O banco recusou a operação por um conflito de integridade que não pôde ser identificado. Atualize as informações e tente novamente. Se persistir, contate o suporte.";
     }
 
     /**

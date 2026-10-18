@@ -8,7 +8,9 @@ import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import com.temnafesta.infrastructure.persistence.entity.PedidoJpaEntity;
+import com.temnafesta.infrastructure.persistence.entity.EnderecoJpaEntity;
 import com.temnafesta.infrastructure.persistence.mapper.PedidoPersistenceMapper;
+import com.temnafesta.infrastructure.persistence.repository.SpringDataEnderecoRepository;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataPedidoRepository;
 import com.temnafesta.infrastructure.projection.PedidosPeriodoProjection;
 import com.temnafesta.infrastructure.projection.PedidosPorSemanaProjection;
@@ -23,16 +25,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 
 @Component
 @Transactional(readOnly = true)
 public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
 
     private final SpringDataPedidoRepository repository;
+    private final SpringDataEnderecoRepository enderecoRepository;
     private final PedidoPersistenceMapper mapper;
 
-    public PedidoRepositoryAdapter(SpringDataPedidoRepository repository, PedidoPersistenceMapper mapper) {
+    public PedidoRepositoryAdapter(SpringDataPedidoRepository repository,
+                                    SpringDataEnderecoRepository enderecoRepository,
+                                    PedidoPersistenceMapper mapper) {
         this.repository = repository;
+        this.enderecoRepository = enderecoRepository;
         this.mapper = mapper;
     }
 
@@ -41,10 +48,26 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     public Pedido salvar(Pedido pedido) {
         PedidoJpaEntity entity = mapper.toEntity(pedido);
         if (pedido.getId() != null) {
-            repository.findById(pedido.getId()).ifPresent(existente -> entity.setVersao(existente.getVersao()));
+            PedidoJpaEntity existente = repository.findById(pedido.getId())
+                    .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com ID: " + pedido.getId()));
+            entity.setVersao(existente.getVersao());
+            entity.setEnderecoEntrega(resolverEnderecoEntrega(entity.getEnderecoEntrega(), existente.getEnderecoEntrega()));
+        } else if (entity.getEnderecoEntrega() != null) {
+            entity.setEnderecoEntrega(enderecoRepository.save(entity.getEnderecoEntrega()));
         }
         PedidoJpaEntity entitySalva = repository.save(entity);
         return mapper.toDomain(entitySalva);
+    }
+
+    @Override
+    @Transactional
+    public Pedido atualizarStatus(Long pedidoId, StatusProducaoEnum novoStatus) {
+        PedidoJpaEntity pedidoGerenciado = repository.buscarPorIdParaAtualizarStatus(pedidoId)
+                .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com ID: " + pedidoId));
+        Pedido pedidoValidado = mapper.toDomain(pedidoGerenciado);
+        pedidoValidado.transitarPara(novoStatus);
+        pedidoGerenciado.setStatusProducao(novoStatus);
+        return mapper.toDomain(repository.saveAndFlush(pedidoGerenciado));
     }
 
     @Override
@@ -79,10 +102,37 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     public Pedido atualizar(Pedido pedido) {
         PedidoJpaEntity entity = mapper.toEntity(pedido);
         if (pedido.getId() != null) {
-            repository.findById(pedido.getId()).ifPresent(existente -> entity.setVersao(existente.getVersao()));
+            PedidoJpaEntity existente = repository.findById(pedido.getId())
+                    .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com ID: " + pedido.getId()));
+            entity.setVersao(existente.getVersao());
+            entity.setEnderecoEntrega(resolverEnderecoEntrega(entity.getEnderecoEntrega(), existente.getEnderecoEntrega()));
+        } else if (entity.getEnderecoEntrega() != null) {
+            entity.setEnderecoEntrega(enderecoRepository.save(entity.getEnderecoEntrega()));
         }
         PedidoJpaEntity entityAtualizada = repository.save(entity);
         return mapper.toDomain(entityAtualizada);
+    }
+
+    private EnderecoJpaEntity resolverEnderecoEntrega(EnderecoJpaEntity enderecoRecebido,
+                                                       EnderecoJpaEntity enderecoAtual) {
+        if (enderecoRecebido == null) {
+            return null;
+        }
+        if (mesmoEndereco(enderecoRecebido, enderecoAtual)) {
+            return enderecoAtual;
+        }
+        return enderecoRepository.save(enderecoRecebido);
+    }
+
+    private boolean mesmoEndereco(EnderecoJpaEntity primeiro, EnderecoJpaEntity segundo) {
+        return segundo != null
+                && Objects.equals(primeiro.getCep(), segundo.getCep())
+                && Objects.equals(primeiro.getLogradouro(), segundo.getLogradouro())
+                && Objects.equals(primeiro.getNumero(), segundo.getNumero())
+                && Objects.equals(primeiro.getComplemento(), segundo.getComplemento())
+                && Objects.equals(primeiro.getBairro(), segundo.getBairro())
+                && Objects.equals(primeiro.getCidade(), segundo.getCidade())
+                && Objects.equals(primeiro.getEstado(), segundo.getEstado());
     }
 
     @Override
