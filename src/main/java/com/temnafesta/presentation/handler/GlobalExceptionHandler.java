@@ -13,12 +13,17 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(FalhaAutenticacaoException.class)
     public ResponseEntity<ErroResponse> handleFalhaAutenticacao(FalhaAutenticacaoException ex) {
@@ -114,12 +119,45 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErroResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        SQLException sqlException = encontrarSqlException(ex);
+        String sqlState = sqlException == null ? null : sqlException.getSQLState();
+        int codigoFornecedor = sqlException == null ? 0 : sqlException.getErrorCode();
+        String detalhe = detalheIntegridade(sqlState, codigoFornecedor);
+
+        log.error("Operação rejeitada por uma restrição de integridade. sqlState={}, vendorCode={}",
+                sqlState, codigoFornecedor, ex);
+
         ErroResponse erroResponse = new ErroResponse(
                 HttpStatus.CONFLICT.value(),
                 "Conflito de dados",
-                List.of("Os dados enviados conflitam com um registro existente.")
+                List.of(detalhe)
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erroResponse);
+    }
+
+    private SQLException encontrarSqlException(Throwable erro) {
+        Throwable atual = erro;
+        while (atual != null) {
+            if (atual instanceof SQLException sqlException) {
+                return sqlException;
+            }
+            atual = atual.getCause();
+        }
+        return null;
+    }
+
+    private String detalheIntegridade(String sqlState, int codigoFornecedor) {
+        if ("23505".equals(sqlState) || codigoFornecedor == 1062) {
+            return "Já existe um registro com esses dados. Revise as informações e tente novamente.";
+        }
+        if ("23503".equals(sqlState) || codigoFornecedor == 1451 || codigoFornecedor == 1452) {
+            return "Um dado relacionado não existe mais ou não pode ser alterado. Atualize a tela e tente novamente.";
+        }
+        if ("23502".equals(sqlState) || "23514".equals(sqlState)
+                || codigoFornecedor == 1048 || codigoFornecedor == 3819 || codigoFornecedor == 4025) {
+            return "Algum dado obrigatório ou regra de validação impediu a operação. Revise as informações e tente novamente.";
+        }
+        return "Não foi possível concluir a operação devido a um conflito entre os dados relacionados. Atualize a tela e tente novamente. Se o erro continuar, contate o suporte.";
     }
 
     /**
