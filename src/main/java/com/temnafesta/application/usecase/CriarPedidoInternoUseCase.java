@@ -12,7 +12,10 @@ import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import com.temnafesta.infrastructure.persistence.adapter.messaging.RabbitMQPedidoEventPublisher;
 import com.temnafesta.presentation.dto.PedidoResponseDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
@@ -22,6 +25,8 @@ public class CriarPedidoInternoUseCase {
     private final ClienteRepositoryPort clienteRepositoryPort;
     private final ProdutoRepositoryPort produtoRepositoryPort;
     private final PedidoEventPublisherPort pedidoEventPublisherPort;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CriarPedidoInternoUseCase.class);
 
 
     public CriarPedidoInternoUseCase(
@@ -96,9 +101,9 @@ public class CriarPedidoInternoUseCase {
         // 4. Persiste o pedido + dispara evento
         Pedido pedidoSalvo = pedidoRepositoryPort.salvar(novoPedido);
         try {
-            pedidoEventPublisherPort.publicarPedidoCriado(pedidoSalvo);
+            pedidoEventPublisherPort.publicarPedidoCriado(pedidoSalvo, cliente);
         } catch (Exception error) {
-            System.out.println("Não foi possível publicar o evento: " + error.getMessage());
+            LOGGER.error("Não foi possível publicar o evento. {}", error.getMessage());
         }
         return pedidoSalvo;
     }
