@@ -38,7 +38,7 @@ public class PagamentoController {
 
     @PostMapping
     @Operation(summary = "Registra um pagamento em um pedido",
-            description = "O autor é extraído do token autenticado. O status inicial é sempre CONFIRMADO.")
+            description = "O autor é extraído do token autenticado. O status pode ser CONFIRMADO ou PENDENTE; se omitido, será CONFIRMADO.")
     public ResponseEntity<PedidoResponseDto> registrarPagamento(
             @PathVariable Long pedidoId,
             @RequestHeader(value = "Idempotency-Key", required = false) String chaveIdempotencia,
@@ -57,7 +57,7 @@ public class PagamentoController {
                 request.tipoPagamento(),
                 request.metodoPagamentoId(),
                 usuario.getId(),
-                null,
+                request.statusPagamento(),
                 chave
         );
 
