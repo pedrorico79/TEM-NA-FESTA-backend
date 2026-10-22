@@ -6,8 +6,10 @@ import com.temnafesta.domain.model.Perfil;
 import com.temnafesta.domain.model.Usuario;
 import com.temnafesta.domain.ports.repository.PerfilRepositoryPort;
 import com.temnafesta.domain.ports.repository.UsuarioRepositoryPort;
+import com.temnafesta.domain.time.RelogioNegocio;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -16,13 +18,24 @@ public class CriarUsuarioUseCase {
     private final UsuarioRepositoryPort usuarioRepositoryPort;
     private final PerfilRepositoryPort perfilRepositoryPort;
     private final PasswordEncoder passwordEncoder;
+    private final Clock relogioNegocio;
 
     public CriarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort,
                               PerfilRepositoryPort perfilRepositoryPort,
                               PasswordEncoder passwordEncoder) {
+        this(usuarioRepositoryPort, perfilRepositoryPort, passwordEncoder,
+                RelogioNegocio.sistema());
+    }
+
+    public CriarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort,
+                              PerfilRepositoryPort perfilRepositoryPort,
+                              PasswordEncoder passwordEncoder,
+                              Clock relogioNegocio) {
         this.usuarioRepositoryPort = usuarioRepositoryPort;
         this.perfilRepositoryPort = perfilRepositoryPort;
         this.passwordEncoder = passwordEncoder;
+        this.relogioNegocio = relogioNegocio != null
+                ? relogioNegocio : RelogioNegocio.sistema();
     }
 
     public Usuario executar(CriarUsuarioCommand command) {
@@ -59,7 +72,7 @@ public class CriarUsuarioUseCase {
                 passwordEncoder.encode(command.senha()),
                 true,
                 false,
-                LocalDateTime.now(),
+                LocalDateTime.now(relogioNegocio),
                 perfil
         );
         return usuarioRepositoryPort.salvar(usuario);

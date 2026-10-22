@@ -7,8 +7,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Clock;
+
 @Configuration
 public class BeanConfiguration {
+
+    @Bean
+    public Clock relogioNegocio() {
+        return com.temnafesta.domain.time.RelogioNegocio.sistema();
+    }
 
     @Bean
     public AutenticarUsuarioUseCase autenticarUsuarioUseCase(
@@ -22,21 +29,24 @@ public class BeanConfiguration {
     public CriarPedidoInternoUseCase criarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
             ClienteRepositoryPort clienteRepositoryPort,
-            ProdutoRepositoryPort produtoRepositoryPort) {
-        return new CriarPedidoInternoUseCase(pedidoRepositoryPort, clienteRepositoryPort, produtoRepositoryPort);
+            ProdutoRepositoryPort produtoRepositoryPort,
+            Clock relogioNegocio) {
+        return new CriarPedidoInternoUseCase(pedidoRepositoryPort, clienteRepositoryPort, produtoRepositoryPort, relogioNegocio);
     }
 
     @Bean
     public AlterarStatusPedidoUseCase alterarStatusPedidoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
-            HistoricoStatusPedidoRepositoryPort historicoStatusPedidoRepositoryPort) {
-        return new AlterarStatusPedidoUseCase(pedidoRepositoryPort, historicoStatusPedidoRepositoryPort);
+            HistoricoStatusPedidoRepositoryPort historicoStatusPedidoRepositoryPort,
+            Clock relogioNegocio) {
+        return new AlterarStatusPedidoUseCase(pedidoRepositoryPort, historicoStatusPedidoRepositoryPort, relogioNegocio);
     }
 
     @Bean
     public RegistrarPagamentoUseCase registrarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort,
-                                                                MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
-        return new RegistrarPagamentoUseCase(pedidoRepositoryPort, metodoPagamentoRepositoryPort);
+                                                                MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort,
+                                                                Clock relogioNegocio) {
+        return new RegistrarPagamentoUseCase(pedidoRepositoryPort, metodoPagamentoRepositoryPort, relogioNegocio);
     }
 
     @Bean
@@ -87,8 +97,8 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public CriarLembreteUseCase criarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort) {
-        return new CriarLembreteUseCase(lembreteRepositoryPort);
+    public CriarLembreteUseCase criarLembreteUseCase(LembreteRepositoryPort lembreteRepositoryPort, Clock relogioNegocio) {
+        return new CriarLembreteUseCase(lembreteRepositoryPort, relogioNegocio);
     }
 
     @Bean
@@ -107,8 +117,8 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public CriarClienteUseCase criarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort) {
-        return new CriarClienteUseCase(clienteRepositoryPort);
+    public CriarClienteUseCase criarClienteUseCase(ClienteRepositoryPort clienteRepositoryPort, Clock relogioNegocio) {
+        return new CriarClienteUseCase(clienteRepositoryPort, relogioNegocio);
     }
 
     @Bean
@@ -164,8 +174,9 @@ public class BeanConfiguration {
 
     @Bean
     public ListarProximasRetiradasUseCase listarProximasRetiradasUseCase(
-            PedidoRepositoryPort pedidoRepositoryPort) {
-        return new ListarProximasRetiradasUseCase(pedidoRepositoryPort);
+            PedidoRepositoryPort pedidoRepositoryPort,
+            Clock relogioNegocio) {
+        return new ListarProximasRetiradasUseCase(pedidoRepositoryPort, relogioNegocio);
     }
 
     @Bean
@@ -244,8 +255,9 @@ public class BeanConfiguration {
     @Bean
     public CriarUsuarioUseCase criarUsuarioUseCase(UsuarioRepositoryPort usuarioRepositoryPort,
                                                    PerfilRepositoryPort perfilRepositoryPort,
-                                                   PasswordEncoder passwordEncoder) {
-        return new CriarUsuarioUseCase(usuarioRepositoryPort, perfilRepositoryPort, passwordEncoder);
+                                                   PasswordEncoder passwordEncoder,
+                                                   Clock relogioNegocio) {
+        return new CriarUsuarioUseCase(usuarioRepositoryPort, perfilRepositoryPort, passwordEncoder, relogioNegocio);
     }
 
     @Bean

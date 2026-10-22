@@ -14,21 +14,35 @@ import com.temnafesta.domain.vo.StatusProducaoEnum;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 public class CriarPedidoInternoUseCase {
 
     private final PedidoRepositoryPort pedidoRepositoryPort;
     private final ClienteRepositoryPort clienteRepositoryPort;
     private final ProdutoRepositoryPort produtoRepositoryPort;
+    private final Clock relogioNegocio;
 
     public CriarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
             ClienteRepositoryPort clienteRepositoryPort,
             ProdutoRepositoryPort produtoRepositoryPort) {
+        this(pedidoRepositoryPort, clienteRepositoryPort, produtoRepositoryPort,
+                com.temnafesta.domain.time.RelogioNegocio.sistema());
+    }
+
+    public CriarPedidoInternoUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort,
+            ClienteRepositoryPort clienteRepositoryPort,
+            ProdutoRepositoryPort produtoRepositoryPort,
+            Clock relogioNegocio) {
 
         this.pedidoRepositoryPort = pedidoRepositoryPort;
         this.clienteRepositoryPort = clienteRepositoryPort;
         this.produtoRepositoryPort = produtoRepositoryPort;
+        this.relogioNegocio = relogioNegocio != null
+                ? relogioNegocio : com.temnafesta.domain.time.RelogioNegocio.sistema();
     }
 
     @Transactional
@@ -46,7 +60,7 @@ public class CriarPedidoInternoUseCase {
 
         Pedido novoPedido = new Pedido(
                 null,
-                null,
+                LocalDateTime.now(relogioNegocio),
                 command.dataEntrega(),
                 command.taxaEntrega(),
                 command.observacao(),

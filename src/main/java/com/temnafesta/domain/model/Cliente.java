@@ -3,6 +3,7 @@ package com.temnafesta.domain.model;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 
 import java.time.LocalDate;
+import com.temnafesta.domain.time.RelogioNegocio;
 
 public class Cliente {
     private Long id;
@@ -26,7 +27,7 @@ public class Cliente {
         this.telefone = telefone;
         this.whatsapp = whatsapp;
         this.instagram = instagram;
-        this.dataCadastro = dataCadastro != null ? dataCadastro : LocalDate.now();
+        this.dataCadastro = dataCadastro != null ? dataCadastro : RelogioNegocio.hoje();
         this.anotacoes = anotacoes;
         this.endereco = endereco;
         this.deletado = Boolean.TRUE.equals(deletado);

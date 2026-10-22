@@ -1,6 +1,7 @@
 package com.temnafesta.domain.model;
 
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import com.temnafesta.domain.time.RelogioNegocio;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ class HistoricoStatusPedidoTest {
 
     @Test
     void deveAssumirDataAlteracaoQuandoNula() {
-        LocalDateTime antes = LocalDateTime.now();
+        LocalDateTime antes = RelogioNegocio.agora();
 
         HistoricoStatusPedido historico = new HistoricoStatusPedido(
                 null, null, "Sinal recebido", StatusProducaoEnum.CONFIRMADO, 1L, 2L);

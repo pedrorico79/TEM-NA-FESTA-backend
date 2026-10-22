@@ -3,6 +3,7 @@ package com.temnafesta.application.usecase;
 import com.temnafesta.application.dto.CriarLembreteCommand;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Lembrete;
+import com.temnafesta.domain.time.RelogioNegocio;
 import com.temnafesta.domain.ports.repository.LembreteRepositoryPort;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class LembreteUseCasesTest {
 
             ArgumentCaptor<Lembrete> captor = ArgumentCaptor.forClass(Lembrete.class);
             verify(lembreteRepositoryPort).salvar(captor.capture());
-            assertEquals(LocalDate.now(), captor.getValue().getDataCriacao());
+            assertEquals(RelogioNegocio.hoje(), captor.getValue().getDataCriacao());
             assertNotNull(resultado);
         }
     }

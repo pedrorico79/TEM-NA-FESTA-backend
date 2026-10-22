@@ -8,16 +8,27 @@ import com.temnafesta.domain.vo.StatusProducaoEnum;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.Clock;
 
 public class AlterarStatusPedidoUseCase {
 
     private final PedidoRepositoryPort pedidoRepositoryPort;
     private final HistoricoStatusPedidoRepositoryPort historicoRepositoryPort;
+    private final Clock relogioNegocio;
 
     public AlterarStatusPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort,
                                       HistoricoStatusPedidoRepositoryPort historicoRepositoryPort) {
+        this(pedidoRepositoryPort, historicoRepositoryPort,
+                com.temnafesta.domain.time.RelogioNegocio.sistema());
+    }
+
+    public AlterarStatusPedidoUseCase(PedidoRepositoryPort pedidoRepositoryPort,
+                                      HistoricoStatusPedidoRepositoryPort historicoRepositoryPort,
+                                      Clock relogioNegocio) {
         this.pedidoRepositoryPort = pedidoRepositoryPort;
         this.historicoRepositoryPort = historicoRepositoryPort;
+        this.relogioNegocio = relogioNegocio != null
+                ? relogioNegocio : com.temnafesta.domain.time.RelogioNegocio.sistema();
     }
 
     @Transactional
@@ -28,7 +39,7 @@ public class AlterarStatusPedidoUseCase {
         // 3. Cria e salva o histórico de auditoria
         HistoricoStatusPedido historico = new HistoricoStatusPedido(
                 null,
-                LocalDateTime.now(),
+                LocalDateTime.now(relogioNegocio),
                 observacao,
                 novoStatus,
                 pedidoSalvo.getId(),

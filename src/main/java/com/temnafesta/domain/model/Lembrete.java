@@ -2,6 +2,7 @@ package com.temnafesta.domain.model;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import java.time.LocalDate;
+import com.temnafesta.domain.time.RelogioNegocio;
 
 public class Lembrete {
     private Long id;
@@ -16,7 +17,7 @@ public class Lembrete {
         }
         this.id = id;
         this.descricao = descricao;
-        this.dataCriacao = dataCriacao != null ? dataCriacao : LocalDate.now();
+        this.dataCriacao = dataCriacao != null ? dataCriacao : RelogioNegocio.hoje();
         this.dataLimite = dataLimite;
         this.usuarioId = usuarioId;
     }

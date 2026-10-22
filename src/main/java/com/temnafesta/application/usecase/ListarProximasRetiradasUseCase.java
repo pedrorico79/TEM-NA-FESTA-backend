@@ -5,14 +5,23 @@ import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.Clock;
 
 public class ListarProximasRetiradasUseCase {
 
     private final PedidoRepositoryPort pedidoRepository;
+    private final Clock relogioNegocio;
+
+    public ListarProximasRetiradasUseCase(PedidoRepositoryPort pedidoRepository) {
+        this(pedidoRepository, com.temnafesta.domain.time.RelogioNegocio.sistema());
+    }
 
     public ListarProximasRetiradasUseCase(
-            PedidoRepositoryPort pedidoRepository) {
+            PedidoRepositoryPort pedidoRepository,
+            Clock relogioNegocio) {
         this.pedidoRepository = pedidoRepository;
+        this.relogioNegocio = relogioNegocio != null
+                ? relogioNegocio : com.temnafesta.domain.time.RelogioNegocio.sistema();
     }
 
     public List<Pedido> executar(int dias) {
@@ -23,7 +32,7 @@ public class ListarProximasRetiradasUseCase {
             );
         }
 
-        LocalDateTime limite = LocalDateTime.now()
+        LocalDateTime limite = LocalDateTime.now(relogioNegocio)
                 .plusDays(dias)
                 .toLocalDate()
                 .atTime(23, 59, 59);
