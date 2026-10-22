@@ -12,6 +12,7 @@ import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
 import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import org.springframework.transaction.annotation.Transactional;
 import com.temnafesta.infrastructure.persistence.adapter.messaging.RabbitMQPedidoEventPublisher;
 import com.temnafesta.presentation.dto.PedidoResponseDto;
 import org.slf4j.Logger;
@@ -40,9 +41,9 @@ public class CriarPedidoInternoUseCase {
         this.pedidoEventPublisherPort = pedidoEventPublisherPort;
     }
 
+    @Transactional
     public Pedido executar(CriarPedidoCommand command) {
 
-        // 1. Valida se o cliente existe e está disponível para novos pedidos
         Cliente cliente = clienteRepositoryPort.buscarPorId(command.clienteId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Cliente não encontrado com o ID: " + command.clienteId()));
@@ -53,7 +54,6 @@ public class CriarPedidoInternoUseCase {
                             + command.clienteId());
         }
 
-        // 2. Instancia o Pedido
         Pedido novoPedido = new Pedido(
                 null,
                 null,
@@ -64,12 +64,13 @@ public class CriarPedidoInternoUseCase {
                 command.clienteId(),
                 command.usuarioId(),
                 command.eventoId(),
-                command.enderecoEntregaId(),
+                command.enderecoEntrega(),
                 new ArrayList<>(),
-                new ArrayList<>()
+                new ArrayList<>(),
+                true,
+                false
         );
 
-        // 3. Monta os itens
         for (CriarPedidoCommand.ItemCommand itemDto : command.itens()) {
 
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
@@ -84,19 +85,21 @@ public class CriarPedidoInternoUseCase {
                         "Produto inativo não pode ser adicionado ao pedido. ID: " + itemDto.produtoId());
             }
 
-            ItemPedido item = new ItemPedido(
+            ItemPedido item = ItemPedido.comAcrescimo(
                     null,
                     produto.getId(),
                     itemDto.quantidade(),
                     itemDto.precoUnitario(),
+                    itemDto.acrescimo(),
                     itemDto.observacaoItem()
             );
 
-            // Mantém o produto completo no domínio
             item.setProduto(produto);
 
             novoPedido.adicionarItem(item);
         }
+
+        novoPedido.definirDescontoPedido(command.descontoPedido());
 
         // 4. Persiste o pedido + dispara evento
         Pedido pedidoSalvo = pedidoRepositoryPort.salvar(novoPedido);

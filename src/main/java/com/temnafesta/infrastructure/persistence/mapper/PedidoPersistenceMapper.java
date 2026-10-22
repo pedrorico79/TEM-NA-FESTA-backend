@@ -1,5 +1,6 @@
 package com.temnafesta.infrastructure.persistence.mapper;
 
+import com.temnafesta.domain.model.Endereco;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
@@ -8,7 +9,7 @@ import com.temnafesta.infrastructure.persistence.entity.EventoJpaEntity;
 import com.temnafesta.infrastructure.persistence.entity.ItemPedidoJpaEntity;
 import com.temnafesta.infrastructure.persistence.entity.PagamentoJpaEntity;
 import com.temnafesta.infrastructure.persistence.entity.PedidoJpaEntity;
-import com.temnafesta.infrastructure.persistence.entity.ProdutoJpaEntity;
+
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,8 +19,11 @@ import org.mapstruct.MappingTarget;
 public interface PedidoPersistenceMapper {
 
     @Mapping(target = "eventoId", source = "evento.id")
-    @Mapping(target = "enderecoEntregaId", source = "enderecoEntrega.id")
+    @Mapping(target = "ativo", source = "ativo")
+    @Mapping(target = "deletado", source = "deletado")
     Pedido toDomain(PedidoJpaEntity entity);
+
+    Endereco toDomain(EnderecoJpaEntity entity);
 
     @Mapping(
             target = "evento",
@@ -27,14 +31,30 @@ public interface PedidoPersistenceMapper {
     )
     @Mapping(
             target = "enderecoEntrega",
-            expression = "java(criarReferenciaEndereco(domain.getEnderecoEntregaId()))"
+            source = "enderecoEntrega"
     )
+    @Mapping(target = "ativo", source = "ativo")
+    @Mapping(target = "deletado", source = "deletado")
     PedidoJpaEntity toEntity(Pedido domain);
 
     @Mapping(target = "produtoId", source = "produto.id")
     ItemPedido toDomain(ItemPedidoJpaEntity entity);
 
     ItemPedidoJpaEntity toEntity(ItemPedido domain);
+
+    @AfterMapping
+    default void aplicarAcrescimo(
+            ItemPedidoJpaEntity entity,
+            @MappingTarget ItemPedido domain) {
+        domain.definirAcrescimo(entity.getAcrescimo());
+    }
+
+    @AfterMapping
+    default void aplicarDescontoPedido(
+            PedidoJpaEntity entity,
+            @MappingTarget Pedido domain) {
+        domain.definirDescontoPedido(entity.getDescontoPedido());
+    }
 
     Pagamento toDomain(PagamentoJpaEntity entity);
 
@@ -54,23 +74,7 @@ public interface PedidoPersistenceMapper {
         }
     }
 
-    @AfterMapping
-    default void inicializarColecoes(
-            PedidoJpaEntity entity,
-            @MappingTarget Pedido domain) {
-
-        if (entity.getItens() != null) {
-            entity.getItens().size();
-        }
-
-        if (entity.getPagamentos() != null) {
-            entity.getPagamentos().size();
-        }
-    }
-
-
-
-    default EventoJpaEntity criarReferenciaEvento(Long eventoId) {
+default EventoJpaEntity criarReferenciaEvento(Long eventoId) {
         if (eventoId == null) {
             return null;
         }
@@ -78,15 +82,5 @@ public interface PedidoPersistenceMapper {
         EventoJpaEntity evento = new EventoJpaEntity();
         evento.setId(eventoId);
         return evento;
-    }
-
-    default EnderecoJpaEntity criarReferenciaEndereco(Long enderecoId) {
-        if (enderecoId == null) {
-            return null;
-        }
-
-        EnderecoJpaEntity endereco = new EnderecoJpaEntity();
-        endereco.setId(enderecoId);
-        return endereco;
     }
 }

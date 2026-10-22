@@ -1,6 +1,8 @@
 package com.temnafesta.presentation.controller;
 
 import com.temnafesta.application.usecase.AutenticarUsuarioUseCase;
+import com.temnafesta.application.exception.FalhaAutenticacaoException;
+import com.temnafesta.infrastructure.security.LimiteTentativasLogin;
 import com.temnafesta.infrastructure.security.user.UsuarioAutenticado;
 import com.temnafesta.presentation.dto.LoginRequestDto;
 import com.temnafesta.presentation.dto.MeResponseDto;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.temnafesta.infrastructure.security.jwt.JwtTokenProvider;
 
@@ -22,6 +25,7 @@ public class AuthController {
 
     private final AutenticarUsuarioUseCase autenticarUsuarioUseCase;
     private final JwtTokenProvider jwtTokenProvider;
+    private final LimiteTentativasLogin limiteTentativasLogin;
 
     @Value("${app.jwt.cookie-name:auth_token}")
     private String jwtCookieName;
@@ -38,15 +42,26 @@ public class AuthController {
     @Value("${app.jwt.cookie-domain:}")
     private String jwtCookieDomain;
 
-    public AuthController(AutenticarUsuarioUseCase autenticarUsuarioUseCase, JwtTokenProvider jwtTokenProvider) {
+    public AuthController(AutenticarUsuarioUseCase autenticarUsuarioUseCase, JwtTokenProvider jwtTokenProvider,
+                          LimiteTentativasLogin limiteTentativasLogin) {
         this.autenticarUsuarioUseCase = autenticarUsuarioUseCase;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.limiteTentativasLogin = limiteTentativasLogin;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequestDto request) {
+    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequestDto request, HttpServletRequest httpRequest) {
         boolean jwtValidityRememberMe = Boolean.TRUE.equals(request.jwtValidityRememberMe());
-        String token = autenticarUsuarioUseCase.executar(request.email(), request.senha(), jwtValidityRememberMe);
+        String ip = httpRequest.getRemoteAddr();
+        limiteTentativasLogin.validarTentativa(ip, request.email());
+        String token;
+        try {
+            token = autenticarUsuarioUseCase.executar(request.email(), request.senha(), jwtValidityRememberMe);
+            limiteTentativasLogin.registrarSucesso(ip, request.email());
+        } catch (FalhaAutenticacaoException ex) {
+            limiteTentativasLogin.registrarFalha(ip, request.email());
+            throw ex;
+        }
 
         ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(jwtCookieName, token)
                 .httpOnly(true)

@@ -9,6 +9,7 @@ import com.temnafesta.domain.ports.repository.UsuarioRepositoryPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 public class CriarUsuarioUseCase {
 
@@ -37,8 +38,13 @@ public class CriarUsuarioUseCase {
         if (command.senha() == null || command.senha().isBlank()) {
             throw new RegraDeNegocioException("A senha do usuário é obrigatória.");
         }
+        if (command.senha().length() < 8 || command.senha().length() > 72) {
+            throw new RegraDeNegocioException("A senha deve ter entre 8 e 72 caracteres.");
+        }
 
-        usuarioRepositoryPort.buscarPorEmail(command.email())
+        String emailNormalizado = command.email().trim().toLowerCase(Locale.ROOT);
+
+        usuarioRepositoryPort.buscarPorEmail(emailNormalizado)
                 .ifPresent(usuario -> {
                     throw new RegraDeNegocioException("Já existe um usuário cadastrado com este email.");
                 });
@@ -49,7 +55,7 @@ public class CriarUsuarioUseCase {
         Usuario usuario = new Usuario(
                 null,
                 command.nome().trim(),
-                command.email().trim(),
+                emailNormalizado,
                 passwordEncoder.encode(command.senha()),
                 true,
                 false,

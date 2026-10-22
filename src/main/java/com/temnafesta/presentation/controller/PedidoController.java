@@ -14,16 +14,19 @@ import com.temnafesta.presentation.dto.*;
 import com.temnafesta.presentation.mapper.PedidoPresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/pedidos")
@@ -47,7 +50,6 @@ public class PedidoController {
 
 
     @PostMapping
-    @Transactional
     public ResponseEntity<PedidoResponseDto> criarPedido(@Valid @RequestBody CriarPedidoRequestDto request,
                                                         @AuthenticationPrincipal UsuarioAutenticado usuario) {
         // 1. Converte DTO HTTP para Command Interno
@@ -63,7 +65,6 @@ public class PedidoController {
     }
 
     @PatchMapping("/{id}/status")
-    @Transactional
     public ResponseEntity<PedidoResponseDto> alterarStatus(@PathVariable Long id,
                                                            @Valid @RequestBody AlterarStatusRequestDto request,
                                                            @AuthenticationPrincipal UsuarioAutenticado usuario) {
@@ -72,7 +73,6 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    @Transactional
     public ResponseEntity<PedidoResponseDto> listarPorId(@PathVariable Long id) {
         Pedido pedido = listarPedidoPorIdUseCase.executar(id);
 
@@ -82,7 +82,6 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}/recibo")
-    @Transactional
     public ResponseEntity<String> gerarReciboDigital(@PathVariable Long id) {
         // Retorna o texto formatado para o WhatsApp
         String recibo = gerarReciboDigitalUseCase.executar(id);
@@ -90,7 +89,6 @@ public class PedidoController {
     }
 
     @PutMapping("/{id}")
-    @Transactional
     public ResponseEntity<PedidoResponseDto> atualizarPedido(@PathVariable Long id,
                                                              @Valid @RequestBody AtualizarPedidoRequestDto request) {
         // 1. Converte DTO HTTP para Command Interno
@@ -114,12 +112,14 @@ public class PedidoController {
     }
 
     @GetMapping("/count-by-status")
-    public ResponseEntity<?> contarPorStatus() {
-        return ResponseEntity.ok(contarPorStatusUseCase.executar());
+    public ResponseEntity<Map<String, Long>> contarPorStatus() {
+        Map<String, Long> contagens = new LinkedHashMap<>();
+        contarPorStatusUseCase.executar().forEach((status, quantidade) -> contagens.put(status.name(), quantidade));
+        contagens.put("PAGAMENTOS_PENDENTES", contarPorStatusUseCase.contarPagamentosPendentes());
+        return ResponseEntity.ok(contagens);
     }
 
     @GetMapping("/proximas-retiradas")
-    @Transactional
     public ResponseEntity<List<PedidoResponseDto>> listarProximasRetiradas(
             @RequestParam int dias) {
 
@@ -134,27 +134,25 @@ public class PedidoController {
     }
 
     @GetMapping
-    @Transactional
-    public ResponseEntity<List<PedidoResponseDto>> listarPedidos(
+    public ResponseEntity<Page<PedidoResponseDto>> listarPedidos(
             @RequestParam(required = false) String busca,
             @RequestParam(required = false) StatusProducaoEnum status,
-            @RequestParam(required = false) Long evento) {
+            @RequestParam(required = false) Long evento,
+            Pageable pageable) {
 
-        List<Pedido> pedidos = listarPedidosUseCase.executar(
+        Page<Pedido> pedidos = listarPedidosUseCase.executar(
                 busca,
                 status,
-                evento
+                evento,
+                pageable
         );
 
-        List<PedidoResponseDto> response = pedidos.stream()
-                .map(mapper::toResponse)
-                .toList();
+        Page<PedidoResponseDto> response = pedidos.map(mapper::toResponse);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{pedidoId}/itens/{itemId}")
-    @Transactional
     public ResponseEntity<ItemPedidoResponseDto> listarItemPorId(
             @PathVariable Long pedidoId,
             @PathVariable Long itemId) {
@@ -166,7 +164,6 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}/pagamentos")
-    @Transactional
     public ResponseEntity<List<PagamentoResponseDto>> listarPagamentos(
             @PathVariable Long id) {
 
@@ -181,7 +178,6 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}/historico-status")
-    @Transactional
     @Operation(summary = "Lista o histórico de status de um pedido")
     public ResponseEntity<List<HistoricoStatusPedidoResponseDto>> listarHistoricoStatus(
             @PathVariable Long id) {

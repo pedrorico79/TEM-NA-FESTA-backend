@@ -15,6 +15,9 @@ public interface UsuarioRepositoryPort {
 
     Optional<List<Usuario>> listarTodos();
     Page<Usuario> listarPorNomePaginado(String nome, Pageable pageable);
+    default Page<Usuario> listarPorNomePaginado(String nome, boolean ativos, Pageable pageable) {
+        return listarPorNomePaginado(nome, pageable);
+    }
 
     Usuario atualizar(Usuario usuario);
 

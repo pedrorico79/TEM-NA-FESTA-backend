@@ -9,13 +9,14 @@ public record PedidoResponseDto(
         LocalDateTime dataPedido,
         LocalDateTime dataEntrega,
         BigDecimal valorTotal,
+        BigDecimal descontoPedido,
         BigDecimal taxaEntrega,
         String observacao,
         String statusProducao,
         Long clienteId,
         Long usuarioId,
         Long eventoId,
-        Long enderecoEntregaId,
+        EnderecoResponseDto enderecoEntrega,
 
         // As listas de filhos aninhadas de forma segura
         List<ItemPedidoResponseDto> itens,

@@ -19,6 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -70,14 +73,16 @@ class ProdutoControllerTest {
                 "Bolo com cobertura de ganache",
                 new BigDecimal("49.90"),
                 true);
-        when(listarProdutosUseCase.executar("bolo")).thenReturn(List.of(produto));
+        when(listarProdutosUseCase.executar("bolo", false, Pageable.unpaged()))
+                .thenReturn(new PageImpl<>(List.of(produto)));
         when(mapper.toResponse(produto)).thenReturn(produtoResponse);
 
-        ResponseEntity<List<ProdutoResponseDto>> resposta = produtoController.listar("bolo");
+        ResponseEntity<Page<ProdutoResponseDto>> resposta =
+                produtoController.listar("bolo", false, Pageable.unpaged());
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertNotNull(resposta.getBody());
-        assertEquals(List.of(produtoResponse), resposta.getBody());
+        assertEquals(List.of(produtoResponse), resposta.getBody().getContent());
     }
 
     @Test

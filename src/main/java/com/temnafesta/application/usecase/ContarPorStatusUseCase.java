@@ -23,4 +23,8 @@ public class ContarPorStatusUseCase {
 
         return contagem;
     }
+
+    public long contarPagamentosPendentes() {
+        return pedidoRepository.contarPedidosComPagamentoPendente();
+    }
 }

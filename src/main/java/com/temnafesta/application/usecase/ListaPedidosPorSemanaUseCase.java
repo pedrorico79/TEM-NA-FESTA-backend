@@ -17,6 +17,10 @@ public class ListaPedidosPorSemanaUseCase {
     }
 
     public List<PedidosPorSemanaOutput> execute(LocalDate de, LocalDate ate) {
+        return execute(de, ate, null);
+    }
+
+    public List<PedidosPorSemanaOutput> execute(LocalDate de, LocalDate ate, Long eventoId) {
         Objects.requireNonNull(de, "data 'de' não pode ser nula");
         Objects.requireNonNull(ate, "data 'ate' não pode ser nula");
 
@@ -27,7 +31,7 @@ public class ListaPedidosPorSemanaUseCase {
         LocalDateTime inicio = de.atStartOfDay();
         LocalDateTime fim = ate.atTime(23, 59, 59, 999_999_999);
 
-        List<PedidosPorSemanaOutput> resultado = pedidoRepositoryPort.buscarPedidosAgrupadosPorSemana(inicio, fim);
+        List<PedidosPorSemanaOutput> resultado = pedidoRepositoryPort.buscarPedidosAgrupadosPorSemana(inicio, fim, eventoId);
 
         // Garantir retorno não-nulo (padronização)
         return resultado == null ? List.of() : resultado;

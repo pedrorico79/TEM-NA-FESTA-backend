@@ -18,6 +18,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -60,13 +62,14 @@ public class ProdutoController {
     }
 
     @GetMapping
-    @Operation(summary = "Lista os produtos não deletados, com filtro opcional por nome e ativos primeiro")
-    public ResponseEntity<List<ProdutoResponseDto>> listar(
-            @RequestParam(required = false) String nome) {
-        List<ProdutoResponseDto> response = listarProdutosUseCase.executar(nome)
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
+    @Operation(summary = "Lista produtos não deletados, com filtro opcional por nome e ativos",
+            description = "Por padrão, inclui ativos e inativos. Use ativos=true para retornar apenas ativos.")
+    public ResponseEntity<Page<ProdutoResponseDto>> listar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(defaultValue = "false") boolean ativos,
+            Pageable pageable) {
+        Page<ProdutoResponseDto> response = listarProdutosUseCase.executar(nome, ativos, pageable)
+                .map(mapper::toResponse);
 
         return ResponseEntity.ok(response);
     }

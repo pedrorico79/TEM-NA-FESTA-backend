@@ -8,8 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface SpringDataUsuarioRepository extends JpaRepository<UsuarioJpaEntity, Long> {
-    Optional<UsuarioJpaEntity> findByEmail(String email);
+    Optional<UsuarioJpaEntity> findByEmailIgnoreCase(String email);
     Page<UsuarioJpaEntity> findByDeletadoFalseAndNomeContainingIgnoreCase(String nome, Pageable pageable);
     Page<UsuarioJpaEntity> findByDeletadoFalse(Pageable pageable);
+    Page<UsuarioJpaEntity> findByAtivoTrueAndDeletadoFalseAndNomeContainingIgnoreCase(String nome, Pageable pageable);
+    Page<UsuarioJpaEntity> findByAtivoTrueAndDeletadoFalse(Pageable pageable);
     Optional<UsuarioJpaEntity> findByIdAndDeletadoFalse(Long id);
 }

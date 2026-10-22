@@ -14,6 +14,8 @@ public class Pagamento {
     private StatusPagamentoEnum statusPagamento;
     private Long metodoPagamentoId;
     private Long usuarioId;
+    private String chaveIdempotencia;
+    private String assinaturaRequisicao;
 
     public Pagamento(Long id, BigDecimal valor, LocalDateTime dataPagamento,
                      TipoPagamentoEnum tipoPagamento, StatusPagamentoEnum statusPagamento,
@@ -31,6 +33,26 @@ public class Pagamento {
         return StatusPagamentoEnum.CONFIRMADO.equals(this.statusPagamento);
     }
 
+    public boolean isPendente() {
+        return StatusPagamentoEnum.PENDENTE.equals(this.statusPagamento);
+    }
+
+    public void confirmar() {
+        if (!isPendente()) {
+            throw new com.temnafesta.domain.exception.RegraDeNegocioException(
+                    "Somente pagamentos pendentes podem ser confirmados.");
+        }
+        this.statusPagamento = StatusPagamentoEnum.CONFIRMADO;
+    }
+
+    public void cancelar() {
+        if (StatusPagamentoEnum.CANCELADO.equals(this.statusPagamento)) {
+            throw new com.temnafesta.domain.exception.RegraDeNegocioException(
+                    "Este pagamento já está cancelado.");
+        }
+        this.statusPagamento = StatusPagamentoEnum.CANCELADO;
+    }
+
     // Getters
     public Long getId() { return id; }
     public BigDecimal getValor() { return valor; }
@@ -39,4 +61,8 @@ public class Pagamento {
     public StatusPagamentoEnum getStatusPagamento() { return statusPagamento; }
     public Long getMetodoPagamentoId() { return metodoPagamentoId; }
     public Long getUsuarioId() { return usuarioId; }
+    public String getChaveIdempotencia() { return chaveIdempotencia; }
+    public void setChaveIdempotencia(String chaveIdempotencia) { this.chaveIdempotencia = chaveIdempotencia; }
+    public String getAssinaturaRequisicao() { return assinaturaRequisicao; }
+    public void setAssinaturaRequisicao(String assinaturaRequisicao) { this.assinaturaRequisicao = assinaturaRequisicao; }
 }

@@ -22,7 +22,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -41,7 +40,8 @@ class ExcluirPagamentoUseCaseTest {
         Pedido pedido = new Pedido(1L, LocalDateTime.now(), LocalDateTime.now().plusDays(3),
                 BigDecimal.ZERO, null, StatusProducaoEnum.RASCUNHO,
                 1L, 1L, null, null,
-                List.of(new ItemPedido(1L, 1L, 2, new BigDecimal("50.00"), null)), null);
+                List.of(new ItemPedido(1L, 1L, 2, new BigDecimal("50.00"), null)), null,
+                true, false);
 
         pedido.adicionarPagamento(new Pagamento(pagamentoId, new BigDecimal("30.00"), LocalDateTime.now(),
                 TipoPagamentoEnum.SINAL, StatusPagamentoEnum.CONFIRMADO, 5L, 9L));
@@ -52,7 +52,7 @@ class ExcluirPagamentoUseCaseTest {
     @Test
     void deveRemoverPagamentoESalvarPedido() {
         Pedido pedido = pedidoComPagamento(7L);
-        when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(pedido));
+        when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.of(pedido));
         when(pedidoRepositoryPort.salvar(any(Pedido.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -60,12 +60,13 @@ class ExcluirPagamentoUseCaseTest {
 
         ArgumentCaptor<Pedido> captor = ArgumentCaptor.forClass(Pedido.class);
         verify(pedidoRepositoryPort).salvar(captor.capture());
-        assertTrue(captor.getValue().getPagamentos().isEmpty());
+        assertEquals(StatusPagamentoEnum.CANCELADO,
+                captor.getValue().getPagamentos().get(0).getStatusPagamento());
     }
 
     @Test
     void naoDeveExcluirQuandoPedidoNaoEncontrado() {
-        when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
+        when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.empty());
 
         assertThrows(RegraDeNegocioException.class, () -> useCase.executar(1L, 7L));
         verify(pedidoRepositoryPort, never()).salvar(any());
@@ -74,7 +75,7 @@ class ExcluirPagamentoUseCaseTest {
     @Test
     void naoDeveExcluirQuandoPagamentoNaoPertenceAoPedido() {
         Pedido pedido = pedidoComPagamento(7L);
-        when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(pedido));
+        when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.of(pedido));
 
         assertThrows(RegraDeNegocioException.class, () -> useCase.executar(1L, 999L));
         assertEquals(1, pedido.getPagamentos().size());

@@ -1,12 +1,14 @@
 package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.application.dto.relatorio.EventoComparativoOutput;
+import com.temnafesta.application.dto.relatorio.EvolucaoEventoPeriodoOutput;
 import com.temnafesta.domain.model.Evento;
 import com.temnafesta.domain.ports.repository.EventoRepositoryPort;
 import com.temnafesta.infrastructure.persistence.entity.EventoJpaEntity;
 import com.temnafesta.infrastructure.persistence.mapper.GeralPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataEventoRepository;
 import com.temnafesta.infrastructure.projection.EventosComparativoProjection;
+import com.temnafesta.infrastructure.projection.EvolucaoEventoProjection;
 import org.springframework.stereotype.Component;
 
 
@@ -27,7 +29,16 @@ public class EventoRepositoryAdapter implements EventoRepositoryPort {
 
     @Override
     public List<Evento> listarEventosAtivos() {
-        return repository.findByAtivoTrueAndDeletadoFalse().stream()
+        return converterEventos(repository.findByAtivoTrueAndDeletadoFalseOrderByAtivoDesc());
+    }
+
+    @Override
+    public List<Evento> listarEventosNaoDeletados() {
+        return converterEventos(repository.findByDeletadoFalseOrderByAtivoDesc());
+    }
+
+    private List<Evento> converterEventos(List<EventoJpaEntity> eventos) {
+        return eventos.stream()
                 .map(mapper::toDomain)
                 .toList();
     }
@@ -73,6 +84,31 @@ public class EventoRepositoryAdapter implements EventoRepositoryPort {
         return resultados.stream()
                 .map(r -> new EventoComparativoOutput(
                         r.getEvento(),
+                        r.getPedidosTotais(),
+                        r.getVendasObtidas(),
+                        r.getFaturamento(),
+                        r.getTicketMedio()
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<EvolucaoEventoPeriodoOutput> buscarEvolucaoEvento(
+            Long eventoId,
+            LocalDateTime inicio,
+            LocalDateTime fim,
+            boolean agruparPorAno
+    ) {
+        List<EvolucaoEventoProjection> resultados = repository.buscarEvolucaoEvento(
+                eventoId,
+                inicio,
+                fim,
+                agruparPorAno
+        );
+
+        return resultados.stream()
+                .map(r -> new EvolucaoEventoPeriodoOutput(
+                        r.getPeriodo(),
                         r.getPedidosTotais(),
                         r.getVendasObtidas(),
                         r.getFaturamento(),

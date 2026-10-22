@@ -29,8 +29,6 @@ public class GerarReciboDigitalUseCase {
                 .orElseThrow(() -> new RegraDeNegocioException("Cliente não encontrado."));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        BigDecimal valorSinal = pedido.getValorTotal().multiply(new BigDecimal("0.50"));
-
         StringBuilder recibo = new StringBuilder();
         recibo.append("🎂 *TEM NA FESTA - CONFIRMAÇÃO DE PEDIDO #").append(pedido.getId()).append("*\n\n");
         recibo.append("*Cliente:* ").append(cliente.getNome()).append("\n");
@@ -51,9 +49,8 @@ public class GerarReciboDigitalUseCase {
         }
 
         recibo.append("\n\n*Valor Total:* R$ ").append(pedido.getValorTotal());
-        recibo.append("\n*Sinal Mínimo (50%):* R$ ").append(valorSinal);
         recibo.append("\n\n*Chave PIX:* pix@temnafesta.com.br");
-        recibo.append("\n\n_Por favor, nos envie o comprovante para confirmar a produção!_");
+        recibo.append("\n\n_Se houver pagamento antecipado combinado, envie o comprovante para registro._");
 
         return recibo.toString();
     }

@@ -41,6 +41,12 @@ public class PagamentoJpaEntity {
     @Column(name = "usuario_id", nullable = false)
     private Long usuarioId;
 
+    @Column(name = "chave_idempotencia", length = 36, unique = true)
+    private String chaveIdempotencia;
+
+    @Column(name = "assinatura_requisicao", length = 64)
+    private String assinaturaRequisicao;
+
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", nullable = false)

@@ -24,6 +24,9 @@ public class PedidoJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long versao;
+
     @Column(name = "data_pedido", nullable = false)
     private LocalDateTime dataPedido;
 
@@ -32,6 +35,9 @@ public class PedidoJpaEntity {
 
     @Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
     private BigDecimal valorTotal;
+
+    @Column(name = "desconto_pedido", nullable = false, precision = 10, scale = 2)
+    private BigDecimal descontoPedido = BigDecimal.ZERO;
 
     @Column(name = "taxa_entrega", precision = 10, scale = 2)
     private BigDecimal taxaEntrega;
@@ -45,6 +51,10 @@ public class PedidoJpaEntity {
 
     @Column(name = "cliente_id", nullable = false)
     private Long clienteId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id", insertable = false, updatable = false)
+    private ClienteJpaEntity cliente;
 
     @Column(name = "usuario_id", nullable = false)
     private Long usuarioId;
