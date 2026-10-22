@@ -49,6 +49,15 @@ public interface SpringDataPedidoRepository
       )
       AND (:status IS NULL OR p.status_producao = :status)
       AND (:eventoId IS NULL OR p.evento_id = :eventoId)
+      AND (:pagamentoPendente = FALSE OR (
+          p.status_producao <> 'CANCELADO'
+          AND p.valor_total > COALESCE((
+              SELECT SUM(pag.valor)
+              FROM pagamento pag
+              WHERE pag.pedido_id = p.id
+                AND pag.status_pagamento = 'CONFIRMADO'
+          ), 0.00)
+      ))
     ORDER BY p.data_entrega ASC
     """,
             countQuery = """
@@ -65,12 +74,22 @@ public interface SpringDataPedidoRepository
       )
       AND (:status IS NULL OR p.status_producao = :status)
       AND (:eventoId IS NULL OR p.evento_id = :eventoId)
+      AND (:pagamentoPendente = FALSE OR (
+          p.status_producao <> 'CANCELADO'
+          AND p.valor_total > COALESCE((
+              SELECT SUM(pag.valor)
+              FROM pagamento pag
+              WHERE pag.pedido_id = p.id
+                AND pag.status_pagamento = 'CONFIRMADO'
+          ), 0.00)
+      ))
     """,
             nativeQuery = true)
     Page<PedidoJpaEntity> listarPedidos(
             @Param("busca") String busca,
             @Param("status") StatusProducaoEnum status,
             @Param("eventoId") Long eventoId,
+            @Param("pagamentoPendente") boolean pagamentoPendente,
             Pageable pageable
     );
 

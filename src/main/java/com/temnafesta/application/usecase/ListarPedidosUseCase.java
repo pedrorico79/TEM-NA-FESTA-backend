@@ -21,20 +21,35 @@ public class ListarPedidosUseCase {
             StatusProducaoEnum status,
             Long eventoId,
             Pageable pageable) {
+        return pedidoRepository.listarPedidos(normalizarBusca(busca), status, eventoId, pageable);
+    }
 
-        if (busca != null) {
-            busca = busca.trim();
+    @Transactional(readOnly = true)
+    public Page<Pedido> executar(
+            String busca,
+            StatusProducaoEnum status,
+            Long eventoId,
+            boolean pagamentoPendente,
+            Pageable pageable) {
 
-            if (busca.isEmpty()) {
-                busca = null;
-            }
+        busca = normalizarBusca(busca);
+
+        if (!pagamentoPendente) {
+            return pedidoRepository.listarPedidos(busca, status, eventoId, pageable);
         }
 
         return pedidoRepository.listarPedidos(
                 busca,
-                status,
+                null,
                 eventoId,
+                pagamentoPendente,
                 pageable
         );
+    }
+
+    private String normalizarBusca(String busca) {
+        if (busca == null) return null;
+        String normalizada = busca.trim();
+        return normalizada.isEmpty() ? null : normalizada;
     }
 }

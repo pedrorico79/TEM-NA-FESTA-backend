@@ -32,6 +32,13 @@ public interface PedidoRepositoryPort {
     List<Pedido> listarProximasRetiradas(LocalDateTime limite);
     List<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId);
     Page<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId, Pageable pageable);
+    default Page<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId,
+                                       boolean pagamentoPendente, Pageable pageable) {
+        if (pagamentoPendente) {
+            throw new UnsupportedOperationException("Este repositório não implementa o filtro de pagamentos pendentes.");
+        }
+        return listarPedidos(busca, status, eventoId, pageable);
+    }
     Optional<ItemPedido> buscarItemPorId(Long pedidoId, Long itemId);
     List<Pagamento> listarPagamentos(Long pedidoId);
     List<Pedido> listarPorFiltros(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim);
