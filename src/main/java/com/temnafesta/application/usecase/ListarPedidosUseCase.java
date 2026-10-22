@@ -21,7 +21,7 @@ public class ListarPedidosUseCase {
             StatusProducaoEnum status,
             Long eventoId,
             Pageable pageable) {
-        return pedidoRepository.listarPedidos(normalizarBusca(busca), status, eventoId, pageable);
+        return executar(busca, status, eventoId, false, false, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -31,10 +31,21 @@ public class ListarPedidosUseCase {
             Long eventoId,
             boolean pagamentoPendente,
             Pageable pageable) {
+        return executar(busca, status, eventoId, pagamentoPendente, false, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Pedido> executar(
+            String busca,
+            StatusProducaoEnum status,
+            Long eventoId,
+            boolean pagamentoPendente,
+            boolean ativos,
+            Pageable pageable) {
 
         busca = normalizarBusca(busca);
 
-        if (!pagamentoPendente) {
+        if (!pagamentoPendente && !ativos) {
             return pedidoRepository.listarPedidos(busca, status, eventoId, pageable);
         }
 
@@ -43,6 +54,7 @@ public class ListarPedidosUseCase {
                 null,
                 eventoId,
                 pagamentoPendente,
+                ativos,
                 pageable
         );
     }

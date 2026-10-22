@@ -58,6 +58,9 @@ public interface SpringDataPedidoRepository
                 AND pag.status_pagamento = 'CONFIRMADO'
           ), 0.00)
       ))
+      AND (:ativos = FALSE OR p.status_producao IN (
+          'AGUARDANDO_SINAL', 'CONFIRMADO', 'EM_PRODUCAO', 'PRONTO_PARA_ENTREGA'
+      ))
     ORDER BY p.data_entrega ASC
     """,
             countQuery = """
@@ -83,13 +86,17 @@ public interface SpringDataPedidoRepository
                 AND pag.status_pagamento = 'CONFIRMADO'
           ), 0.00)
       ))
+      AND (:ativos = FALSE OR p.status_producao IN (
+          'AGUARDANDO_SINAL', 'CONFIRMADO', 'EM_PRODUCAO', 'PRONTO_PARA_ENTREGA'
+      ))
     """,
             nativeQuery = true)
     Page<PedidoJpaEntity> listarPedidos(
             @Param("busca") String busca,
-            @Param("status") StatusProducaoEnum status,
+            @Param("status") String status,
             @Param("eventoId") Long eventoId,
             @Param("pagamentoPendente") boolean pagamentoPendente,
+            @Param("ativos") boolean ativos,
             Pageable pageable
     );
 

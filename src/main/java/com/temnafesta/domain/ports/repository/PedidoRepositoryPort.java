@@ -39,6 +39,13 @@ public interface PedidoRepositoryPort {
         }
         return listarPedidos(busca, status, eventoId, pageable);
     }
+    default Page<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId,
+                                       boolean pagamentoPendente, boolean ativos, Pageable pageable) {
+        if (pagamentoPendente || ativos) {
+            throw new UnsupportedOperationException("Este repositório não implementa os filtros especiais de pedidos.");
+        }
+        return listarPedidos(busca, status, eventoId, pageable);
+    }
     Optional<ItemPedido> buscarItemPorId(Long pedidoId, Long itemId);
     List<Pagamento> listarPagamentos(Long pedidoId);
     List<Pedido> listarPorFiltros(StatusProducaoEnum status, LocalDateTime inicio, LocalDateTime fim);

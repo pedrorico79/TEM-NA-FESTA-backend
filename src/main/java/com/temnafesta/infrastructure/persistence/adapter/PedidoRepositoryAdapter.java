@@ -165,7 +165,20 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     @Override
     public Page<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId,
                                       boolean pagamentoPendente, Pageable pageable) {
-        return repository.listarPedidos(busca, status, eventoId, pagamentoPendente, pageable)
+        return listarPedidos(busca, status, eventoId, pagamentoPendente, false, pageable);
+    }
+
+    @Override
+    public Page<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId,
+                                      boolean pagamentoPendente, boolean ativos, Pageable pageable) {
+        return repository.listarPedidos(
+                busca,
+                status == null ? null : status.name(),
+                eventoId,
+                pagamentoPendente,
+                ativos,
+                pageable
+        )
                 .map(mapper::toDomain);
     }
 
