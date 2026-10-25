@@ -4,8 +4,8 @@ import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
-import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;

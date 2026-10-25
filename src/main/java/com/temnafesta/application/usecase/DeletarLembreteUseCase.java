@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
-import com.temnafesta.domain.ports.repository.LembreteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
 
 public class DeletarLembreteUseCase {
 

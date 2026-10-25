@@ -2,7 +2,7 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.CriarProdutoCommand;
 import com.temnafesta.domain.model.Produto;
-import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 
 public class CriarProdutoUseCase {
 

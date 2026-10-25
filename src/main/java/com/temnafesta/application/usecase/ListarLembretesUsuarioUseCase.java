@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.ports.repository.LembreteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
 import com.temnafesta.domain.model.Lembrete;
 
 import java.util.List;

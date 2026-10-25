@@ -1,7 +1,7 @@
 package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.domain.model.Usuario;
-import com.temnafesta.domain.ports.repository.UsuarioRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.UsuarioRepositoryPort;
 import com.temnafesta.infrastructure.persistence.entity.UsuarioJpaEntity;
 import com.temnafesta.infrastructure.persistence.mapper.UsuarioPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataUsuarioRepository;

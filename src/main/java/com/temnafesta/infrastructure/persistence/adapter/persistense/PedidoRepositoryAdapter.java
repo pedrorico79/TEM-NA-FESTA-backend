@@ -5,7 +5,7 @@ import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.application.dto.relatorio.PedidosPeriodoOutput;
 import com.temnafesta.application.dto.relatorio.PedidosPorSemanaOutput;
 import com.temnafesta.domain.model.Pedido;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import com.temnafesta.infrastructure.persistence.entity.PedidoJpaEntity;
 import com.temnafesta.infrastructure.persistence.entity.EnderecoJpaEntity;

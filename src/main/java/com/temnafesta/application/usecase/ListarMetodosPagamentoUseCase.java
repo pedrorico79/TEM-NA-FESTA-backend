@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.model.MetodoPagamento;
-import com.temnafesta.domain.ports.repository.MetodoPagamentoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.MetodoPagamentoRepositoryPort;
 
 import java.util.List;
 

@@ -4,8 +4,8 @@ import com.temnafesta.application.dto.AlterarAtivoClienteCommand;
 import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
-import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
 public class AlterarAtivoClienteUseCase {
 

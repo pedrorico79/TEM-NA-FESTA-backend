@@ -1,7 +1,7 @@
 package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.domain.model.Perfil;
-import com.temnafesta.domain.ports.repository.PerfilRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PerfilRepositoryPort;
 import com.temnafesta.infrastructure.persistence.mapper.UsuarioPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataPerfilRepository;
 import org.springframework.stereotype.Component;

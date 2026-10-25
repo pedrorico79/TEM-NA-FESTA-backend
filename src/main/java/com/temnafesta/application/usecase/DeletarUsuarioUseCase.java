@@ -2,7 +2,7 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Usuario;
-import com.temnafesta.domain.ports.repository.UsuarioRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.UsuarioRepositoryPort;
 
 public class DeletarUsuarioUseCase {
 

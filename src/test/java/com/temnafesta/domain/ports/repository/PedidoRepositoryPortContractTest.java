@@ -5,6 +5,7 @@ import com.temnafesta.application.dto.relatorio.PedidosPorSemanaOutput;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.vo.StatusPagamentoEnum;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import com.temnafesta.domain.vo.TipoPagamentoEnum;

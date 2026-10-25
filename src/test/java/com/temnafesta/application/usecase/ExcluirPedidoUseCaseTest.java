@@ -3,7 +3,7 @@ package com.temnafesta.application.usecase;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

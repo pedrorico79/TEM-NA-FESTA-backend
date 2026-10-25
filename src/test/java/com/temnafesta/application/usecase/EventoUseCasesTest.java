@@ -4,7 +4,7 @@ import com.temnafesta.application.dto.AtualizarEventoCommand;
 import com.temnafesta.application.dto.CriarEventoCommand;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Evento;
-import com.temnafesta.domain.ports.repository.EventoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

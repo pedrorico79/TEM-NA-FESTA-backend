@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.relatorio.ProdutosMaisVendidosOutput;
-import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

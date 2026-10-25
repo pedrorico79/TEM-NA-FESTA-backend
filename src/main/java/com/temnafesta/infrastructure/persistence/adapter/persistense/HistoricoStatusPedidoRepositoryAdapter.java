@@ -1,7 +1,7 @@
 package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.domain.model.HistoricoStatusPedido;
-import com.temnafesta.domain.ports.repository.HistoricoStatusPedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.HistoricoStatusPedidoRepositoryPort;
 import com.temnafesta.infrastructure.persistence.entity.HistoricoStatusPedidoJpaEntity;
 import com.temnafesta.infrastructure.persistence.mapper.HistoricoStatusPedidoPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataHistoricoStatusPedidoRepository;

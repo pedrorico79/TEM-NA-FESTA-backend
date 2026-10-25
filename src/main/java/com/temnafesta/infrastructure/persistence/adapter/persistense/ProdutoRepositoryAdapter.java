@@ -2,7 +2,7 @@ package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.application.dto.relatorio.ProdutosMaisVendidosOutput;
 import com.temnafesta.domain.model.Produto;
-import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import com.temnafesta.infrastructure.persistence.mapper.ProdutoPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataProdutoRepository;
 import com.temnafesta.infrastructure.projection.MaisVendidosProjection;

@@ -2,8 +2,8 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.HistoricoStatusPedido;
-import com.temnafesta.domain.ports.repository.HistoricoStatusPedidoRepositoryPort;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.HistoricoStatusPedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
 import java.util.List;
 

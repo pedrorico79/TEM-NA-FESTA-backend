@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.relatorio.EventoComparativoOutput;
-import com.temnafesta.domain.ports.repository.EventoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

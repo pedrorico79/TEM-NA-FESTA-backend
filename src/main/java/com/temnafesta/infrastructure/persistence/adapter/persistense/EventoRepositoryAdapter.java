@@ -3,7 +3,7 @@ package com.temnafesta.infrastructure.persistence.adapter.persistense;
 import com.temnafesta.application.dto.relatorio.EventoComparativoOutput;
 import com.temnafesta.application.dto.relatorio.EvolucaoEventoPeriodoOutput;
 import com.temnafesta.domain.model.Evento;
-import com.temnafesta.domain.ports.repository.EventoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
 import com.temnafesta.infrastructure.persistence.entity.EventoJpaEntity;
 import com.temnafesta.infrastructure.persistence.mapper.GeralPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataEventoRepository;
