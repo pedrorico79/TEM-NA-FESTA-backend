@@ -12,6 +12,7 @@ import com.temnafesta.presentation.mapper.ConsultasPresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +30,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/eventos")
+@AllArgsConstructor
 @Tag(name = "Eventos", description = "Endpoints para gestão de eventos")
 public class EventoController {
 
@@ -39,21 +41,6 @@ public class EventoController {
     private final AlterarStatusEventoUseCase alterarStatusEventoUseCase;
     private final BuscarEventoPorIdUseCase buscarEventoPorIdUseCase;
     private final ConsultasPresentationMapper mapper;
-
-    public EventoController(ListarEventosAtivosUseCase listarEventosAtivosUseCase,
-                            CriarEventoUseCase criarEventoUseCase,
-                            AtualizarEventoUseCase atualizarEventoUseCase,
-                            DeletarEventoUseCase deletarEventoUseCase,
-                            AlterarStatusEventoUseCase alterarStatusEventoUseCase, BuscarEventoPorIdUseCase buscarEventoPorIdUseCase,
-                            ConsultasPresentationMapper mapper) {
-        this.listarEventosAtivosUseCase = listarEventosAtivosUseCase;
-        this.criarEventoUseCase = criarEventoUseCase;
-        this.atualizarEventoUseCase = atualizarEventoUseCase;
-        this.deletarEventoUseCase = deletarEventoUseCase;
-        this.alterarStatusEventoUseCase = alterarStatusEventoUseCase;
-        this.buscarEventoPorIdUseCase = buscarEventoPorIdUseCase;
-        this.mapper = mapper;
-    }
 
     @GetMapping
     @Operation(summary = "Lista eventos não deletados, com filtro opcional de ativos",

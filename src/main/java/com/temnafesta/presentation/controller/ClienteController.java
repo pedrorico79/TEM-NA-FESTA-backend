@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/clientes")
+@AllArgsConstructor
 @Tag(name = "Clientes", description = "Gerenciamento de clientes da confeitaria")
 public class ClienteController {
 
@@ -34,23 +36,6 @@ public class ClienteController {
     private final AtualizarClienteUseCase atualizarClienteUseCase;
     private final AlterarAtivoClienteUseCase alterarAtivoClienteUseCase;
     private final DeletarClienteUseCase deletarClienteUseCase;
-
-    public ClienteController(
-            CriarClienteUseCase criarClienteUseCase,
-            ClientePresentationMapper mapper,
-            ListarClientesUseCase listarClientesUseCase,
-            AtualizarClienteUseCase atualizarClienteUseCase,
-            BuscarClientePorIdUseCase buscarClientePorIdUseCase,
-            AlterarAtivoClienteUseCase alterarAtivoClienteUseCase,
-            DeletarClienteUseCase deletarClienteUseCase) {
-        this.criarClienteUseCase = criarClienteUseCase;
-        this.mapper = mapper;
-        this.listarClientesUseCase = listarClientesUseCase;
-        this.atualizarClienteUseCase = atualizarClienteUseCase;
-        this.alterarAtivoClienteUseCase = alterarAtivoClienteUseCase;
-        this.deletarClienteUseCase = deletarClienteUseCase;
-        this.buscarClientePorIdUseCase = buscarClientePorIdUseCase;
-    }
 
     @PostMapping
     @Operation(summary = "Cadastra um novo cliente com endereço opcional")

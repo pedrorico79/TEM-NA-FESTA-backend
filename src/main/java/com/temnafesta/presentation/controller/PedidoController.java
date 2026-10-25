@@ -68,7 +68,11 @@ public class PedidoController {
     public ResponseEntity<PedidoResponseDto> alterarStatus(@PathVariable Long id,
                                                            @Valid @RequestBody AlterarStatusRequestDto request,
                                                            @AuthenticationPrincipal UsuarioAutenticado usuario) {
-        Pedido pedidoAtualizado = alterarStatusPedidoUseCase.executar(id, request.novoStatus(), usuario.getId(), request.observacao());
+
+
+        Pedido pedidoAtualizado = alterarStatusPedidoUseCase.executar(
+                id, request.novoStatus(), usuario.getId(), request.observacao(), request.notificarCliente());
+
         return ResponseEntity.ok(mapper.toResponse(pedidoAtualizado));
     }
 

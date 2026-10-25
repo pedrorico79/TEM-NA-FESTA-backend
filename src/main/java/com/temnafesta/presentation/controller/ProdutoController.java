@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/produtos")
+@AllArgsConstructor
 @Tag(name = "Produto", description = "Endpoints para gerenciamento dos produtos")
 public class ProdutoController {
 
@@ -47,19 +49,6 @@ public class ProdutoController {
     private final AlterarAtivoProdutoUseCase alterarAtivoProdutoUseCase;
     private final ProdutoPresentationMapper mapper;
 
-    public ProdutoController(ListarProdutosUseCase listarProdutosUseCase,
-                             CriarProdutoUseCase criarProdutoUseCase,
-                             AtualizarProdutoUseCase atualizarProdutoUseCase,
-                             DeletarProdutoUseCase deletarProdutoUseCase,
-                             AlterarAtivoProdutoUseCase alterarAtivoProdutoUseCase,
-                             ProdutoPresentationMapper mapper) {
-        this.listarProdutosUseCase = listarProdutosUseCase;
-        this.criarProdutoUseCase = criarProdutoUseCase;
-        this.atualizarProdutoUseCase = atualizarProdutoUseCase;
-        this.deletarProdutoUseCase = deletarProdutoUseCase;
-        this.alterarAtivoProdutoUseCase = alterarAtivoProdutoUseCase;
-        this.mapper = mapper;
-    }
 
     @GetMapping
     @Operation(summary = "Lista produtos não deletados, com filtro opcional por nome e ativos",
