@@ -142,12 +142,16 @@ public class PedidoController {
             @RequestParam(required = false) String busca,
             @RequestParam(required = false) StatusProducaoEnum status,
             @RequestParam(required = false) Long evento,
+            @RequestParam(defaultValue = "false") boolean pagamentoPendente,
+            @RequestParam(defaultValue = "false") boolean ativos,
             Pageable pageable) {
 
         Page<Pedido> pedidos = listarPedidosUseCase.executar(
                 busca,
                 status,
                 evento,
+                pagamentoPendente,
+                ativos,
                 pageable
         );
 

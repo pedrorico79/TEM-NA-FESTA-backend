@@ -1,7 +1,6 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.CriarPedidoCommand;
-import com.temnafesta.application.exception.EventoPublicacaoException;
 import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
@@ -13,31 +12,53 @@ import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
 import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
-import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.util.ArrayList;
 
 public class CriarPedidoInternoUseCase {
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(CriarPedidoInternoUseCase.class);
 
     private final PedidoRepositoryPort pedidoRepositoryPort;
     private final ClienteRepositoryPort clienteRepositoryPort;
     private final ProdutoRepositoryPort produtoRepositoryPort;
     private final PedidoEventPublisherPort pedidoEventPublisherPort;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CriarPedidoInternoUseCase.class);
-
+    private final Clock relogioNegocio;
 
     public CriarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
             ClienteRepositoryPort clienteRepositoryPort,
-            ProdutoRepositoryPort produtoRepositoryPort, PedidoEventPublisherPort pedidoEventPublisherPort) {
+            ProdutoRepositoryPort produtoRepositoryPort,
+            PedidoEventPublisherPort pedidoEventPublisherPort) {
+
+        this(
+                pedidoRepositoryPort,
+                clienteRepositoryPort,
+                produtoRepositoryPort,
+                pedidoEventPublisherPort,
+                com.temnafesta.domain.time.RelogioNegocio.sistema()
+        );
+    }
+
+    public CriarPedidoInternoUseCase(
+            PedidoRepositoryPort pedidoRepositoryPort,
+            ClienteRepositoryPort clienteRepositoryPort,
+            ProdutoRepositoryPort produtoRepositoryPort,
+            PedidoEventPublisherPort pedidoEventPublisherPort,
+            Clock relogioNegocio) {
 
         this.pedidoRepositoryPort = pedidoRepositoryPort;
         this.clienteRepositoryPort = clienteRepositoryPort;
         this.produtoRepositoryPort = produtoRepositoryPort;
         this.pedidoEventPublisherPort = pedidoEventPublisherPort;
+        this.relogioNegocio = relogioNegocio != null
+                ? relogioNegocio
+                : com.temnafesta.domain.time.RelogioNegocio.sistema();
     }
 
     @Transactional
@@ -73,15 +94,13 @@ public class CriarPedidoInternoUseCase {
         for (CriarPedidoCommand.ItemCommand itemDto : command.itens()) {
 
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
-                    .orElseThrow(() ->
-                            new RegraDeNegocioException(
-                                    "Produto não encontrado com o ID: " + itemDto.produtoId()
-                            )
-                    );
+                    .orElseThrow(() -> new RegraDeNegocioException(
+                            "Produto não encontrado com o ID: " + itemDto.produtoId()));
 
             if (!produto.isAtivo()) {
                 throw new RegraDeNegocioException(
-                        "Produto inativo não pode ser adicionado ao pedido. ID: " + itemDto.produtoId());
+                        "Produto inativo não pode ser adicionado ao pedido. ID: "
+                                + itemDto.produtoId());
             }
 
             ItemPedido item = ItemPedido.comAcrescimo(
@@ -100,7 +119,6 @@ public class CriarPedidoInternoUseCase {
 
         novoPedido.definirDescontoPedido(command.descontoPedido());
 
-        // 4. Persiste o pedido
         return pedidoRepositoryPort.salvar(novoPedido);
     }
 }

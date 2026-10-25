@@ -6,6 +6,7 @@ import com.temnafesta.domain.vo.StatusPagamentoEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.temnafesta.domain.time.RelogioNegocio;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,7 @@ public class Pedido {
                   boolean ativo, boolean deletado) {
 
         this.id = id;
-        this.dataPedido = dataPedido != null ? dataPedido : LocalDateTime.now();
+        this.dataPedido = dataPedido != null ? dataPedido : RelogioNegocio.agora();
         this.dataEntrega = dataEntrega;
         this.taxaEntrega = taxaEntrega != null ? taxaEntrega : BigDecimal.ZERO;
         this.observacao = observacao;

@@ -23,11 +23,21 @@ public class RegistrarPagamentoUseCase {
 
     private final PedidoRepositoryPort pedidoRepositoryPort;
     private final MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort;
+    private final java.time.Clock relogioNegocio;
 
     public RegistrarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort,
                                      MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort) {
+        this(pedidoRepositoryPort, metodoPagamentoRepositoryPort,
+                com.temnafesta.domain.time.RelogioNegocio.sistema());
+    }
+
+    public RegistrarPagamentoUseCase(PedidoRepositoryPort pedidoRepositoryPort,
+                                     MetodoPagamentoRepositoryPort metodoPagamentoRepositoryPort,
+                                     java.time.Clock relogioNegocio) {
         this.pedidoRepositoryPort = pedidoRepositoryPort;
         this.metodoPagamentoRepositoryPort = metodoPagamentoRepositoryPort;
+        this.relogioNegocio = relogioNegocio != null
+                ? relogioNegocio : com.temnafesta.domain.time.RelogioNegocio.sistema();
     }
 
     @Transactional
@@ -61,7 +71,7 @@ public class RegistrarPagamentoUseCase {
                 .orElseThrow(() -> new RegraDeNegocioException("Método de pagamento não encontrado."));
 
         Pagamento pagamento = new Pagamento(
-                null, valor, LocalDateTime.now(), tipo, statusInicial, metodoPagamentoId, usuarioId);
+                null, valor, LocalDateTime.now(relogioNegocio), tipo, statusInicial, metodoPagamentoId, usuarioId);
         pagamento.setChaveIdempotencia(chaveIdempotencia);
         pagamento.setAssinaturaRequisicao(assinatura);
         pedido.adicionarPagamento(pagamento);

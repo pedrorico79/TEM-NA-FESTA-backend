@@ -1,5 +1,6 @@
 package com.temnafesta.domain.model;
 
+import com.temnafesta.domain.time.RelogioNegocio;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import org.junit.jupiter.api.Test;
 
@@ -44,14 +45,14 @@ class LembreteTest {
 
     @Test
     void deveDefinirDataCriacaoComoHojeQuandoNaoInformada() {
-        LocalDate antes = LocalDate.now();
+        LocalDate antes = RelogioNegocio.hoje();
         Lembrete lembrete = new Lembrete(
                 1L,
                 "Lembrete válido",
                 null,
-                LocalDate.now().plusDays(1),
+                RelogioNegocio.hoje().plusDays(1),
                 10L);
-        LocalDate depois = LocalDate.now();
+        LocalDate depois = RelogioNegocio.hoje();
 
         assertNotNull(lembrete.getDataCriacao());
         assertTrue(lembrete.getDataCriacao().isAfter(antes.minusDays(1)));

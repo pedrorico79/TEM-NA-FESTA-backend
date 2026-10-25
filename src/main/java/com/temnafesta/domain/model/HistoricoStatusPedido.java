@@ -2,6 +2,7 @@ package com.temnafesta.domain.model;
 
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import java.time.LocalDateTime;
+import com.temnafesta.domain.time.RelogioNegocio;
 
 public class HistoricoStatusPedido {
     private Long id;
@@ -14,7 +15,7 @@ public class HistoricoStatusPedido {
     public HistoricoStatusPedido(Long id, LocalDateTime dataAlteracao, String observacao,
                                  StatusProducaoEnum statusProducao, Long pedidoId, Long usuarioId) {
         this.id = id;
-        this.dataAlteracao = dataAlteracao != null ? dataAlteracao : LocalDateTime.now();
+        this.dataAlteracao = dataAlteracao != null ? dataAlteracao : RelogioNegocio.agora();
         this.observacao = observacao;
         this.statusProducao = statusProducao;
         this.pedidoId = pedidoId;
