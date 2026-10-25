@@ -5,10 +5,10 @@ import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.ports.out.PedidoEventPublisherPort;
 import com.temnafesta.infrastructure.config.RabbitBeanConfiguration;
 import com.temnafesta.infrastructure.dto.PedidoNotificacaoEvent;
-import com.temnafesta.infrastructure.dto.TipoEventoEnum;
-import com.temnafesta.infrastructure.exception.FalhaPublicacaoPedidoException;
+import com.temnafesta.infrastructure.persistence.mapper.TipoEventoMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -25,37 +25,41 @@ public class RabbitMQPedidoEventPublisher implements PedidoEventPublisherPort {
     }
 
     @Override
-    public void publicarPedidoCriado(Pedido pedidoSalvo, Cliente cliente) {
+    public void publicarNotificacao(Pedido pedidoSalvo, Cliente cliente) {
 
-        PedidoNotificacaoEvent event = new PedidoNotificacaoEvent(
-                pedidoSalvo.getId(),
-                TipoEventoEnum.CRIACAO_PEDIDO,
-                Instant.now(),
-                pedidoSalvo.getValorTotal(),
-                pedidoSalvo.getTaxaEntrega(),
-                pedidoSalvo.getObservacao(),
-                cliente.getNome(),
-                cliente.getTelefone(),
-                pedidoSalvo.getItens().stream()
-                        .map(item -> new PedidoNotificacaoEvent.ItemPedidoEvent(
-                                item.getProdutoId(),
-                                item.getProduto().getNome(),
-                                item.getQuantidade(),
-                                item.getPrecoUnitario(),
-                                item.calcularSubtotal()
-                        ))
-                        .toList()
-        );
+        PedidoNotificacaoEvent event = montarPayload(pedidoSalvo, cliente);
+
         try {
             rabbitTemplate.convertAndSend(
                     RabbitBeanConfiguration.EXCHANGE_PEDIDO,
                     RabbitBeanConfiguration.ROUTING_KEY,
                     event
             );
-            LOGGER.info("Evento enviado a fila com sucesso");
+            LOGGER.info("Evento enviado a fila com sucesso.");
 
-        } catch (Exception error) {
-            throw new FalhaPublicacaoPedidoException("Erro ao publicar evento", error);
+        } catch (AmqpException e) {
+            throw new AmqpException("Erro ao chamar serviço externo", e);
         }
+    }
+
+    private PedidoNotificacaoEvent montarPayload(Pedido pedidoSalvo, Cliente cliente) {
+        return new PedidoNotificacaoEvent(
+                pedidoSalvo.getId(),
+                TipoEventoMapper.from(pedidoSalvo.getStatusProducao()),
+                Instant.now(),
+                pedidoSalvo.getValorTotal(),
+                pedidoSalvo.getTaxaEntrega(),
+                pedidoSalvo.getObservacao(),
+                cliente.getNome(),
+                cliente.getWhatsapp() != null ? cliente.getWhatsapp() : cliente.getTelefone(),
+                pedidoSalvo.getItens().stream()
+                        .map(item -> new PedidoNotificacaoEvent.ItemPedidoEvent(
+                                item.getProdutoId(),
+                                item.getProduto().getNome(),
+                                item.getQuantidade(),
+                                item.getPrecoUnitario(),
+                                item.calcularSubtotal())
+                        ).toList()
+        );
     }
 }

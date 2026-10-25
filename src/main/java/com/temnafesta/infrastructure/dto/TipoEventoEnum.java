@@ -1,6 +1,10 @@
 package com.temnafesta.infrastructure.dto;
 
 public enum TipoEventoEnum {
-    CRIACAO_PEDIDO,
-    ATUALIZACAO_STATUS
+    PEDIDO_CRIADO,
+    PEDIDO_CONFIRMADO,
+    EM_PRODUCAO,
+    PRONTO_PARA_ENTREGA,
+    ENTREGUE,
+    CANCELADO
 }

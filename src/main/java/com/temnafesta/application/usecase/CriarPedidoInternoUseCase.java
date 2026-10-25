@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.CriarPedidoCommand;
+import com.temnafesta.application.exception.EventoPublicacaoException;
 import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
@@ -8,13 +9,11 @@ import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.model.Produto;
 import com.temnafesta.domain.ports.out.PedidoEventPublisherPort;
-import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
-import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import org.springframework.transaction.annotation.Transactional;
-import com.temnafesta.infrastructure.persistence.adapter.messaging.RabbitMQPedidoEventPublisher;
-import com.temnafesta.presentation.dto.PedidoResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,13 +100,7 @@ public class CriarPedidoInternoUseCase {
 
         novoPedido.definirDescontoPedido(command.descontoPedido());
 
-        // 4. Persiste o pedido + dispara evento
-        Pedido pedidoSalvo = pedidoRepositoryPort.salvar(novoPedido);
-        try {
-            pedidoEventPublisherPort.publicarPedidoCriado(pedidoSalvo, cliente);
-        } catch (Exception error) {
-            LOGGER.error("Não foi possível publicar o evento. {}", error.getMessage());
-        }
-        return pedidoSalvo;
+        // 4. Persiste o pedido
+        return pedidoRepositoryPort.salvar(novoPedido);
     }
 }

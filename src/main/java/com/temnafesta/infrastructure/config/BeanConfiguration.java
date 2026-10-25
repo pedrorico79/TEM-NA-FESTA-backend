@@ -2,7 +2,7 @@ package com.temnafesta.infrastructure.config;
 
 import com.temnafesta.application.usecase.*;
 import com.temnafesta.domain.ports.out.PedidoEventPublisherPort;
-import com.temnafesta.domain.ports.repository.*;
+import com.temnafesta.domain.ports.out.repository.*;
 import com.temnafesta.infrastructure.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,8 +31,10 @@ public class BeanConfiguration {
     @Bean
     public AlterarStatusPedidoUseCase alterarStatusPedidoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
-            HistoricoStatusPedidoRepositoryPort historicoStatusPedidoRepositoryPort) {
-        return new AlterarStatusPedidoUseCase(pedidoRepositoryPort, historicoStatusPedidoRepositoryPort);
+            ClienteRepositoryPort clienteRepositoryPort,
+            HistoricoStatusPedidoRepositoryPort historicoStatusPedidoRepositoryPort,
+            PedidoEventPublisherPort pedidoEventPublisherPort) {
+        return new AlterarStatusPedidoUseCase(pedidoRepositoryPort,clienteRepositoryPort, historicoStatusPedidoRepositoryPort, pedidoEventPublisherPort);
     }
 
     @Bean
