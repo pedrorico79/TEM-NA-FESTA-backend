@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.model.ItemPedido;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
 public class ListarItemPedidoPorIdUseCase {
 

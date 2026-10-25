@@ -1,7 +1,7 @@
 package com.temnafesta.infrastructure.security.user;
 
 import com.temnafesta.domain.model.Usuario; // A sua entidade de domínio puro
-import com.temnafesta.domain.ports.repository.UsuarioRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.UsuarioRepositoryPort;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

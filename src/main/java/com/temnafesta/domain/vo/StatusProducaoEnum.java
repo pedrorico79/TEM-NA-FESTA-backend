@@ -1,5 +1,6 @@
 package com.temnafesta.domain.vo;
 
+
 import java.util.List;
 
 public enum StatusProducaoEnum {
@@ -10,6 +11,11 @@ public enum StatusProducaoEnum {
     PRONTO_PARA_ENTREGA,
     ENTREGUE,
     CANCELADO;
+
+    public boolean deveNotificarCliente(){
+        return this != RASCUNHO;
+
+    }
 
     // Define as transições válidas de cada estado
     public boolean podeTransitarPara(StatusProducaoEnum novoStatus) {

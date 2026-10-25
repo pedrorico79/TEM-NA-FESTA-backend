@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.relatorio.PedidosPorSemanaOutput;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

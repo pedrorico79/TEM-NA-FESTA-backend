@@ -1,9 +1,9 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.relatorio.KpiOutput;
-import com.temnafesta.domain.ports.repository.EventoRepositoryPort;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
-import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 
 import java.math.BigDecimal;

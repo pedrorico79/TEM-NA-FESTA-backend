@@ -1,4 +1,4 @@
-package com.temnafesta.domain.ports.repository;
+package com.temnafesta.domain.ports.out.repository;
 
 import com.temnafesta.domain.model.Lembrete;
 import java.util.List;

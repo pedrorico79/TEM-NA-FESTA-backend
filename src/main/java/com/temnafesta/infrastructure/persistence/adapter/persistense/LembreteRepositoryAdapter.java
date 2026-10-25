@@ -1,7 +1,7 @@
-package com.temnafesta.infrastructure.persistence.adapter;
+package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.domain.model.Lembrete;
-import com.temnafesta.domain.ports.repository.LembreteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
 import com.temnafesta.infrastructure.persistence.mapper.GeralPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataLembreteRepository;
 import org.springframework.stereotype.Component;

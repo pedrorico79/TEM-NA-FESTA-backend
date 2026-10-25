@@ -4,7 +4,7 @@ import com.temnafesta.application.dto.relatorio.EvolucaoEventoOutput;
 import com.temnafesta.application.dto.relatorio.EvolucaoEventoPeriodoOutput;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Evento;
-import com.temnafesta.domain.ports.repository.EventoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

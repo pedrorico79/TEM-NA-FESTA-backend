@@ -2,7 +2,7 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.exception.FalhaAutenticacaoException;
 import com.temnafesta.domain.model.Usuario;
-import com.temnafesta.domain.ports.repository.UsuarioRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.UsuarioRepositoryPort;
 import com.temnafesta.infrastructure.security.jwt.JwtTokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

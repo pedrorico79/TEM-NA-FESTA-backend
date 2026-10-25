@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/pedidos")
+@AllArgsConstructor
 public class PedidoController {
 
     private final CriarPedidoInternoUseCase criarPedidoInternoUseCase;
@@ -46,22 +48,6 @@ public class PedidoController {
     private final ListaPedidosPorSemanaUseCase listaPedidosPorSemanaUseCase;
     private final PedidoPresentationMapper mapper;
 
-    public PedidoController(CriarPedidoInternoUseCase criarPedidoInternoUseCase, AlterarStatusPedidoUseCase alterarStatusPedidoUseCase, GerarReciboDigitalUseCase gerarReciboDigitalUseCase, ListarPedidoPorIdUseCase listarPedidoPorIdUseCase, AtualizarPedidoUseCase atualizarPedidoUseCase, ExcluirPedidoUseCase excluirPedidoUseCase, ContarPorStatusUseCase contarPorStatusUseCase, ListarProximasRetiradasUseCase listarProximasRetiradasUseCase, ListarPedidosUseCase listarPedidosUseCase, ListarItemPedidoPorIdUseCase listarItemPedidoPorIdUseCase, ListarPagamentosPedidoUseCase listarPagamentosPedidoUseCase, ListarHistoricoStatusPedidoUseCase listarHistoricoStatusPedidoUseCase, ListaPedidosPorSemanaUseCase listaPedidosPorSemanaUseCase, PedidoPresentationMapper mapper) {
-        this.criarPedidoInternoUseCase = criarPedidoInternoUseCase;
-        this.alterarStatusPedidoUseCase = alterarStatusPedidoUseCase;
-        this.gerarReciboDigitalUseCase = gerarReciboDigitalUseCase;
-        this.listarPedidoPorIdUseCase = listarPedidoPorIdUseCase;
-        this.atualizarPedidoUseCase = atualizarPedidoUseCase;
-        this.excluirPedidoUseCase = excluirPedidoUseCase;
-        this.contarPorStatusUseCase = contarPorStatusUseCase;
-        this.listarProximasRetiradasUseCase = listarProximasRetiradasUseCase;
-        this.listarPedidosUseCase = listarPedidosUseCase;
-        this.listarItemPedidoPorIdUseCase = listarItemPedidoPorIdUseCase;
-        this.listarPagamentosPedidoUseCase = listarPagamentosPedidoUseCase;
-        this.listarHistoricoStatusPedidoUseCase = listarHistoricoStatusPedidoUseCase;
-        this.listaPedidosPorSemanaUseCase = listaPedidosPorSemanaUseCase;
-        this.mapper = mapper;
-    }
 
     @PostMapping
     public ResponseEntity<PedidoResponseDto> criarPedido(@Valid @RequestBody CriarPedidoRequestDto request,
@@ -82,7 +68,11 @@ public class PedidoController {
     public ResponseEntity<PedidoResponseDto> alterarStatus(@PathVariable Long id,
                                                            @Valid @RequestBody AlterarStatusRequestDto request,
                                                            @AuthenticationPrincipal UsuarioAutenticado usuario) {
-        Pedido pedidoAtualizado = alterarStatusPedidoUseCase.executar(id, request.novoStatus(), usuario.getId(), request.observacao());
+
+
+        Pedido pedidoAtualizado = alterarStatusPedidoUseCase.executar(
+                id, request.novoStatus(), usuario.getId(), request.observacao(), request.notificarCliente());
+
         return ResponseEntity.ok(mapper.toResponse(pedidoAtualizado));
     }
 

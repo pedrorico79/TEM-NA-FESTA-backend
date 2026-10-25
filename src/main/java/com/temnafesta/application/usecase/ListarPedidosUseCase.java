@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.model.Pedido;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

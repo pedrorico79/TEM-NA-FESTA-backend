@@ -6,5 +6,6 @@ import jakarta.validation.constraints.NotNull;
 public record AlterarStatusRequestDto(
         @NotNull(message = "O novo status é obrigatório.")
         StatusProducaoEnum novoStatus,
-        String observacao
+        String observacao,
+        Boolean notificarCliente
 ) {}

@@ -7,42 +7,58 @@ import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.model.Produto;
-import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
-import com.temnafesta.domain.ports.repository.ProdutoRepositoryPort;
+import com.temnafesta.domain.ports.out.PedidoEventPublisherPort;
+import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class CriarPedidoInternoUseCase {
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(CriarPedidoInternoUseCase.class);
 
     private final PedidoRepositoryPort pedidoRepositoryPort;
     private final ClienteRepositoryPort clienteRepositoryPort;
     private final ProdutoRepositoryPort produtoRepositoryPort;
+    private final PedidoEventPublisherPort pedidoEventPublisherPort;
     private final Clock relogioNegocio;
 
     public CriarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
             ClienteRepositoryPort clienteRepositoryPort,
-            ProdutoRepositoryPort produtoRepositoryPort) {
-        this(pedidoRepositoryPort, clienteRepositoryPort, produtoRepositoryPort,
-                com.temnafesta.domain.time.RelogioNegocio.sistema());
+            ProdutoRepositoryPort produtoRepositoryPort,
+            PedidoEventPublisherPort pedidoEventPublisherPort) {
+
+        this(
+                pedidoRepositoryPort,
+                clienteRepositoryPort,
+                produtoRepositoryPort,
+                pedidoEventPublisherPort,
+                com.temnafesta.domain.time.RelogioNegocio.sistema()
+        );
     }
 
     public CriarPedidoInternoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
             ClienteRepositoryPort clienteRepositoryPort,
             ProdutoRepositoryPort produtoRepositoryPort,
+            PedidoEventPublisherPort pedidoEventPublisherPort,
             Clock relogioNegocio) {
 
         this.pedidoRepositoryPort = pedidoRepositoryPort;
         this.clienteRepositoryPort = clienteRepositoryPort;
         this.produtoRepositoryPort = produtoRepositoryPort;
+        this.pedidoEventPublisherPort = pedidoEventPublisherPort;
         this.relogioNegocio = relogioNegocio != null
-                ? relogioNegocio : com.temnafesta.domain.time.RelogioNegocio.sistema();
+                ? relogioNegocio
+                : com.temnafesta.domain.time.RelogioNegocio.sistema();
     }
 
     @Transactional
@@ -60,7 +76,7 @@ public class CriarPedidoInternoUseCase {
 
         Pedido novoPedido = new Pedido(
                 null,
-                LocalDateTime.now(relogioNegocio),
+                null,
                 command.dataEntrega(),
                 command.taxaEntrega(),
                 command.observacao(),
@@ -78,15 +94,13 @@ public class CriarPedidoInternoUseCase {
         for (CriarPedidoCommand.ItemCommand itemDto : command.itens()) {
 
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
-                    .orElseThrow(() ->
-                            new RegraDeNegocioException(
-                                    "Produto não encontrado com o ID: " + itemDto.produtoId()
-                            )
-                    );
+                    .orElseThrow(() -> new RegraDeNegocioException(
+                            "Produto não encontrado com o ID: " + itemDto.produtoId()));
 
             if (!produto.isAtivo()) {
                 throw new RegraDeNegocioException(
-                        "Produto inativo não pode ser adicionado ao pedido. ID: " + itemDto.produtoId());
+                        "Produto inativo não pode ser adicionado ao pedido. ID: "
+                                + itemDto.produtoId());
             }
 
             ItemPedido item = ItemPedido.comAcrescimo(

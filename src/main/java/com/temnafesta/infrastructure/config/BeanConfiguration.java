@@ -1,7 +1,8 @@
 package com.temnafesta.infrastructure.config;
 
 import com.temnafesta.application.usecase.*;
-import com.temnafesta.domain.ports.repository.*;
+import com.temnafesta.domain.ports.out.PedidoEventPublisherPort;
+import com.temnafesta.domain.ports.out.repository.*;
 import com.temnafesta.infrastructure.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,16 +31,26 @@ public class BeanConfiguration {
             PedidoRepositoryPort pedidoRepositoryPort,
             ClienteRepositoryPort clienteRepositoryPort,
             ProdutoRepositoryPort produtoRepositoryPort,
+            PedidoEventPublisherPort pedidoEventPublisherPort,
             Clock relogioNegocio) {
-        return new CriarPedidoInternoUseCase(pedidoRepositoryPort, clienteRepositoryPort, produtoRepositoryPort, relogioNegocio);
+
+        return new CriarPedidoInternoUseCase(pedidoRepositoryPort, clienteRepositoryPort, produtoRepositoryPort, pedidoEventPublisherPort, relogioNegocio);
     }
 
     @Bean
     public AlterarStatusPedidoUseCase alterarStatusPedidoUseCase(
             PedidoRepositoryPort pedidoRepositoryPort,
             HistoricoStatusPedidoRepositoryPort historicoStatusPedidoRepositoryPort,
+            ClienteRepositoryPort clienteRepositoryPort,
+            PedidoEventPublisherPort pedidoEventPublisherPort,
             Clock relogioNegocio) {
-        return new AlterarStatusPedidoUseCase(pedidoRepositoryPort, historicoStatusPedidoRepositoryPort, relogioNegocio);
+
+        return new AlterarStatusPedidoUseCase(
+                pedidoRepositoryPort,
+                historicoStatusPedidoRepositoryPort,
+                clienteRepositoryPort,
+                pedidoEventPublisherPort,
+                relogioNegocio);
     }
 
     @Bean

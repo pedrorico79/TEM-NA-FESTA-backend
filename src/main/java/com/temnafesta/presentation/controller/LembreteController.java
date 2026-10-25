@@ -15,6 +15,7 @@ import com.temnafesta.presentation.mapper.ConsultasPresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/lembretes")
+@AllArgsConstructor
 @Tag(name = "Lembretes", description = "Gerenciamento de lembretes internos dos usuários")
 public class LembreteController {
 
@@ -34,19 +36,6 @@ public class LembreteController {
     private final AtualizarLembreteUseCase atualizarLembreteUseCase;
     private final ConsultasPresentationMapper mapper;
 
-    public LembreteController(CriarLembreteUseCase criarLembreteUseCase,
-                              ListarLembretesUsuarioUseCase listarLembretesUsuarioUseCase,
-                              BuscarLembretePorIdUseCase buscarLembretePorIdUseCase,
-                              DeletarLembreteUseCase deletarLembreteUseCase,
-                              AtualizarLembreteUseCase atualizarLembreteUseCase,
-                              ConsultasPresentationMapper mapper) {
-        this.criarLembreteUseCase = criarLembreteUseCase;
-        this.listarLembretesUsuarioUseCase = listarLembretesUsuarioUseCase;
-        this.buscarLembretePorIdUseCase = buscarLembretePorIdUseCase;
-        this.deletarLembreteUseCase = deletarLembreteUseCase;
-        this.atualizarLembreteUseCase = atualizarLembreteUseCase;
-        this.mapper = mapper;
-    }
 
     @PostMapping
     @Operation(summary = "Cria um novo lembrete para um usuário")

@@ -2,6 +2,7 @@ package com.temnafesta.presentation.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @PeloMenosUmContato
@@ -10,10 +11,10 @@ public record AtualizarClienteRequestDto(
         @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
         String nome,
 
-        @Size(max = 20, message = "O telefone deve ter no máximo 20 caracteres")
+        @Pattern(regexp = "^\\d{10,15}$", message = "O telefone deve conter apenas números e ter entre 10 e 15 dígitos")
         String telefone,
 
-        @Size(max = 20, message = "O WhatsApp deve ter no máximo 20 caracteres")
+        @Pattern(regexp = "^\\d{10,15}$", message = "O whatsapp deve conter apenas números e ter entre 10 e 15 dígitos")
         String whatsapp,
 
         @Size(max = 50, message = "O Instagram deve ter no máximo 50 caracteres")

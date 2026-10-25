@@ -4,7 +4,7 @@ import com.temnafesta.application.dto.AtualizarClienteCommand;
 import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.Endereco;
-import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
 
 public class AtualizarClienteUseCase {
     private final ClienteRepositoryPort clienteRepositoryPort;

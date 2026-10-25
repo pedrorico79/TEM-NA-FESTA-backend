@@ -1,4 +1,4 @@
-package com.temnafesta.domain.ports.repository;
+package com.temnafesta.domain.ports.out.repository;
 
 import com.temnafesta.application.dto.relatorio.EventoComparativoOutput;
 import com.temnafesta.application.dto.relatorio.EvolucaoEventoPeriodoOutput;

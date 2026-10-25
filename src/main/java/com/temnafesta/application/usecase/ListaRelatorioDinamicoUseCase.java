@@ -1,12 +1,11 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.relatorio.PedidosPeriodoOutput;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 public class ListaRelatorioDinamicoUseCase {
 

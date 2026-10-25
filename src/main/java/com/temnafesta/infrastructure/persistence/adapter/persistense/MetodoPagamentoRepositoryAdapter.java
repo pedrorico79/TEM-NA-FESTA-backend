@@ -1,7 +1,7 @@
-package com.temnafesta.infrastructure.persistence.adapter;
+package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.domain.model.MetodoPagamento;
-import com.temnafesta.domain.ports.repository.MetodoPagamentoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.MetodoPagamentoRepositoryPort;
 import com.temnafesta.infrastructure.persistence.mapper.GeralPersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataMetodoPagamentoRepository;
 import org.springframework.stereotype.Component;

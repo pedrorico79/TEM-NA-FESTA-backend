@@ -10,6 +10,7 @@ import com.temnafesta.presentation.dto.RegistrarPagamentoRequestDto;
 import com.temnafesta.presentation.mapper.PedidoPresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,22 +20,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/pedidos/{pedidoId}/pagamentos")
+@AllArgsConstructor
 public class PagamentoController {
 
     private final RegistrarPagamentoUseCase registrarPagamentoUseCase;
     private final ExcluirPagamentoUseCase excluirPagamentoUseCase;
     private final ConfirmarPagamentoUseCase confirmarPagamentoUseCase;
     private final PedidoPresentationMapper mapper;
-
-    public PagamentoController(RegistrarPagamentoUseCase registrarPagamentoUseCase,
-                               ExcluirPagamentoUseCase excluirPagamentoUseCase,
-                               ConfirmarPagamentoUseCase confirmarPagamentoUseCase,
-                               PedidoPresentationMapper mapper) {
-        this.registrarPagamentoUseCase = registrarPagamentoUseCase;
-        this.excluirPagamentoUseCase = excluirPagamentoUseCase;
-        this.confirmarPagamentoUseCase = confirmarPagamentoUseCase;
-        this.mapper = mapper;
-    }
 
     @PostMapping
     @Operation(summary = "Registra um pagamento em um pedido",

@@ -1,7 +1,7 @@
-package com.temnafesta.infrastructure.persistence.adapter;
+package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.domain.model.Cliente;
-import com.temnafesta.domain.ports.repository.ClienteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
 import com.temnafesta.infrastructure.persistence.mapper.ClientePersistenceMapper;
 import com.temnafesta.infrastructure.persistence.repository.SpringDataClienteRepository;
 import org.springframework.data.domain.Page;

@@ -2,7 +2,8 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.CriarLembreteCommand;
 import com.temnafesta.domain.model.Lembrete;
-import com.temnafesta.domain.ports.repository.LembreteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
 import java.time.Clock;
 import java.time.LocalDate;
 

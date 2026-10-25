@@ -18,6 +18,8 @@ import com.temnafesta.presentation.mapper.UsuarioPresentationMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +35,7 @@ import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/v1/usuarios")
+@RequiredArgsConstructor
 public class UsuarioController {
 
     private final ListarUsuarioUseCase listarUsuarioUseCase;
@@ -60,28 +63,6 @@ public class UsuarioController {
 
     @Value("${app.jwt.cookie-domain:}")
     private String jwtCookieDomain;
-
-    public UsuarioController(ListarUsuarioUseCase listarUsuarioUseCase,
-                            CriarUsuarioUseCase criarUsuarioUseCase,
-                            AtualizarUsuarioUseCase atualizarUsuarioUseCase,
-                            AlterarAtivoUsuarioUseCase alterarAtivoUsuarioUseCase,
-                            AlterarSenhaUsuarioUseCase alterarSenhaUsuarioUseCase,
-                            DeletarUsuarioUseCase deletarUsuarioUseCase,
-                            AutenticarUsuarioUseCase autenticarUsuarioUseCase,
-                            JwtTokenProvider jwtTokenProvider,
-                            UsuarioPresentationMapper mapper,
-                            LimiteTentativasLogin limiteTentativasLogin) {
-        this.listarUsuarioUseCase = listarUsuarioUseCase;
-        this.criarUsuarioUseCase = criarUsuarioUseCase;
-        this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
-        this.alterarAtivoUsuarioUseCase = alterarAtivoUsuarioUseCase;
-        this.alterarSenhaUsuarioUseCase = alterarSenhaUsuarioUseCase;
-        this.deletarUsuarioUseCase = deletarUsuarioUseCase;
-        this.autenticarUsuarioUseCase = autenticarUsuarioUseCase;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.mapper = mapper;
-        this.limiteTentativasLogin = limiteTentativasLogin;
-    }
 
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDto>> listarUsuarios(

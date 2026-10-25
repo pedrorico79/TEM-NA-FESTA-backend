@@ -2,7 +2,7 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Evento;
-import com.temnafesta.domain.ports.repository.EventoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
 
 public class DeletarEventoUseCase {
 

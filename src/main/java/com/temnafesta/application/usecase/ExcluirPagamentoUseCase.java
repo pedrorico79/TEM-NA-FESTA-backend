@@ -2,7 +2,7 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Pedido;
-import com.temnafesta.domain.ports.repository.PedidoRepositoryPort;
+import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 import org.springframework.transaction.annotation.Transactional;
 
 public class ExcluirPagamentoUseCase {
