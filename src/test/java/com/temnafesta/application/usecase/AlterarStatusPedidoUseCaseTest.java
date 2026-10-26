@@ -66,7 +66,7 @@ class AlterarStatusPedidoUseCaseTest {
         when(pedidoRepositoryPort.atualizarStatus(1L, StatusProducaoEnum.AGUARDANDO_SINAL))
                 .thenReturn(pedidoCom(StatusProducaoEnum.AGUARDANDO_SINAL));
 
-        Pedido resultado = useCase.executar(1L, StatusProducaoEnum.AGUARDANDO_SINAL, 9L, "Sinal enviado", false);
+        Pedido resultado = useCase.executar(1L, StatusProducaoEnum.AGUARDANDO_SINAL, 9L, "Sinal enviado");
 
         assertEquals(StatusProducaoEnum.AGUARDANDO_SINAL, resultado.getStatusProducao());
         ArgumentCaptor<HistoricoStatusPedido> captor = ArgumentCaptor.forClass(HistoricoStatusPedido.class);
@@ -85,7 +85,7 @@ class AlterarStatusPedidoUseCaseTest {
                 .thenThrow(new RegraDeNegocioException("transição inválida"));
 
         assertThrows(RegraDeNegocioException.class,
-                () -> useCase.executar(1L, StatusProducaoEnum.ENTREGUE, 9L, null, true));
+                () -> useCase.executar(1L, StatusProducaoEnum.ENTREGUE, 9L, null));
         verify(historicoRepositoryPort, never()).salvar(any());
         verify(pedidoEventPublisherPort, never()).publicarNotificacao(any(), any());
     }
@@ -97,9 +97,10 @@ class AlterarStatusPedidoUseCaseTest {
         when(pedidoRepositoryPort.atualizarStatus(1L, StatusProducaoEnum.CONFIRMADO)).thenReturn(pedido);
         when(clienteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(cliente));
 
-        Pedido resultado = useCase.executar(1L, StatusProducaoEnum.CONFIRMADO, 9L, null, true);
+        Pedido resultado = useCase.executar(1L, StatusProducaoEnum.CONFIRMADO, 9L, null);
 
         assertSame(pedido, resultado);
+        assertEquals(true, useCase.notificarCliente(resultado));
         verify(pedidoEventPublisherPort).publicarNotificacao(pedido, cliente);
     }
 
@@ -112,9 +113,10 @@ class AlterarStatusPedidoUseCaseTest {
         doThrow(new EventoPublicacaoException("fila fora do ar"))
                 .when(pedidoEventPublisherPort).publicarNotificacao(pedido, cliente);
 
-        Pedido resultado = useCase.executar(1L, StatusProducaoEnum.CONFIRMADO, 9L, null, true);
+        Pedido resultado = useCase.executar(1L, StatusProducaoEnum.CONFIRMADO, 9L, null);
 
         assertSame(pedido, resultado);
+        assertEquals(false, useCase.notificarCliente(resultado));
         verify(historicoRepositoryPort).salvar(any());
     }
 }

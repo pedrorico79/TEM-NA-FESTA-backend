@@ -1,6 +1,5 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.application.exception.EventoPublicacaoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.HistoricoStatusPedido;
 import com.temnafesta.domain.model.Pedido;
@@ -60,7 +59,7 @@ public class AlterarStatusPedidoUseCase {
     }
 
     @Transactional
-    public Pedido executar(Long pedidoId, StatusProducaoEnum novoStatus, Long usuarioLogadoId, String observacao, boolean notificarCliente) {
+    public Pedido executar(Long pedidoId, StatusProducaoEnum novoStatus, Long usuarioLogadoId, String observacao) {
 
         Pedido pedidoSalvo =
                 pedidoRepositoryPort.atualizarStatus(pedidoId, novoStatus);
@@ -76,18 +75,27 @@ public class AlterarStatusPedidoUseCase {
 
         historicoRepositoryPort.salvar(historico);
 
-        if (notificarCliente && pedidoSalvo.getStatusProducao().deveNotificarCliente()) {
+        return pedidoSalvo;
+    }
 
-            Cliente cliente = clienteRepositoryPort.buscarPorId(pedidoSalvo.getClienteId())
-                    .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado"));
-
-            try {
-                pedidoEventPublisherPort.publicarNotificacao(pedidoSalvo, cliente);
-            } catch (EventoPublicacaoException e) {
-                LOGGER.error("Nao foi possivel publicar o evento.", e);
-            }
+    /**
+     * Tenta publicar a notificação depois que a transação de status já foi concluída.
+     * Uma falha ao consultar o cliente ou ao publicar no RabbitMQ não desfaz o status.
+     */
+    public boolean notificarCliente(Pedido pedido) {
+        if (pedido == null || pedido.getStatusProducao() == null
+                || !pedido.getStatusProducao().deveNotificarCliente()) {
+            return true;
         }
 
-        return pedidoSalvo;
+        try {
+            Cliente cliente = clienteRepositoryPort.buscarPorId(pedido.getClienteId())
+                    .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado"));
+            pedidoEventPublisherPort.publicarNotificacao(pedido, cliente);
+            return true;
+        } catch (RuntimeException e) {
+            LOGGER.warn("Status do pedido {} foi atualizado, mas não foi possível notificar o cliente.", pedido.getId(), e);
+            return false;
+        }
     }
 }

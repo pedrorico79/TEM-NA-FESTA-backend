@@ -71,9 +71,18 @@ public class PedidoController {
 
 
         Pedido pedidoAtualizado = alterarStatusPedidoUseCase.executar(
-                id, request.novoStatus(), usuario.getId(), request.observacao(), request.notificarCliente());
+                id, request.novoStatus(), usuario.getId(), request.observacao());
 
-        return ResponseEntity.ok(mapper.toResponse(pedidoAtualizado));
+        boolean notificacaoSolicitada = Boolean.TRUE.equals(request.notificarCliente())
+                && pedidoAtualizado.getStatusProducao().deveNotificarCliente();
+        boolean notificacaoEnviada = !notificacaoSolicitada
+                || alterarStatusPedidoUseCase.notificarCliente(pedidoAtualizado);
+
+        ResponseEntity.BodyBuilder resposta = ResponseEntity.ok();
+        if (notificacaoSolicitada) {
+            resposta.header("X-Notificacao-Cliente", notificacaoEnviada ? "enviada" : "falhou");
+        }
+        return resposta.body(mapper.toResponse(pedidoAtualizado));
     }
 
     @GetMapping("/{id}")
