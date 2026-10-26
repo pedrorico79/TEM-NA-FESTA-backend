@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.CriarUsuarioCommand;
+import com.temnafesta.application.exception.FalhaAutenticacaoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Perfil;
 import com.temnafesta.domain.model.Usuario;
@@ -67,10 +68,10 @@ class UsuarioUseCasesTest {
     class Criar {
         @Test
         void deveCriarComSenhaCriptografadaETrim() {
-            CriarUsuarioCommand command = new CriarUsuarioCommand("  Ana  ", "  ana@mail.com  ", "123456", 1L);
-            when(usuarioRepositoryPort.buscarPorEmail("  ana@mail.com  ")).thenReturn(Optional.empty());
+            CriarUsuarioCommand command = new CriarUsuarioCommand("  Ana  ", "  ana@mail.com  ", "senha123", 1L);
+            when(usuarioRepositoryPort.buscarPorEmail("ana@mail.com")).thenReturn(Optional.empty());
             when(perfilRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(perfil()));
-            when(passwordEncoder.encode("123456")).thenReturn("hash");
+            when(passwordEncoder.encode("senha123")).thenReturn("hash");
             when(usuarioRepositoryPort.salvar(any(Usuario.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -103,7 +104,7 @@ class UsuarioUseCasesTest {
 
         @Test
         void naoDeveCriarComEmailDuplicado() {
-            CriarUsuarioCommand command = new CriarUsuarioCommand("Ana", "ana@mail.com", "123456", 1L);
+            CriarUsuarioCommand command = new CriarUsuarioCommand("Ana", "ana@mail.com", "senha123", 1L);
             when(usuarioRepositoryPort.buscarPorEmail("ana@mail.com"))
                     .thenReturn(Optional.of(usuarioAtivo()));
 
@@ -113,7 +114,7 @@ class UsuarioUseCasesTest {
 
         @Test
         void naoDeveCriarComPerfilInexistente() {
-            CriarUsuarioCommand command = new CriarUsuarioCommand("Ana", "ana@mail.com", "123456", 99L);
+            CriarUsuarioCommand command = new CriarUsuarioCommand("Ana", "ana@mail.com", "senha123", 99L);
             when(usuarioRepositoryPort.buscarPorEmail("ana@mail.com")).thenReturn(Optional.empty());
             when(perfilRepositoryPort.buscarPorId(99L)).thenReturn(Optional.empty());
 
@@ -212,7 +213,7 @@ class UsuarioUseCasesTest {
         void naoDeveAutenticarComEmailDesconhecido() {
             when(usuarioRepositoryPort.buscarPorEmail("x@mail.com")).thenReturn(Optional.empty());
 
-            assertThrows(IllegalArgumentException.class,
+            assertThrows(FalhaAutenticacaoException.class,
                     () -> autenticarUsuarioUseCase.executar("x@mail.com", "123", false));
         }
 
@@ -222,7 +223,7 @@ class UsuarioUseCasesTest {
                     .thenReturn(Optional.of(usuarioAtivo()));
             when(passwordEncoder.matches("errada", "hash")).thenReturn(false);
 
-            assertThrows(IllegalArgumentException.class,
+            assertThrows(FalhaAutenticacaoException.class,
                     () -> autenticarUsuarioUseCase.executar("ana@mail.com", "errada", false));
         }
 
@@ -234,10 +235,11 @@ class UsuarioUseCasesTest {
                     true, true, LocalDateTime.now(), perfil());
             when(usuarioRepositoryPort.buscarPorEmail("a@mail.com"))
                     .thenReturn(Optional.of(inativo)).thenReturn(Optional.of(deletado));
+            when(passwordEncoder.matches("123", "hash")).thenReturn(true);
 
-            assertThrows(IllegalStateException.class,
+            assertThrows(FalhaAutenticacaoException.class,
                     () -> autenticarUsuarioUseCase.executar("a@mail.com", "123", false));
-            assertThrows(IllegalStateException.class,
+            assertThrows(FalhaAutenticacaoException.class,
                     () -> autenticarUsuarioUseCase.executar("a@mail.com", "123", false));
         }
     }

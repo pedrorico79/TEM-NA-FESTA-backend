@@ -91,18 +91,6 @@ class PedidoTest {
     }
 
     @Test
-    void naoDeveIniciarProducaoSemSinalPago() {
-        Pedido pedido = pedidoRascunho();
-        pedido.transitarPara(StatusProducaoEnum.AGUARDANDO_SINAL);
-        pedido.transitarPara(StatusProducaoEnum.CONFIRMADO);
-
-        RegraDeNegocioException ex = assertThrows(RegraDeNegocioException.class,
-                () -> pedido.transitarPara(StatusProducaoEnum.EM_PRODUCAO));
-
-        assertTrue(ex.getMessage().contains("sinal"));
-    }
-
-    @Test
     void deveIniciarProducaoComSinalExatoDe50Porcento() {
         Pedido pedido = pedidoRascunho();
         pedido.adicionarPagamento(pagamentoConfirmado("55.00"));

@@ -1,59 +1,235 @@
-name: Deploy Backend
+# Deploy para o Docker Hub (modelo: templates/deploy.yml do repositório de infraestrutura, 07 seção 4).
+# Configuração: secrets DOCKERHUB_USERNAME e DOCKERHUB_TOKEN; nenhuma credencial da AWS.
+name: Deploy
 
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Ambiente de Deploy'
+      env:
+        description: Ambiente (prod só aceita a branch main ou uma tag do Git)
         required: true
-        default: 'dev'
         type: choice
-        options:
-          - dev
-          - hom
-          - prd
-      branch:
-        description: 'Branch para deploy'
-        required: true
-        default: 'main'
+        options: [dev, prod]
+        default: dev
+      reuse_tag:
+        description: Reaproveitar uma imagem já publicada (sha-xxxxxxx); vazio constrói a referência escolhida
+        required: false
         type: string
+        default: ""
+
+permissions:
+  contents: read
+
+# Dois deploys do mesmo repositório para o mesmo ambiente não correm juntos (C12).
+concurrency:
+  group: deploy-${{ github.repository }}-${{ inputs.env }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    name: Deploy ${{ inputs.env }}
+    runs-on: ubuntu-24.04
+    # GitHub Environment de mesmo nome: a aprovação por revisor em prod é opcional (4.5).
+    environment: ${{ inputs.env }}
+    env:
+      # Igual a dockerhub_namespace de envs/<env>/terraform.tfvars do repositório de infra.
+      DOCKERHUB_NAMESPACE: cesaraugustotech
+      # frontend, backend ou messaging (07, seção 2): a imagem é <namespace>/tnf-<STACK>.
+      STACK: backend
+      # Testes do passo 2 de 4.2, rodados num container com o repositório montado.
+      # TEST_CMD vazio pula o passo (repositório sem testes automatizados).
+      TEST_IMAGE: "maven:3.9.6-eclipse-temurin-21"
+      TEST_CMD: "mvn -B -q test"
+      ENV_NAME: ${{ inputs.env }}
+      REUSE_TAG: ${{ inputs.reuse_tag }}
+      REF_TYPE: ${{ github.ref_type }}
+      REF_NAME: ${{ github.ref_name }}
     steps:
-      - name: Checkout code
+      # Primeiro passo, antes do checkout: nada é construído nem publicado se falhar (4.5, C18).
+      - name: Conferir a trava de prod
+        run: |
+          if [[ "$ENV_NAME" == prod && "$REF_TYPE" != tag && ! ( "$REF_TYPE" == branch && "$REF_NAME" == main ) ]]; then
+            msg="Prod só aceita a branch main ou uma tag do Git. Você escolheu $REF_NAME. Faça o merge em main, crie uma tag, ou use env=dev."
+            echo "::error::$msg"
+            echo "$msg" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          if [[ -n "$REUSE_TAG" && ! "$REUSE_TAG" =~ ^sha-[0-9a-f]{7}$ ]]; then
+            echo "::error::reuse_tag deve ter a forma sha-xxxxxxx (os 7 primeiros caracteres do commit). Recebido: $REUSE_TAG"
+            exit 1
+          fi
+
+      - name: Baixar o repositório
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.branch }}
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1
+      - name: Instalar o crane
+        uses: imjasonh/setup-crane@v0.4
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # Consultas só de manifesto, sem baixar camadas: não consomem a cota de baixadas (07, seção 11).
+      - name: Decidir o que publicar
+        id: plano
+        run: |
+          image="index.docker.io/$DOCKERHUB_NAMESPACE/tnf-$STACK"
+          short="sha-${GITHUB_SHA::7}"
+          {
+            echo "image=$image"
+            echo "short=$short"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Build, tag, and push image to Amazon ECR
+          # Etiqueta do ambiente antes do deploy: o sha-<7> anterior é o que se usa em reuse_tag para voltar atrás.
+          if old_digest=$(crane digest "$image:$ENV_NAME" 2>/dev/null); then
+            old_rev=$(crane config --platform linux/amd64 "$image:$ENV_NAME" | jq -r '.config.Labels["org.opencontainers.image.revision"] // empty')
+            old_short=${old_rev:+sha-${old_rev::7}}
+          else
+            old_digest="nenhum (primeira publicação)"
+          fi
+          {
+            echo "old_digest=$old_digest"
+            echo "old_short=${old_short:-desconhecido}"
+          } >> "$GITHUB_OUTPUT"
+
+          if [[ -n "$REUSE_TAG" ]]; then
+            # Voltar atrás: nada é construído, só a etiqueta do ambiente muda (4.1, C6).
+            if ! crane digest "$image:$REUSE_TAG" >/dev/null 2>&1; then
+              msg="A imagem $image:$REUSE_TAG não existe. Nenhuma etiqueta foi movida."
+              echo "::error::$msg"
+              echo "$msg" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+            echo "source=$REUSE_TAG" >> "$GITHUB_OUTPUT"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          elif crane digest "$image:$short" >/dev/null 2>&1; then
+            # O mesmo commit já foi construído: reaproveita a imagem, e o digest não muda (C3).
+            echo "::notice::$image:$short já existe; nada é construído. Para embutir valores novos de VITE_*, faça um commit."
+            echo "source=$short" >> "$GITHUB_OUTPUT"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "source=$short" >> "$GITHUB_OUTPUT"
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # A lista de obrigatórias vem do Dockerfile: todo `ARG VITE_*` sem valor padrão (4.4, C15).
+      # Sem nenhum `ARG VITE_*` (backend e microsserviço), o passo não faz nada.
+      - name: Conferir as variáveis VITE_*
+        if: steps.plano.outputs.build == 'true'
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: tem-na-festa-backend-som-${{ github.event.inputs.environment }}
-          IMAGE_TAG: ${{ github.sha }}
+          REPO_VARS: ${{ toJSON(vars) }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          args_file="$RUNNER_TEMP/build-args"
+          : > "$args_file"
+          declared=" "
+          missing=0
+          table=""
+          while read -r decl; do
+            name=${decl//[[:space:]]/}
+            name=${name#ARG}
+            has_default=false
+            if [[ "$name" == *= ]]; then
+              has_default=true
+              name=${name%=}
+            fi
+            declared+="$name "
+            value=$(jq -r --arg n "$name" '.[$n] // ""' <<< "$REPO_VARS")
+            if [[ -n "$value" ]]; then
+              echo "$name=$value" >> "$args_file"
+              table+="| \`$name\` | \`$value\` |"$'\n'
+            elif [[ "$has_default" == false ]]; then
+              echo "::error::Falta a variável $name no repositório do frontend (Settings → Secrets and variables → Actions → Variables). Nada foi construído nem publicado."
+              missing=1
+            else
+              table+="| \`$name\` | (valor padrão do Dockerfile) |"$'\n'
+            fi
+          done < <(grep -oE '^[[:space:]]*ARG[[:space:]]+VITE_[A-Za-z0-9_]+=?' Dockerfile || true)
+          if [[ "$missing" == 1 ]]; then
+            exit 1
+          fi
 
-      - name: Update Swarm Service
+          if [[ -n "$table" ]]; then
+            {
+              echo "### Variáveis VITE_* usadas no build"
+              echo "| Variável | Valor |"
+              echo "|---|---|"
+              printf '%s' "$table"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          for name in $(jq -r 'keys[] | select(startswith("VITE_"))' <<< "$REPO_VARS"); do
+            if [[ "$declared" != *" $name "* ]]; then
+              echo "::warning::A variável $name do repositório não tem ARG no Dockerfile e foi ignorada."
+              echo "Aviso: a variável \`$name\` do repositório não tem \`ARG\` no Dockerfile e foi ignorada." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+      # Se os testes falham, o workflow para e nenhuma etiqueta é movida (C4).
+      - name: Rodar os testes
+        if: steps.plano.outputs.build == 'true' && env.TEST_CMD != ''
+        run: docker run --rm -v "$PWD:/src" -w /src "$TEST_IMAGE" sh -c "$TEST_CMD"
+
+      - name: Entrar no Docker Hub
+        if: steps.plano.outputs.build == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construir e publicar a imagem sha-<7>
+        if: steps.plano.outputs.build == 'true'
+        env:
+          IMAGE: ${{ steps.plano.outputs.image }}
+          SHORT: ${{ steps.plano.outputs.short }}
         run: |
-          # O comando abaixo usa o SSM para entrar no Manager e atualizar a imagem do serviço
-          aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
-            --targets "Key=tag:Name,Values=tem-na-festa-frontend-1a (Manager)-${{ github.event.inputs.environment }}" \
-            --parameters 'commands=["docker service update --image ${{ steps.login-ecr.outputs.registry }}/tem-na-festa-backend-som-${{ github.event.inputs.environment }}:${{ github.sha }} temnafesta_backend-som"]' \
-            --region us-east-1
+          args=()
+          while IFS= read -r arg; do
+            args+=(--build-arg "$arg")
+          done < "$RUNNER_TEMP/build-args"
+          docker build --pull --platform linux/amd64 "${args[@]}" \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --label "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --label "tnf.branch=$REF_NAME" \
+            -t "$IMAGE:$SHORT" .
+          docker push "$IMAGE:$SHORT"
+
+      # Cópia do manifesto no registro: a etiqueta do ambiente fica com o mesmo digest do sha-<7>.
+      - name: Apontar a etiqueta do ambiente
+        env:
+          IMAGE: ${{ steps.plano.outputs.image }}
+          SOURCE: ${{ steps.plano.outputs.source }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          crane auth login index.docker.io -u "$DOCKERHUB_USERNAME" --password-stdin <<< "$DOCKERHUB_TOKEN"
+          crane tag "$IMAGE:$SOURCE" "$ENV_NAME"
+
+      - name: Registrar o resumo
+        env:
+          IMAGE: ${{ steps.plano.outputs.image }}
+          SOURCE: ${{ steps.plano.outputs.source }}
+          BUILD: ${{ steps.plano.outputs.build }}
+          OLD_DIGEST: ${{ steps.plano.outputs.old_digest }}
+          OLD_SHORT: ${{ steps.plano.outputs.old_short }}
+        run: |
+          new_digest=$(crane digest "$IMAGE:$ENV_NAME")
+          if [[ "$BUILD" == true ]]; then
+            origem="construída agora"
+          else
+            origem="reaproveitada, nada construído"
+          fi
+          {
+            echo "### Deploy de \`tnf-$STACK\` em \`$ENV_NAME\`"
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Repositório | \`$GITHUB_REPOSITORY\` |"
+            echo "| Referência | \`$REF_NAME\` ($REF_TYPE) |"
+            echo "| Commit | \`$GITHUB_SHA\` |"
+            echo "| Imagem | \`$IMAGE:$SOURCE\` ($origem) |"
+            echo "| Digest anterior de \`:$ENV_NAME\` | \`$OLD_DIGEST\` (\`$OLD_SHORT\`) |"
+            echo "| Digest novo de \`:$ENV_NAME\` | \`$new_digest\` |"
+            if [[ "$OLD_SHORT" == sha-* ]]; then
+              echo
+              echo "Para voltar atrás: rode de novo com \`reuse_tag=$OLD_SHORT\`."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
