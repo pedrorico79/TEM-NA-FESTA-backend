@@ -149,18 +149,20 @@ public class PedidoController {
     @GetMapping
     public ResponseEntity<Page<PedidoResponseDto>> listarPedidos(
             @RequestParam(required = false) String busca,
-            @RequestParam(required = false) StatusProducaoEnum status,
+            @RequestParam(required = false) List<StatusProducaoEnum> status,
             @RequestParam(required = false) Long evento,
             @RequestParam(defaultValue = "false") boolean pagamentoPendente,
             @RequestParam(defaultValue = "false") boolean ativos,
+            @RequestParam(defaultValue = "false") boolean atrasados,
             Pageable pageable) {
 
-        Page<Pedido> pedidos = listarPedidosUseCase.executar(
+        Page<Pedido> pedidos = listarPedidosUseCase.executarComFiltros(
                 busca,
                 status,
                 evento,
                 pagamentoPendente,
                 ativos,
+                atrasados,
                 pageable
         );
 

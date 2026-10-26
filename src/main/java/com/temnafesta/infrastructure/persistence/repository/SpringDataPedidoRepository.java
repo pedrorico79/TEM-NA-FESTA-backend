@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +48,7 @@ public interface SpringDataPedidoRepository
           OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%'))
           OR CAST(p.id AS CHAR) LIKE CONCAT('%', :busca, '%')
       )
-      AND (:status IS NULL OR p.status_producao = :status)
+      AND (:statusCsv IS NULL OR FIND_IN_SET(p.status_producao, :statusCsv) > 0)
       AND (:eventoId IS NULL OR p.evento_id = :eventoId)
       AND (:pagamentoPendente = FALSE OR (
           p.status_producao <> 'CANCELADO'
@@ -60,6 +61,10 @@ public interface SpringDataPedidoRepository
       ))
       AND (:ativos = FALSE OR p.status_producao IN (
           'AGUARDANDO_SINAL', 'CONFIRMADO', 'EM_PRODUCAO', 'PRONTO_PARA_ENTREGA'
+      ))
+      AND (:atrasados = FALSE OR (
+          p.status_producao IN ('AGUARDANDO_SINAL', 'CONFIRMADO', 'EM_PRODUCAO', 'PRONTO_PARA_ENTREGA')
+          AND DATE(p.data_entrega) < :dataReferenciaAtraso
       ))
     ORDER BY p.data_entrega ASC
     """,
@@ -75,7 +80,7 @@ public interface SpringDataPedidoRepository
           OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :busca, '%'))
           OR CAST(p.id AS CHAR) LIKE CONCAT('%', :busca, '%')
       )
-      AND (:status IS NULL OR p.status_producao = :status)
+      AND (:statusCsv IS NULL OR FIND_IN_SET(p.status_producao, :statusCsv) > 0)
       AND (:eventoId IS NULL OR p.evento_id = :eventoId)
       AND (:pagamentoPendente = FALSE OR (
           p.status_producao <> 'CANCELADO'
@@ -89,14 +94,20 @@ public interface SpringDataPedidoRepository
       AND (:ativos = FALSE OR p.status_producao IN (
           'AGUARDANDO_SINAL', 'CONFIRMADO', 'EM_PRODUCAO', 'PRONTO_PARA_ENTREGA'
       ))
+      AND (:atrasados = FALSE OR (
+          p.status_producao IN ('AGUARDANDO_SINAL', 'CONFIRMADO', 'EM_PRODUCAO', 'PRONTO_PARA_ENTREGA')
+          AND DATE(p.data_entrega) < :dataReferenciaAtraso
+      ))
     """,
             nativeQuery = true)
     Page<PedidoJpaEntity> listarPedidos(
             @Param("busca") String busca,
-            @Param("status") String status,
+            @Param("statusCsv") String statusCsv,
             @Param("eventoId") Long eventoId,
             @Param("pagamentoPendente") boolean pagamentoPendente,
             @Param("ativos") boolean ativos,
+            @Param("atrasados") boolean atrasados,
+            @Param("dataReferenciaAtraso") LocalDate dataReferenciaAtraso,
             Pageable pageable
     );
 
