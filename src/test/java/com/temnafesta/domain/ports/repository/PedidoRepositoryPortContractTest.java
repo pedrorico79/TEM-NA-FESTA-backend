@@ -2,6 +2,7 @@ package com.temnafesta.domain.ports.repository;
 
 import com.temnafesta.application.dto.relatorio.PedidosPeriodoOutput;
 import com.temnafesta.application.dto.relatorio.PedidosPorSemanaOutput;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
@@ -48,6 +49,14 @@ class PedidoRepositoryPortContractTest {
 
         @Override
         public Pedido atualizar(Pedido pedido) {
+            return guardar(pedido);
+        }
+
+        @Override
+        public Pedido atualizarStatus(Long pedidoId, StatusProducaoEnum novoStatus) {
+            Pedido pedido = buscarPorId(pedidoId)
+                    .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com ID: " + pedidoId));
+            pedido.transitarPara(novoStatus);
             return guardar(pedido);
         }
 

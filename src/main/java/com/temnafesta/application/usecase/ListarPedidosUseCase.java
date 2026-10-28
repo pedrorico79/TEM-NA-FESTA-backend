@@ -7,12 +7,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 public class ListarPedidosUseCase {
 
     private final PedidoRepositoryPort pedidoRepository;
+    private final Clock relogioNegocio;
 
     public ListarPedidosUseCase(PedidoRepositoryPort pedidoRepository) {
+        this(pedidoRepository, com.temnafesta.domain.time.RelogioNegocio.sistema());
+    }
+
+    public ListarPedidosUseCase(PedidoRepositoryPort pedidoRepository, Clock relogioNegocio) {
         this.pedidoRepository = pedidoRepository;
+        this.relogioNegocio = relogioNegocio != null
+                ? relogioNegocio
+                : com.temnafesta.domain.time.RelogioNegocio.sistema();
     }
 
     @Transactional(readOnly = true)
@@ -55,6 +68,34 @@ public class ListarPedidosUseCase {
                 eventoId,
                 pagamentoPendente,
                 ativos,
+                pageable
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Pedido> executarComFiltros(
+            String busca,
+            List<StatusProducaoEnum> status,
+            Long eventoId,
+            boolean pagamentoPendente,
+            boolean ativos,
+            boolean atrasados,
+            Pageable pageable) {
+
+        String buscaNormalizada = normalizarBusca(busca);
+        List<StatusProducaoEnum> statusNormalizados = status == null || status.isEmpty()
+                ? null
+                : status.stream().distinct().toList();
+        LocalDate dataReferenciaAtraso = LocalDate.now(relogioNegocio);
+
+        return pedidoRepository.listarPedidos(
+                buscaNormalizada,
+                statusNormalizados,
+                eventoId,
+                pagamentoPendente,
+                ativos,
+                atrasados,
+                dataReferenciaAtraso,
                 pageable
         );
     }

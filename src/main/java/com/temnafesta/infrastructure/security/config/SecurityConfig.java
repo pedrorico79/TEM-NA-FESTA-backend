@@ -87,7 +87,7 @@ public class SecurityConfig {
                 "Origin",
                 "Idempotency-Key"
         ));
-        config.setExposedHeaders(List.of("Authorization"));
+        config.setExposedHeaders(List.of("Authorization", "X-Notificacao-Cliente"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

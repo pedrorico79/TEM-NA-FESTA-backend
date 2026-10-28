@@ -35,7 +35,6 @@ public class PedidoController {
 
     private final CriarPedidoInternoUseCase criarPedidoInternoUseCase;
     private final AlterarStatusPedidoUseCase alterarStatusPedidoUseCase;
-    private final GerarReciboDigitalUseCase gerarReciboDigitalUseCase;
     private final ListarPedidoPorIdUseCase listarPedidoPorIdUseCase;
     private final AtualizarPedidoUseCase atualizarPedidoUseCase;
     private final ExcluirPedidoUseCase excluirPedidoUseCase;
@@ -71,9 +70,18 @@ public class PedidoController {
 
 
         Pedido pedidoAtualizado = alterarStatusPedidoUseCase.executar(
-                id, request.novoStatus(), usuario.getId(), request.observacao(), request.notificarCliente());
+                id, request.novoStatus(), usuario.getId(), request.observacao());
 
-        return ResponseEntity.ok(mapper.toResponse(pedidoAtualizado));
+        boolean notificacaoSolicitada = Boolean.TRUE.equals(request.notificarCliente())
+                && pedidoAtualizado.getStatusProducao().deveNotificarCliente();
+        boolean notificacaoEnviada = !notificacaoSolicitada
+                || alterarStatusPedidoUseCase.notificarCliente(pedidoAtualizado);
+
+        ResponseEntity.BodyBuilder resposta = ResponseEntity.ok();
+        if (notificacaoSolicitada) {
+            resposta.header("X-Notificacao-Cliente", notificacaoEnviada ? "enviada" : "falhou");
+        }
+        return resposta.body(mapper.toResponse(pedidoAtualizado));
     }
 
     @GetMapping("/{id}")
@@ -85,12 +93,6 @@ public class PedidoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}/recibo")
-    public ResponseEntity<String> gerarReciboDigital(@PathVariable Long id) {
-        // Retorna o texto formatado para o WhatsApp
-        String recibo = gerarReciboDigitalUseCase.executar(id);
-        return ResponseEntity.ok(recibo);
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<PedidoResponseDto> atualizarPedido(@PathVariable Long id,
@@ -140,18 +142,20 @@ public class PedidoController {
     @GetMapping
     public ResponseEntity<Page<PedidoResponseDto>> listarPedidos(
             @RequestParam(required = false) String busca,
-            @RequestParam(required = false) StatusProducaoEnum status,
+            @RequestParam(required = false) List<StatusProducaoEnum> status,
             @RequestParam(required = false) Long evento,
             @RequestParam(defaultValue = "false") boolean pagamentoPendente,
             @RequestParam(defaultValue = "false") boolean ativos,
+            @RequestParam(defaultValue = "false") boolean atrasados,
             Pageable pageable) {
 
-        Page<Pedido> pedidos = listarPedidosUseCase.executar(
+        Page<Pedido> pedidos = listarPedidosUseCase.executarComFiltros(
                 busca,
                 status,
                 evento,
                 pagamentoPendente,
                 ativos,
+                atrasados,
                 pageable
         );
 

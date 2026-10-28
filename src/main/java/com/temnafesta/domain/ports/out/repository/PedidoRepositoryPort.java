@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +46,15 @@ public interface PedidoRepositoryPort {
             throw new UnsupportedOperationException("Este repositório não implementa os filtros especiais de pedidos.");
         }
         return listarPedidos(busca, status, eventoId, pageable);
+    }
+    default Page<Pedido> listarPedidos(String busca, List<StatusProducaoEnum> status, Long eventoId,
+                                       boolean pagamentoPendente, boolean ativos, boolean atrasados,
+                                       LocalDate dataReferenciaAtraso, Pageable pageable) {
+        if (atrasados || pagamentoPendente || ativos || status != null && status.size() > 1) {
+            throw new UnsupportedOperationException("Este repositório não implementa os filtros avançados de pedidos.");
+        }
+        StatusProducaoEnum statusUnico = status == null || status.isEmpty() ? null : status.get(0);
+        return listarPedidos(busca, statusUnico, eventoId, pagamentoPendente, ativos, pageable);
     }
     Optional<ItemPedido> buscarItemPorId(Long pedidoId, Long itemId);
     List<Pagamento> listarPagamentos(Long pedidoId);

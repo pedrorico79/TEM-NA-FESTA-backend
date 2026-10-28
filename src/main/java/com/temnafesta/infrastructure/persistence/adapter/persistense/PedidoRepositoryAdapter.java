@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -171,12 +172,31 @@ public class PedidoRepositoryAdapter implements PedidoRepositoryPort {
     @Override
     public Page<Pedido> listarPedidos(String busca, StatusProducaoEnum status, Long eventoId,
                                       boolean pagamentoPendente, boolean ativos, Pageable pageable) {
-        return repository.listarPedidos(
-                busca,
-                status == null ? null : status.name(),
+        return listarPedidos(busca,
+                status == null ? null : List.of(status),
                 eventoId,
                 pagamentoPendente,
                 ativos,
+                false,
+                LocalDate.now(),
+                pageable);
+    }
+
+    @Override
+    public Page<Pedido> listarPedidos(String busca, List<StatusProducaoEnum> status, Long eventoId,
+                                      boolean pagamentoPendente, boolean ativos, boolean atrasados,
+                                      LocalDate dataReferenciaAtraso, Pageable pageable) {
+        String statusCsv = status == null || status.isEmpty()
+                ? null
+                : status.stream().distinct().map(StatusProducaoEnum::name).collect(java.util.stream.Collectors.joining(","));
+        return repository.listarPedidos(
+                busca,
+                statusCsv,
+                eventoId,
+                pagamentoPendente,
+                ativos,
+                atrasados,
+                dataReferenciaAtraso,
                 pageable
         )
                 .map(mapper::toDomain);
