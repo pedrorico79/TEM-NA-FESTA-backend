@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.application.exception.SemPermissaoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
 
 public class DeletarLembreteUseCase {
@@ -13,10 +14,10 @@ public class DeletarLembreteUseCase {
 
     public void executar(Long lembreteId, Long usuarioId) {
         var lembrete = lembreteRepositoryPort.buscarPorId(lembreteId)
-                .orElseThrow(() -> new RegraDeNegocioException("Lembrete não encontrado com o ID: " + lembreteId));
+                .orElseThrow(() -> new NaoEncontradoException("Lembrete não encontrado com o ID: " + lembreteId));
 
         if (!lembrete.getUsuarioId().equals(usuarioId)) {
-            throw new RegraDeNegocioException("Você não tem permissão para deletar este lembrete.");
+            throw new SemPermissaoException("Você não tem permissão para deletar este lembrete.");
         }
 
         lembreteRepositoryPort.deletarPorId(lembreteId);

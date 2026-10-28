@@ -2,7 +2,7 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class ConfirmarPagamentoUseCase {
@@ -15,7 +15,7 @@ public class ConfirmarPagamentoUseCase {
     @Transactional
     public Pedido executar(Long pedidoId, Long pagamentoId) {
         Pedido pedido = pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(pedidoId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado."));
+                .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado."));
         pedido.confirmarPagamento(pagamentoId);
         return pedidoRepositoryPort.salvar(pedido);
     }

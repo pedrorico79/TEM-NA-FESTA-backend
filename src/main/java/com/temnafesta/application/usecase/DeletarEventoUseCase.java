@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Evento;
 import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
@@ -14,7 +15,7 @@ public class DeletarEventoUseCase {
 
     public void executar(Long id) {
         Evento evento = eventoRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Evento não encontrado com o ID: " + id));
+                .orElseThrow(() -> new NaoEncontradoException("Evento não encontrado com o ID: " + id));
 
         if (evento.isDeletado()) {
             throw new RegraDeNegocioException("Evento já foi removido.");

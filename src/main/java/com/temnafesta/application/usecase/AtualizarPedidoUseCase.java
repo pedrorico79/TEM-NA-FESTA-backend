@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.AtualizarPedidoCommand;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
@@ -27,7 +28,7 @@ public class AtualizarPedidoUseCase {
     @Transactional
     public Pedido executar(AtualizarPedidoCommand command) {
         Pedido pedido = pedidoRepositoryPort.buscarPorId(command.pedidoId())
-                .orElseThrow(() -> new RegraDeNegocioException("Pedido não encontrado com o ID: " + command.pedidoId()));
+                .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com o ID: " + command.pedidoId()));
 
         java.math.BigDecimal descontoPedido = command.descontoPedido() != null
                 ? command.descontoPedido()
@@ -76,7 +77,7 @@ public class AtualizarPedidoUseCase {
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
                     .orElse(itemExistente != null ? itemExistente.getProduto() : null);
             if (produto == null) {
-                throw new RegraDeNegocioException("Produto não encontrado com o ID: " + itemDto.produtoId());
+                throw new NaoEncontradoException("Produto não encontrado com o ID: " + itemDto.produtoId());
             }
 
             if (!produto.isAtivo() && !produtoIdsAtuais.contains(produto.getId())) {

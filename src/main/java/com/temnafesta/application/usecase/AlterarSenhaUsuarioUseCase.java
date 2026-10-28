@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.application.exception.RequisicaoInvalidaException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Usuario;
 import com.temnafesta.domain.ports.out.repository.UsuarioRepositoryPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,11 +17,11 @@ public class AlterarSenhaUsuarioUseCase {
 
     public void executar(Long id, String senha) {
         if (senha == null || senha.length() < 8 || senha.length() > 72) {
-            throw new IllegalArgumentException("A senha deve ter entre 8 e 72 caracteres.");
+            throw new RequisicaoInvalidaException("A senha deve ter entre 8 e 72 caracteres.");
         }
         Usuario usuario = usuarioRepositoryPort.buscarPorId(id)
                 .filter(usuarioEncontrado -> !usuarioEncontrado.isDeletado())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado com o ID: " + id));
 
         Usuario atualizado = new Usuario(
                 usuario.getId(), usuario.getNome(), usuario.getEmail(), passwordEncoder.encode(senha),

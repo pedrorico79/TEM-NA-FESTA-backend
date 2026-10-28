@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
@@ -20,7 +20,7 @@ public class DeletarClienteUseCase {
 
     public void executar(Long id) {
         Cliente cliente = clienteRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                .orElseThrow(() -> new NaoEncontradoException(
                         "Cliente não encontrado com o ID: " + id));
 
         if (pedidoRepositoryPort.existePedidoEmAndamentoPorCliente(id)) {

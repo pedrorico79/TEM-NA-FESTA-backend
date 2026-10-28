@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Usuario;
 import com.temnafesta.domain.ports.out.repository.UsuarioRepositoryPort;
@@ -14,7 +15,7 @@ public class DeletarUsuarioUseCase {
 
     public void executar(Long id) {
         Usuario usuario = usuarioRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado com o ID: " + id));
 
         if (usuario.isDeletado()) {
             throw new RegraDeNegocioException("Usuário já foi removido.");

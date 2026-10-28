@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.exception.EventoPublicacaoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.HistoricoStatusPedido;
 import com.temnafesta.domain.model.Pedido;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
 
 public class AlterarStatusPedidoUseCase {
 
@@ -79,7 +79,7 @@ public class AlterarStatusPedidoUseCase {
         if (notificarCliente && pedidoSalvo.getStatusProducao().deveNotificarCliente()) {
 
             Cliente cliente = clienteRepositoryPort.buscarPorId(pedidoSalvo.getClienteId())
-                    .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado"));
+                    .orElseThrow(() -> new NaoEncontradoException("Cliente não encontrado"));
 
             try {
                 pedidoEventPublisherPort.publicarNotificacao(pedidoSalvo, cliente);

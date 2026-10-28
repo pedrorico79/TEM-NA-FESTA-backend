@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.application.exception.RequisicaoInvalidaException;
 import com.temnafesta.application.dto.relatorio.EventoComparativoOutput;
 import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
 
@@ -21,7 +22,7 @@ public class ListaComparativoEventosUseCase {
         Objects.requireNonNull(ate, "data 'ate' não pode ser nula");
 
         if (de.isAfter(ate)) {
-            throw new IllegalArgumentException("'de' não pode ser posterior a 'ate'");
+            throw new RequisicaoInvalidaException("'de' não pode ser posterior a 'ate'");
         }
 
         LocalDateTime inicio = de.atStartOfDay();

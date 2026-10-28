@@ -2,7 +2,8 @@ package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.relatorio.EvolucaoEventoOutput;
 import com.temnafesta.application.dto.relatorio.EvolucaoEventoPeriodoOutput;
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.application.exception.RequisicaoInvalidaException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Evento;
 import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
 
@@ -30,11 +31,11 @@ public class ListaEvolucaoEventoUseCase {
 
     public EvolucaoEventoOutput executar(Long eventoId) {
         if (eventoId == null) {
-            throw new RegraDeNegocioException("ID do evento é obrigatório.");
+            throw new RequisicaoInvalidaException("ID do evento é obrigatório.");
         }
 
         Evento evento = eventoRepositoryPort.buscarPorId(eventoId)
-                .orElseThrow(() -> new RegraDeNegocioException("Evento não encontrado com o ID: " + eventoId));
+                .orElseThrow(() -> new NaoEncontradoException("Evento não encontrado com o ID: " + eventoId));
 
         LocalDate inicio = evento.getDataInicio();
         LocalDate fim = evento.getDataFim();

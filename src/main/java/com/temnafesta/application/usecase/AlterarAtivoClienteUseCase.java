@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.AlterarAtivoClienteCommand;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
@@ -21,7 +21,7 @@ public class AlterarAtivoClienteUseCase {
 
     public Cliente executar(AlterarAtivoClienteCommand command) {
         Cliente cliente = clienteRepositoryPort.buscarPorId(command.id())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                .orElseThrow(() -> new NaoEncontradoException(
                         "Cliente não encontrado com o ID: " + command.id()));
 
         if (cliente.isAtivo() == command.ativo()) {

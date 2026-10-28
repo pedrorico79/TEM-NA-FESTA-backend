@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.application.exception.RequisicaoInvalidaException;
 import com.temnafesta.application.dto.relatorio.ProdutosMaisVendidosOutput;
 import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import org.springframework.data.domain.Page;
@@ -27,7 +28,7 @@ public class ListaProdutosMaisVendidosUseCase {
         Objects.requireNonNull(pageable, "pageable não pode ser nulo");
 
         if (de.isAfter(ate)) {
-            throw new IllegalArgumentException("'de' não pode ser posterior a 'ate'");
+            throw new RequisicaoInvalidaException("'de' não pode ser posterior a 'ate'");
         }
 
         LocalDateTime inicio = de.atStartOfDay();

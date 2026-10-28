@@ -1,5 +1,7 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.application.exception.FalhaAutenticacaoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
@@ -59,7 +61,7 @@ public class RegistrarPagamentoUseCase {
         }
 
         Pedido pedido = pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(pedidoId)
-                .orElseThrow(() -> new RegraDeNegocioException("Pedido não encontrado com ID: " + pedidoId));
+                .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com ID: " + pedidoId));
 
         Pagamento pagamentoExistente = pedido.buscarPagamentoPorChaveIdempotencia(chaveIdempotencia);
         if (pagamentoExistente != null) {
@@ -68,7 +70,7 @@ public class RegistrarPagamentoUseCase {
         }
 
         metodoPagamentoRepositoryPort.buscarPorId(metodoPagamentoId)
-                .orElseThrow(() -> new RegraDeNegocioException("Método de pagamento não encontrado."));
+                .orElseThrow(() -> new NaoEncontradoException("Método de pagamento não encontrado."));
 
         Pagamento pagamento = new Pagamento(
                 null, valor, LocalDateTime.now(relogioNegocio), tipo, statusInicial, metodoPagamentoId, usuarioId);
@@ -98,7 +100,7 @@ public class RegistrarPagamentoUseCase {
         }
         if (tipo == null) throw new RegraDeNegocioException("O tipo de pagamento é obrigatório.");
         if (metodoPagamentoId == null) throw new RegraDeNegocioException("O método de pagamento é obrigatório.");
-        if (usuarioId == null) throw new RegraDeNegocioException("Não foi possível identificar o usuário autenticado.");
+        if (usuarioId == null) throw new FalhaAutenticacaoException("Não foi possível identificar o usuário autenticado.");
     }
 
     private void validarChaveIdempotencia(String chave) {

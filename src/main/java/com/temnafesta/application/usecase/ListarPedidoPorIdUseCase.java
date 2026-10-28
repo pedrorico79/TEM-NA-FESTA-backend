@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
@@ -14,7 +14,7 @@ public class ListarPedidoPorIdUseCase {
 
     public Pedido executar(Long pedidoId){
         Pedido pedido = pedidoRepositoryPort.buscarPorId(pedidoId)
-                .orElseThrow(() -> new RegraDeNegocioException("Pedido não encontrado com ID: " + pedidoId));
+                .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com ID: " + pedidoId));
         return pedido;
     }
 }

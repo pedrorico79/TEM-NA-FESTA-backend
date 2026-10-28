@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
@@ -23,10 +23,10 @@ public class GerarReciboDigitalUseCase {
 
     public String executar(Long pedidoId) {
         Pedido pedido = pedidoRepositoryPort.buscarPorId(pedidoId)
-                .orElseThrow(() -> new RegraDeNegocioException("Pedido não encontrado com ID: " + pedidoId));
+                .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com ID: " + pedidoId));
 
         Cliente cliente = clienteRepositoryPort.buscarPorIdIncluindoDeletados(pedido.getClienteId())
-                .orElseThrow(() -> new RegraDeNegocioException("Cliente não encontrado."));
+                .orElseThrow(() -> new NaoEncontradoException("Cliente não encontrado."));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         StringBuilder recibo = new StringBuilder();

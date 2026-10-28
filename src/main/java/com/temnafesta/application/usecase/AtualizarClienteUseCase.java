@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.AtualizarClienteCommand;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.Endereco;
 import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
@@ -15,7 +15,7 @@ public class AtualizarClienteUseCase {
 
     public Cliente executar(AtualizarClienteCommand command) {
         Cliente clienteExistente = clienteRepositoryPort.buscarPorId(command.id())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                .orElseThrow(() -> new NaoEncontradoException(
                         "Cliente não encontrado com o ID: " + command.id()));
 
         Endereco enderecoAtualizado = clienteExistente.getEndereco();

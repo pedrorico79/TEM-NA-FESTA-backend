@@ -1,5 +1,6 @@
 package com.temnafesta.domain.model;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
 import com.temnafesta.domain.vo.StatusPagamentoEnum;
@@ -139,14 +140,14 @@ public class Pedido {
         return pagamentos.stream()
                 .filter(pagamento -> pagamentoId != null && pagamentoId.equals(pagamento.getId()))
                 .findFirst()
-                .orElseThrow(() -> new RegraDeNegocioException("Pagamento não encontrado neste pedido."));
+                .orElseThrow(() -> new NaoEncontradoException("Pagamento não encontrado neste pedido."));
     }
 
     public void removerPagamento(Long pagamentoId) {
         boolean removido = this.pagamentos.removeIf(p -> p.getId() != null && p.getId().equals(pagamentoId));
 
         if (!removido) {
-            throw new RegraDeNegocioException("Pagamento não encontrado com ID: " + pagamentoId + " para este pedido.");
+            throw new NaoEncontradoException("Pagamento não encontrado com ID: " + pagamentoId + " para este pedido.");
         }
     }
 
