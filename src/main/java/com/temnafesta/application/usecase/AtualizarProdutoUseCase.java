@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.AtualizarProdutoCommand;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Produto;
 import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 
@@ -16,7 +16,7 @@ public class AtualizarProdutoUseCase {
     public Produto executar(AtualizarProdutoCommand command) {
         Produto produtoExistente = produtoRepositoryPort.buscarPorId(command.id())
                 .filter(produto -> !produto.isDeletado())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                .orElseThrow(() -> new NaoEncontradoException(
                         "Produto não encontrado com o ID: " + command.id()));
 
         String nome = command.nome() == null ? null : command.nome().trim();

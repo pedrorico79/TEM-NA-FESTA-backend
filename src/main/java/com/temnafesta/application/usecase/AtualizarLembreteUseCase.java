@@ -1,7 +1,8 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.AtualizarLembreteCommand;
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.application.exception.SemPermissaoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Lembrete;
 import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
 
@@ -15,11 +16,11 @@ public class AtualizarLembreteUseCase {
 
     public Lembrete executar(AtualizarLembreteCommand command) {
         Lembrete lembreteExistente = lembreteRepositoryPort.buscarPorId(command.id())
-                .orElseThrow(() -> new RegraDeNegocioException(
+                .orElseThrow(() -> new NaoEncontradoException(
                         "Lembrete não encontrado com o ID: " + command.id()));
 
         if (!lembreteExistente.getUsuarioId().equals(command.usuarioId())) {
-            throw new RegraDeNegocioException("Você não tem permissão para atualizar este lembrete.");
+            throw new SemPermissaoException("Você não tem permissão para atualizar este lembrete.");
         }
 
         String descricao = command.descricao() == null ? null : command.descricao().trim();

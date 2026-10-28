@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.AlterarAtivoProdutoCommand;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Produto;
 import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 
@@ -16,7 +16,7 @@ public class AlterarAtivoProdutoUseCase {
     public Produto executar(AlterarAtivoProdutoCommand command) {
         Produto produto = produtoRepositoryPort.buscarPorId(command.id())
                 .filter(produtoEncontrado -> !produtoEncontrado.isDeletado())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                .orElseThrow(() -> new NaoEncontradoException(
                         "Produto não encontrado com o ID: " + command.id()));
 
         if (produto.isAtivo() == command.ativo()) {

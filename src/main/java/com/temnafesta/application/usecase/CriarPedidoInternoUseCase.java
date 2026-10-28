@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.CriarPedidoCommand;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.ItemPedido;
@@ -65,7 +65,7 @@ public class CriarPedidoInternoUseCase {
     public Pedido executar(CriarPedidoCommand command) {
 
         Cliente cliente = clienteRepositoryPort.buscarPorId(command.clienteId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                .orElseThrow(() -> new NaoEncontradoException(
                         "Cliente não encontrado com o ID: " + command.clienteId()));
 
         if (!cliente.isAtivo()) {
@@ -94,7 +94,7 @@ public class CriarPedidoInternoUseCase {
         for (CriarPedidoCommand.ItemCommand itemDto : command.itens()) {
 
             Produto produto = produtoRepositoryPort.buscarPorId(itemDto.produtoId())
-                    .orElseThrow(() -> new RegraDeNegocioException(
+                    .orElseThrow(() -> new NaoEncontradoException(
                             "Produto não encontrado com o ID: " + itemDto.produtoId()));
 
             if (!produto.isAtivo()) {

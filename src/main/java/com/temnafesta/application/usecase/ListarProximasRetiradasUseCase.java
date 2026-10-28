@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.application.exception.RequisicaoInvalidaException;
 import com.temnafesta.domain.model.Pedido;
 import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
@@ -27,7 +28,7 @@ public class ListarProximasRetiradasUseCase {
     public List<Pedido> executar(int dias) {
 
         if (dias < 0) {
-            throw new IllegalArgumentException(
+            throw new RequisicaoInvalidaException(
                     "A quantidade de dias não pode ser negativa."
             );
         }

@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Usuario;
 import com.temnafesta.domain.ports.out.repository.UsuarioRepositoryPort;
 
@@ -14,7 +14,7 @@ public class AlterarAtivoUsuarioUseCase {
     public Usuario executar(Long id, boolean ativo) {
         Usuario usuario = usuarioRepositoryPort.buscarPorId(id)
                 .filter(usuarioEncontrado -> !usuarioEncontrado.isDeletado())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado com o ID: " + id));
 
         if (usuario.isAtivo() == ativo) return usuario;
 

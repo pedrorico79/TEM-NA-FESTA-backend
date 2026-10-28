@@ -1,19 +1,30 @@
 package com.temnafesta.presentation.handler;
 
 import com.temnafesta.domain.exception.NaoEncontradoException;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.application.exception.FalhaAutenticacaoException;
+import com.temnafesta.application.exception.RequisicaoInvalidaException;
+import com.temnafesta.application.exception.SemPermissaoException;
 import com.temnafesta.application.exception.TentativasLoginExcedidasException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.hibernate.PropertyValueException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,17 +50,6 @@ public class GlobalExceptionHandler {
                 .body(new ErroResponse(HttpStatus.TOO_MANY_REQUESTS.value(), "Muitas tentativas", List.of(ex.getMessage())));
     }
 
-    @ExceptionHandler(RecursoNaoEncontradoException.class)
-    public ResponseEntity<ErroResponse> handleRecursoNaoEncontradoException(
-            RecursoNaoEncontradoException ex) {
-        ErroResponse erroResponse = new ErroResponse(
-                HttpStatus.NOT_FOUND.value(),
-                "Recurso Não Encontrado",
-                List.of(ex.getMessage())
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erroResponse);
-    }
-
     /**
      * Captura casos onde um recurso (ID) não foi encontrado no banco de dados.
      * Retorna HTTP 404 (Not Found).
@@ -62,6 +62,16 @@ public class GlobalExceptionHandler {
                 List.of(ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erroResponse);
+    }
+
+    @ExceptionHandler(RequisicaoInvalidaException.class)
+    public ResponseEntity<ErroResponse> handleRequisicaoInvalidaException(RequisicaoInvalidaException ex) {
+        return resposta(HttpStatus.BAD_REQUEST, "Requisição Inválida", ex.getMessage());
+    }
+
+    @ExceptionHandler(SemPermissaoException.class)
+    public ResponseEntity<ErroResponse> handleSemPermissaoException(SemPermissaoException ex) {
+        return resposta(HttpStatus.FORBIDDEN, "Acesso Negado", ex.getMessage());
     }
 
     /**
@@ -104,18 +114,78 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
     }
 
-    /**
-     * Captura IllegalArgumentException e IllegalStateException.
-     * Retorna HTTP 400 (Bad Request).
-     */
-    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
-    public ResponseEntity<ErroResponse> handleIllegalExceptions(RuntimeException ex) {
-        ErroResponse erroResponse = new ErroResponse(
-                HttpStatus.BAD_REQUEST.value(),
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErroResponse> handleHttpMessageNotReadableException() {
+        return resposta(
+                HttpStatus.BAD_REQUEST,
                 "Requisição Inválida",
-                List.of(ex.getMessage())
+                "O corpo da requisição está malformado ou contém um valor inválido."
         );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erroResponse);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErroResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException ex) {
+        return resposta(
+                HttpStatus.BAD_REQUEST,
+                "Parâmetro Obrigatório Ausente",
+                "O parâmetro '" + ex.getParameterName() + "' é obrigatório."
+        );
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErroResponse> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
+        return resposta(
+                HttpStatus.BAD_REQUEST,
+                "Cabeçalho Obrigatório Ausente",
+                "O cabeçalho '" + ex.getHeaderName() + "' é obrigatório."
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErroResponse> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException ex) {
+        return resposta(
+                HttpStatus.BAD_REQUEST,
+                "Parâmetro Inválido",
+                "O valor informado para o parâmetro '" + ex.getName() + "' é inválido."
+        );
+    }
+
+    @ExceptionHandler({HandlerMethodValidationException.class, ConstraintViolationException.class})
+    public ResponseEntity<ErroResponse> handleParameterValidationException() {
+        return resposta(
+                HttpStatus.BAD_REQUEST,
+                "Erro de Validação nos Parâmetros",
+                "Um ou mais parâmetros da requisição são inválidos."
+        );
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErroResponse> handleHttpRequestMethodNotSupportedException() {
+        return resposta(
+                HttpStatus.METHOD_NOT_ALLOWED,
+                "Método Não Permitido",
+                "O método HTTP utilizado não é permitido para esta rota."
+        );
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErroResponse> handleHttpMediaTypeNotSupportedException() {
+        return resposta(
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                "Tipo de Conteúdo Não Suportado",
+                "O tipo de conteúdo enviado não é suportado por esta rota."
+        );
+    }
+
+    @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})
+    public ResponseEntity<ErroResponse> handleRotaNaoEncontradaException() {
+        return resposta(
+                HttpStatus.NOT_FOUND,
+                "Rota Não Encontrada",
+                "A rota informada não existe."
+        );
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -199,20 +269,27 @@ public class GlobalExceptionHandler {
         return "O banco recusou a operação por um conflito de integridade que não pôde ser identificado. Atualize as informações e tente novamente. Se persistir, contate o suporte.";
     }
 
+    private ResponseEntity<ErroResponse> resposta(HttpStatus status, String erro, String detalhe) {
+        return ResponseEntity.status(status).body(new ErroResponse(
+                status.value(),
+                erro,
+                List.of(detalhe)
+        ));
+    }
+
     /**
      * Fallback para qualquer outro erro não mapeado (evita quebrar o padrão de resposta).
      * Retorna HTTP 500 (Internal Server Error).
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErroResponse> handleGenericException(Exception ex) {
-        ex.printStackTrace();
+        log.error("Erro inesperado ao processar requisição.", ex);
         ErroResponse erroResponse = new ErroResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Erro Interno do Servidor",
                 List.of("Ocorreu um erro inesperado. Por favor, contate o suporte.")
         );
 
-        // Aqui é recomendado adicionar um log.error(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erroResponse);
     }
 }

@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Perfil;
 import com.temnafesta.domain.model.Usuario;
@@ -20,12 +21,12 @@ public class AtualizarUsuarioUseCase {
 
     public Usuario executar(Long id, String nome, String email, Long perfilId) {
         Usuario usuario = usuarioRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado com o ID: " + id));
 
         validarDados(id, nome, email);
 
         Perfil perfil = perfilRepositoryPort.buscarPorId(perfilId)
-                .orElseThrow(() -> new IllegalArgumentException("Perfil não encontrado com o ID: " + perfilId));
+                .orElseThrow(() -> new NaoEncontradoException("Perfil não encontrado com o ID: " + perfilId));
 
         Usuario atualizado = new Usuario(
                 usuario.getId(),
@@ -43,7 +44,7 @@ public class AtualizarUsuarioUseCase {
 
     public Usuario executar(Long id, String nome, String email) {
         Usuario usuario = usuarioRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado com o ID: " + id));
 
         validarDados(id, nome, email);
         Usuario atualizado = new Usuario(

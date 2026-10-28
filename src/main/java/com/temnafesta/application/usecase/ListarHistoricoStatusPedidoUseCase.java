@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.HistoricoStatusPedido;
 import com.temnafesta.domain.ports.out.repository.HistoricoStatusPedidoRepositoryPort;
 import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
@@ -20,7 +20,7 @@ public class ListarHistoricoStatusPedidoUseCase {
 
     public List<HistoricoStatusPedido> executar(Long pedidoId) {
         pedidoRepositoryPort.buscarPorId(pedidoId)
-                .orElseThrow(() -> new RegraDeNegocioException("Pedido não encontrado com ID: " + pedidoId));
+                .orElseThrow(() -> new NaoEncontradoException("Pedido não encontrado com ID: " + pedidoId));
 
         return historicoRepositoryPort.buscarPorPedidoId(pedidoId);
     }

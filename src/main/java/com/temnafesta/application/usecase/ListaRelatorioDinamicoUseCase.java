@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.application.exception.RequisicaoInvalidaException;
 import com.temnafesta.application.dto.relatorio.PedidosPeriodoOutput;
 import com.temnafesta.domain.ports.out.repository.PedidoRepositoryPort;
 
@@ -17,7 +18,7 @@ public class ListaRelatorioDinamicoUseCase {
 
     public List<PedidosPeriodoOutput> execute(Integer eventoId, LocalDate dataInicio, LocalDate dataFim) {
         if (dataInicio != null && dataFim != null && dataInicio.isAfter(dataFim)) {
-            throw new IllegalArgumentException("'dataInicio' não pode ser posterior a 'dataFim'");
+            throw new RequisicaoInvalidaException("'dataInicio' não pode ser posterior a 'dataFim'");
         }
 
         LocalDateTime inicio = dataInicio != null ? dataInicio.atStartOfDay() : null;

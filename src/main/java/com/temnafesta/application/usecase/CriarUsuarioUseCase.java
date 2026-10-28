@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.CriarUsuarioCommand;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Perfil;
 import com.temnafesta.domain.model.Usuario;
@@ -65,7 +66,7 @@ public class CriarUsuarioUseCase {
                 });
 
         Perfil perfil = perfilRepositoryPort.buscarPorId(command.perfilId())
-                .orElseThrow(() -> new IllegalArgumentException("Perfil não encontrado com o ID: " + command.perfilId()));
+                .orElseThrow(() -> new NaoEncontradoException("Perfil não encontrado com o ID: " + command.perfilId()));
 
         Usuario usuario = new Usuario(
                 null,

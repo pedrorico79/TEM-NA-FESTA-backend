@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Produto;
 import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 
@@ -15,7 +15,7 @@ public class DeletarProdutoUseCase {
     public void executar(Long id) {
         Produto produto = produtoRepositoryPort.buscarPorId(id)
                 .filter(produtoEncontrado -> !produtoEncontrado.isDeletado())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                .orElseThrow(() -> new NaoEncontradoException(
                         "Produto não encontrado com o ID: " + id));
 
         produto.deletar();

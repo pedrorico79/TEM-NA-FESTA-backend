@@ -1,5 +1,7 @@
 package com.temnafesta.domain.model;
 
+import com.temnafesta.domain.exception.RegraDeNegocioException;
+
 import java.math.BigDecimal;
 
 public class ItemPedido {
@@ -20,13 +22,13 @@ public class ItemPedido {
             String observacaoItem
     ) {
         if (quantidade == null || quantidade <= 0) {
-            throw new IllegalArgumentException(
+            throw new RegraDeNegocioException(
                     "A quantidade do item deve ser maior que zero."
             );
         }
 
         if (precoUnitario == null || precoUnitario.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException(
+            throw new RegraDeNegocioException(
                     "O preço unitário não pode ser negativo."
             );
         }
@@ -48,7 +50,7 @@ public class ItemPedido {
 
     public void definirAcrescimo(BigDecimal acrescimo) {
         if (acrescimo != null && acrescimo.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("O acréscimo do item não pode ser negativo.");
+            throw new RegraDeNegocioException("O acréscimo do item não pode ser negativo.");
         }
         this.acrescimo = acrescimo != null ? acrescimo : BigDecimal.ZERO;
     }

@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
 import com.temnafesta.application.dto.AtualizarEventoCommand;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Evento;
 import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
@@ -15,7 +16,7 @@ public class AtualizarEventoUseCase {
 
     public Evento executar(Long id, AtualizarEventoCommand command) {
         Evento evento = eventoRepositoryPort.buscarPorId(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Evento não encontrado com o ID: " + id));
+                .orElseThrow(() -> new NaoEncontradoException("Evento não encontrado com o ID: " + id));
 
         if (command == null) {
             throw new RegraDeNegocioException("Dados do evento são obrigatórios.");

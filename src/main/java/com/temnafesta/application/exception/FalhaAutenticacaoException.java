@@ -4,4 +4,8 @@ public class FalhaAutenticacaoException extends RuntimeException {
     public FalhaAutenticacaoException() {
         super("E-mail ou senha inválidos.");
     }
+
+    public FalhaAutenticacaoException(String mensagem) {
+        super(mensagem);
+    }
 }

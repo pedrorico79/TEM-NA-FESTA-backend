@@ -2,6 +2,7 @@ package com.temnafesta.infrastructure.persistence.adapter.persistense;
 
 import com.temnafesta.application.dto.relatorio.EventoComparativoOutput;
 import com.temnafesta.application.dto.relatorio.EvolucaoEventoPeriodoOutput;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Evento;
 import com.temnafesta.domain.ports.out.repository.EventoRepositoryPort;
 import com.temnafesta.infrastructure.persistence.entity.EventoJpaEntity;
@@ -71,7 +72,7 @@ public class EventoRepositoryAdapter implements EventoRepositoryPort {
     @Override
     public Evento alterarStatus(Long id, boolean ativo) {
         EventoJpaEntity entity = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Evento não encontrado com o ID: " + id));
+                .orElseThrow(() -> new NaoEncontradoException("Evento não encontrado com o ID: " + id));
         entity.setAtivo(ativo);
         return mapper.toDomain(repository.save(entity));
     }
