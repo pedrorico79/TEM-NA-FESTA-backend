@@ -15,4 +15,9 @@ public class MetodoPagamentoJpaEntity {
 
     @Column(nullable = false, length = 50)
     private String nome;
+
+    // Coluna de teste da E7 da infraestrutura (Q12): criada no startup pelo
+    // ddl-auto=update, com o usuário da aplicação sem DROP. Não faça merge.
+    @Column(name = "teste_e7", length = 20)
+    private String testeE7;
 }
