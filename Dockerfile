@@ -35,4 +35,6 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -q -O- http://localhost:8080/actuator/health || exit 1
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Imagem de teste da E7 da infraestrutura (C5, C13, S11): termina ao iniciar
+# para o Swarm reverter. Não faça merge.
+ENTRYPOINT ["sh", "-c", "echo imagem de teste que nao sobe; exit 1"]
