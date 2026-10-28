@@ -1,5 +1,7 @@
 package com.temnafesta.infrastructure.security.config;
 
+import com.temnafesta.infrastructure.security.handler.ApiAccessDeniedHandler;
+import com.temnafesta.infrastructure.security.handler.ApiAuthenticationEntryPoint;
 import com.temnafesta.infrastructure.security.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,12 +29,19 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ApiAuthenticationEntryPoint authenticationEntryPoint;
+    private final ApiAccessDeniedHandler accessDeniedHandler;
 
     @Value("${app.cors.allowed-origins:http://localhost:5173}")
     private String allowedOrigins;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            ApiAuthenticationEntryPoint authenticationEntryPoint,
+            ApiAccessDeniedHandler accessDeniedHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -41,6 +50,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/health").permitAll()
