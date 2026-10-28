@@ -35,7 +35,6 @@ public class PedidoController {
 
     private final CriarPedidoInternoUseCase criarPedidoInternoUseCase;
     private final AlterarStatusPedidoUseCase alterarStatusPedidoUseCase;
-    private final GerarReciboDigitalUseCase gerarReciboDigitalUseCase;
     private final ListarPedidoPorIdUseCase listarPedidoPorIdUseCase;
     private final AtualizarPedidoUseCase atualizarPedidoUseCase;
     private final ExcluirPedidoUseCase excluirPedidoUseCase;
@@ -94,12 +93,6 @@ public class PedidoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}/recibo")
-    public ResponseEntity<String> gerarReciboDigital(@PathVariable Long id) {
-        // Retorna o texto formatado para o WhatsApp
-        String recibo = gerarReciboDigitalUseCase.executar(id);
-        return ResponseEntity.ok(recibo);
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<PedidoResponseDto> atualizarPedido(@PathVariable Long id,
