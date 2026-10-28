@@ -65,12 +65,6 @@ public class BeanConfiguration {
         return new ConfirmarPagamentoUseCase(pedidoRepositoryPort);
     }
 
-    @Bean
-    public GerarReciboDigitalUseCase gerarReciboDigitalUseCase(
-            PedidoRepositoryPort pedidoRepositoryPort,
-            ClienteRepositoryPort clienteRepositoryPort) {
-        return new GerarReciboDigitalUseCase(pedidoRepositoryPort, clienteRepositoryPort);
-    }
 
     @Bean
     public ListarEventosAtivosUseCase listarEventosAtivosUseCase(EventoRepositoryPort eventoRepositoryPort) {
