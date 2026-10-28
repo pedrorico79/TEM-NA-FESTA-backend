@@ -309,36 +309,37 @@ public interface SpringDataPedidoRepository
      */
     @Query(
             value = """
-            SELECT
-                CONCAT('Sem ', ROW_NUMBER() OVER (ORDER BY t.semana)) AS rotulo,
+        WITH RECURSIVE semanas AS (
+            SELECT DATE_SUB(DATE(:de), INTERVAL (DAYOFWEEK(:de) - 1) DAY) AS inicio
+            UNION ALL
+            SELECT DATE_ADD(inicio, INTERVAL 7 DAY)
+            FROM semanas
+            WHERE DATE_ADD(inicio, INTERVAL 7 DAY) <= DATE(:ate)
+        )
+        SELECT
+            CONCAT('Sem ', ROW_NUMBER() OVER (ORDER BY s.inicio)) AS rotulo,
 
-                CONCAT(
-                    DATE_FORMAT(t.data_inicio, '%d/%m'),
-                    ' - ',
-                    DATE_FORMAT(t.data_fim, '%d/%m')
-                ) AS periodo,
+            CONCAT(
+                DATE_FORMAT(s.inicio, '%d/%m'),
+                ' - ',
+                DATE_FORMAT(DATE_ADD(s.inicio, INTERVAL 6 DAY), '%d/%m')
+            ) AS periodo,
 
-                t.quantidade
+            COUNT(p.id) AS quantidade
 
-            FROM (
-                SELECT
-                    WEEK(p.data_pedido) AS semana,
-                    MIN(p.data_pedido) AS data_inicio,
-                    MAX(p.data_pedido) AS data_fim,
-                    COUNT(p.id) AS quantidade
+        FROM semanas s
+        LEFT JOIN pedido p
+               ON p.data_pedido >= s.inicio
+              AND p.d              ata_pedido <  DATE_ADD(s.inicio, INTERVAL 7 DAY)
+              AND p.data_pedido >= :de
+              AND p.data_pedido <= :ate
+              AND p.is_deletado = FALSE
+              AND p.status_producao <> 'CANCELADO'
+              AND (:eventoId IS NULL OR p.evento_id = :eventoId)
 
-                FROM pedido p
-
-                WHERE p.data_pedido BETWEEN :de AND :ate
-                  AND p.is_deletado = FALSE
-                  AND p.status_producao <> 'CANCELADO'
-                  AND (:eventoId IS NULL OR p.evento_id = :eventoId)
-
-                GROUP BY WEEK(p.data_pedido)
-            ) t
-
-            ORDER BY t.semana ASC
-            """,
+        GROUP BY s.inicio
+        ORDER BY s.inicio ASC
+        """,
             nativeQuery = true
     )
     List<PedidosPorSemanaProjection> buscarPedidosAgrupadosPorSemana(
