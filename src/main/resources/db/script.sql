@@ -140,3 +140,20 @@ CREATE TABLE lembrete (
                           usuario_id INT NOT NULL,
                           FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );
+
+-- -----------------------------------------------------------------------------
+-- DADOS INICIAIS: necessários ao funcionamento do sistema, rodam junto da
+-- criação do banco. Perfis e métodos de pagamento são tabelas de domínio: o
+-- backend e o frontend referenciam os ids (1, 2, 3, pela ordem abaixo, que não
+-- deve mudar) e o perfil ADMIN dá o papel ROLE_ADMIN. Os dados fictícios de
+-- exemplo ficam à parte, no script de inserts.
+-- -----------------------------------------------------------------------------
+INSERT INTO perfil (nome, descricao) VALUES
+('ADMIN', 'Administrador geral do sistema'),
+('ATENDENTE', 'Responsável por receber e orquestrar os pedidos via WhatsApp/Balcão'),
+('CONFEITEIRO', 'Responsável pela linha de produção e painel da cozinha');
+
+INSERT INTO metodo_pagamento (nome) VALUES
+('PIX'),
+('Cartão de Crédito'),
+('Dinheiro');
