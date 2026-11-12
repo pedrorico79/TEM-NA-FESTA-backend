@@ -1,5 +1,6 @@
 package com.temnafesta.domain.model;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.vo.StatusPagamentoEnum;
 import com.temnafesta.domain.vo.StatusProducaoEnum;
@@ -220,7 +221,7 @@ class PedidoTest {
         pedido.adicionarPagamento(new Pagamento(1L, new BigDecimal("30.00"), LocalDateTime.now(),
                 TipoPagamentoEnum.SINAL, StatusPagamentoEnum.CONFIRMADO, 1L, 1L));
 
-        assertThrows(RegraDeNegocioException.class, () -> pedido.removerPagamento(999L));
+        assertThrows(NaoEncontradoException.class, () -> pedido.removerPagamento(999L));
         assertEquals(1, pedido.getPagamentos().size());
     }
 }

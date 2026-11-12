@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.application.dto.CriarPedidoCommand;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.model.Pedido;
@@ -79,7 +79,7 @@ class CriarPedidoInternoUseCaseTest {
     void naoDeveCriarQuandoClienteNaoEncontrado() {
         when(clienteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RecursoNaoEncontradoException.class, () -> useCase.executar(command()));
+        assertThrows(NaoEncontradoException.class, () -> useCase.executar(command()));
         verify(pedidoRepositoryPort, never()).salvar(any());
     }
 
@@ -97,7 +97,7 @@ class CriarPedidoInternoUseCaseTest {
         when(clienteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(clienteAtivo()));
         when(produtoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RegraDeNegocioException.class, () -> useCase.executar(command()));
+        assertThrows(NaoEncontradoException.class, () -> useCase.executar(command()));
         verify(pedidoRepositoryPort, never()).salvar(any());
     }
 

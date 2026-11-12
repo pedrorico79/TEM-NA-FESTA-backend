@@ -17,7 +17,7 @@ class GlobalExceptionHandlerTest {
         RecursoNaoEncontradoException exception = new RecursoNaoEncontradoException(
                 "Produto não encontrado com o ID: 1");
 
-        ResponseEntity<ErroResponse> response = handler.handleRecursoNaoEncontradoException(exception);
+        ResponseEntity<ErroResponse> response = handler.handleNaoEncontradoException(exception);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());

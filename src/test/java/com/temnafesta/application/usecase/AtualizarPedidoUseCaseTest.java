@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.application.dto.AtualizarPedidoCommand;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.ItemPedido;
@@ -92,7 +93,7 @@ class AtualizarPedidoUseCaseTest {
     void naoDeveAtualizarQuandoPedidoNaoEncontrado() {
         when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RegraDeNegocioException.class, () -> useCase.executar(command()));
+        assertThrows(NaoEncontradoException.class, () -> useCase.executar(command()));
         verify(pedidoRepositoryPort, never()).atualizar(any());
     }
 
@@ -102,7 +103,7 @@ class AtualizarPedidoUseCaseTest {
         when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(pedido));
         when(produtoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RegraDeNegocioException.class, () -> useCase.executar(command()));
+        assertThrows(NaoEncontradoException.class, () -> useCase.executar(command()));
         verify(pedidoRepositoryPort, never()).atualizar(any());
     }
 

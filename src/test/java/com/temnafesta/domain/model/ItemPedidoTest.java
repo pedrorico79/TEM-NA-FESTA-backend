@@ -1,5 +1,6 @@
 package com.temnafesta.domain.model;
 
+import com.temnafesta.domain.exception.RegraDeNegocioException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
@@ -17,7 +18,7 @@ class ItemPedidoTest {
     @NullSource
     @ValueSource(ints = {0, -1, -10})
     void naoDeveAceitarQuantidadeInvalida(Integer quantidade) {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        RegraDeNegocioException ex = assertThrows(RegraDeNegocioException.class,
                 () -> new ItemPedido(null, 1L, quantidade, new BigDecimal("10.00"), null));
 
         assertEquals("A quantidade do item deve ser maior que zero.", ex.getMessage());
@@ -25,13 +26,13 @@ class ItemPedidoTest {
 
     @Test
     void naoDeveAceitarPrecoNulo() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(RegraDeNegocioException.class,
                 () -> new ItemPedido(null, 1L, 1, null, null));
     }
 
     @Test
     void naoDeveAceitarPrecoNegativo() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        RegraDeNegocioException ex = assertThrows(RegraDeNegocioException.class,
                 () -> new ItemPedido(null, 1L, 1, new BigDecimal("-0.01"), null));
 
         assertEquals("O preço unitário não pode ser negativo.", ex.getMessage());

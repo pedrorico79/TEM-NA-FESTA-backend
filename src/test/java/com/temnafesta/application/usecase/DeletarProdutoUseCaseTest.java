@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.Produto;
 import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class DeletarProdutoUseCaseTest {
     void deveRetornarNaoEncontradoQuandoProdutoNaoExistir() {
         when(produtoRepositoryPort.buscarPorId(99L)).thenReturn(Optional.empty());
 
-        assertThrows(RecursoNaoEncontradoException.class,
+        assertThrows(NaoEncontradoException.class,
                 () -> deletarProdutoUseCase.executar(99L));
         verify(produtoRepositoryPort, never()).salvar(any(Produto.class));
     }
@@ -55,7 +55,7 @@ class DeletarProdutoUseCaseTest {
         Produto produtoDeletado = criarProduto(true);
         when(produtoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(produtoDeletado));
 
-        assertThrows(RecursoNaoEncontradoException.class,
+        assertThrows(NaoEncontradoException.class,
                 () -> deletarProdutoUseCase.executar(1L));
         verify(produtoRepositoryPort, never()).salvar(any(Produto.class));
     }

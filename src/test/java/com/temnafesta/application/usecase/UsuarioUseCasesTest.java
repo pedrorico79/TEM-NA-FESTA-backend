@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.application.dto.CriarUsuarioCommand;
 import com.temnafesta.application.exception.FalhaAutenticacaoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
@@ -118,7 +119,7 @@ class UsuarioUseCasesTest {
             when(usuarioRepositoryPort.buscarPorEmail("ana@mail.com")).thenReturn(Optional.empty());
             when(perfilRepositoryPort.buscarPorId(99L)).thenReturn(Optional.empty());
 
-            assertThrows(IllegalArgumentException.class, () -> criarUsuarioUseCase.executar(command));
+            assertThrows(NaoEncontradoException.class, () -> criarUsuarioUseCase.executar(command));
             verify(usuarioRepositoryPort, never()).salvar(any());
         }
     }
@@ -143,7 +144,7 @@ class UsuarioUseCasesTest {
         void naoDeveAtualizarQuandoNaoEncontrado() {
             when(usuarioRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RegraDeNegocioException.class,
+            assertThrows(NaoEncontradoException.class,
                     () -> atualizarUsuarioUseCase.executar(1L, "Ana", "a@mail.com", 1L));
             verify(usuarioRepositoryPort, never()).atualizar(any());
         }
@@ -174,7 +175,7 @@ class UsuarioUseCasesTest {
         void naoDeveDeletarQuandoNaoEncontrado() {
             when(usuarioRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RegraDeNegocioException.class, () -> deletarUsuarioUseCase.executar(1L));
+            assertThrows(NaoEncontradoException.class, () -> deletarUsuarioUseCase.executar(1L));
             verify(usuarioRepositoryPort, never()).deletar(any());
         }
 

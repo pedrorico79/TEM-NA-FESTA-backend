@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.HistoricoStatusPedido;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pedido;
@@ -62,7 +62,7 @@ class ListarHistoricoStatusPedidoUseCaseTest {
     void naoDeveListarQuandoPedidoNaoEncontrado() {
         when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RegraDeNegocioException.class, () -> useCase.executar(1L));
+        assertThrows(NaoEncontradoException.class, () -> useCase.executar(1L));
         verify(historicoRepositoryPort, never()).buscarPorPedidoId(any());
     }
 }

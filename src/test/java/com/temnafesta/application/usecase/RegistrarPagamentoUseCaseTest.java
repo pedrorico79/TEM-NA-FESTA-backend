@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.MetodoPagamento;
 import com.temnafesta.domain.model.Pedido;
@@ -91,7 +91,7 @@ class RegistrarPagamentoUseCaseTest {
     void naoDeveRegistrarQuandoPedidoNaoEncontrado() {
         when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RegraDeNegocioException.class, () -> useCase.executar(
+        assertThrows(NaoEncontradoException.class, () -> useCase.executar(
                 1L, new BigDecimal("10.00"), TipoPagamentoEnum.SINAL, 5L, 9L,
                 null, UUID.randomUUID().toString()));
         verify(pedidoRepositoryPort, never()).salvar(any());

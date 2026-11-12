@@ -1,7 +1,8 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
+import com.temnafesta.application.exception.SemPermissaoException;
 import com.temnafesta.application.dto.CriarLembreteCommand;
-import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Lembrete;
 import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
 import com.temnafesta.domain.time.RelogioNegocio;
@@ -79,7 +80,7 @@ class LembreteUseCasesTest {
         void naoDeveDeletarQuandoNaoEncontrado() {
             when(lembreteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RegraDeNegocioException.class, () -> deletarLembreteUseCase.executar(1L, 10L));
+            assertThrows(NaoEncontradoException.class, () -> deletarLembreteUseCase.executar(1L, 10L));
             verify(lembreteRepositoryPort, never()).deletarPorId(any());
         }
 
@@ -87,7 +88,7 @@ class LembreteUseCasesTest {
         void naoDeveDeletarDeOutroUsuario() {
             when(lembreteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(lembrete(10L)));
 
-            RegraDeNegocioException ex = assertThrows(RegraDeNegocioException.class,
+            SemPermissaoException ex = assertThrows(SemPermissaoException.class,
                     () -> deletarLembreteUseCase.executar(1L, 99L));
             assertTrue(ex.getMessage().contains("permissão"));
             verify(lembreteRepositoryPort, never()).deletarPorId(any());
@@ -126,14 +127,14 @@ class LembreteUseCasesTest {
         void naoDeveBuscarQuandoNaoEncontrado() {
             when(lembreteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RegraDeNegocioException.class, () -> buscarLembretePorIdUseCase.executar(1L, 10L));
+            assertThrows(NaoEncontradoException.class, () -> buscarLembretePorIdUseCase.executar(1L, 10L));
         }
 
         @Test
         void naoDeveBuscarDeOutroUsuario() {
             when(lembreteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(lembrete(10L)));
 
-            RegraDeNegocioException ex = assertThrows(RegraDeNegocioException.class,
+            SemPermissaoException ex = assertThrows(SemPermissaoException.class,
                     () -> buscarLembretePorIdUseCase.executar(1L, 99L));
             assertTrue(ex.getMessage().contains("permissão"));
         }
