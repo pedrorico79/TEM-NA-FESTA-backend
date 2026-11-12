@@ -261,7 +261,11 @@ Além disso, a aplicação permite acesso público apenas para:
 | PORT | Porta da aplicação |
 | JPA_DDL_AUTO | Estratégia de atualização do schema |
 | JPA_SHOW_SQL | Habilitação de logs SQL |
-| LOGIN_MAX_POR_CONTA | Falhas de login por conta (mesmo e-mail e IP) antes do bloqueio; padrão 5, zero desliga || LOGIN_MAX_POR_IP | Falhas de login por IP, com qualquer e-mail, antes do bloqueio; padrão 20, zero desliga (use em teste de carga a partir de uma máquina só) || LOGIN_JANELA_MINUTOS | Janela em que as falhas se somam; padrão 15 || LOGIN_BLOQUEIO_MINUTOS | Duração do bloqueio; padrão 15 || SERVER_FORWARD_HEADERS_STRATEGY | `native` (padrão) usa o IP do cliente vindo no X-Forwarded-For de proxies de confiança; `none` usa o IP da conexão |
+| LOGIN_MAX_POR_CONTA | Falhas de login por conta (mesmo e-mail e IP) antes do bloqueio; padrão 5, zero desliga |
+| LOGIN_MAX_POR_IP | Falhas de login por IP, com qualquer e-mail, antes do bloqueio; padrão 20, zero desliga (use em teste de carga a partir de uma máquina só) |
+| LOGIN_JANELA_MINUTOS | Janela em que as falhas se somam; padrão 15 |
+| LOGIN_BLOQUEIO_MINUTOS | Duração do bloqueio; padrão 15 |
+| SERVER_FORWARD_HEADERS_STRATEGY | `native` (padrão) usa o IP do cliente vindo no X-Forwarded-For de proxies de confiança; `none` usa o IP da conexão |
 
 ---
 
