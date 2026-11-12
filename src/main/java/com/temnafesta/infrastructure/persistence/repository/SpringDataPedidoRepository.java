@@ -330,7 +330,7 @@ public interface SpringDataPedidoRepository
         FROM semanas s
         LEFT JOIN pedido p
                ON p.data_pedido >= s.inicio
-              AND p.d              ata_pedido <  DATE_ADD(s.inicio, INTERVAL 7 DAY)
+              AND p.data_pedido <  DATE_ADD(s.inicio, INTERVAL 7 DAY)
               AND p.data_pedido >= :de
               AND p.data_pedido <= :ate
               AND p.is_deletado = FALSE
