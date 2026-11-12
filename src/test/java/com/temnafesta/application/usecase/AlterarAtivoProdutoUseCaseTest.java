@@ -1,7 +1,7 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.application.dto.AlterarAtivoProdutoCommand;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.model.Produto;
 import com.temnafesta.domain.ports.out.repository.ProdutoRepositoryPort;
 import org.junit.jupiter.api.Test;
@@ -74,7 +74,7 @@ class AlterarAtivoProdutoUseCaseTest {
         AlterarAtivoProdutoCommand command = new AlterarAtivoProdutoCommand(99L, true);
         when(produtoRepositoryPort.buscarPorId(99L)).thenReturn(Optional.empty());
 
-        assertThrows(RecursoNaoEncontradoException.class,
+        assertThrows(NaoEncontradoException.class,
                 () -> alterarAtivoProdutoUseCase.executar(command));
         verify(produtoRepositoryPort, never()).salvar(any(Produto.class));
     }
@@ -85,7 +85,7 @@ class AlterarAtivoProdutoUseCaseTest {
         AlterarAtivoProdutoCommand command = new AlterarAtivoProdutoCommand(1L, true);
         when(produtoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(produtoDeletado));
 
-        assertThrows(RecursoNaoEncontradoException.class,
+        assertThrows(NaoEncontradoException.class,
                 () -> alterarAtivoProdutoUseCase.executar(command));
         verify(produtoRepositoryPort, never()).salvar(any(Produto.class));
     }

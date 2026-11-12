@@ -1,5 +1,6 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.application.dto.AtualizarEventoCommand;
 import com.temnafesta.application.dto.CriarEventoCommand;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
@@ -118,7 +119,7 @@ class EventoUseCasesTest {
                     LocalDate.of(2026, 12, 20), LocalDate.of(2026, 12, 25));
             when(eventoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RegraDeNegocioException.class, () -> atualizarEventoUseCase.executar(1L, command));
+            assertThrows(NaoEncontradoException.class, () -> atualizarEventoUseCase.executar(1L, command));
             verify(eventoRepositoryPort, never()).atualizar(any());
         }
 
@@ -145,7 +146,7 @@ class EventoUseCasesTest {
         void naoDeveDeletarQuandoNaoEncontrado() {
             when(eventoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RegraDeNegocioException.class, () -> deletarEventoUseCase.executar(1L));
+            assertThrows(NaoEncontradoException.class, () -> deletarEventoUseCase.executar(1L));
             verify(eventoRepositoryPort, never()).deletar(any());
         }
 

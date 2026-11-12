@@ -1,7 +1,8 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
+import com.temnafesta.application.exception.SemPermissaoException;
 import com.temnafesta.application.dto.AtualizarLembreteCommand;
-import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Lembrete;
 import com.temnafesta.domain.ports.out.repository.LembreteRepositoryPort;
 import org.junit.jupiter.api.Test;
@@ -59,7 +60,7 @@ class AtualizarLembreteUseCaseTest {
         AtualizarLembreteCommand command = new AtualizarLembreteCommand(99L, "Nova desc", LocalDate.now(), 10L);
         when(lembreteRepositoryPort.buscarPorId(99L)).thenReturn(Optional.empty());
 
-        assertThrows(RegraDeNegocioException.class,
+        assertThrows(NaoEncontradoException.class,
                 () -> atualizarLembreteUseCase.executar(command));
         verify(lembreteRepositoryPort, never()).salvar(any(Lembrete.class));
     }
@@ -70,7 +71,7 @@ class AtualizarLembreteUseCaseTest {
         AtualizarLembreteCommand command = new AtualizarLembreteCommand(1L, "Nova desc", LocalDate.now().plusDays(1), 20L);
         when(lembreteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(existente));
 
-        assertThrows(RegraDeNegocioException.class,
+        assertThrows(SemPermissaoException.class,
                 () -> atualizarLembreteUseCase.executar(command));
         verify(lembreteRepositoryPort, never()).salvar(any(Lembrete.class));
     }

@@ -1,6 +1,6 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
@@ -68,7 +68,7 @@ class ExcluirPagamentoUseCaseTest {
     void naoDeveExcluirQuandoPedidoNaoEncontrado() {
         when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RegraDeNegocioException.class, () -> useCase.executar(1L, 7L));
+        assertThrows(NaoEncontradoException.class, () -> useCase.executar(1L, 7L));
         verify(pedidoRepositoryPort, never()).salvar(any());
     }
 
@@ -77,7 +77,7 @@ class ExcluirPagamentoUseCaseTest {
         Pedido pedido = pedidoComPagamento(7L);
         when(pedidoRepositoryPort.buscarPorIdParaRegistrarPagamento(1L)).thenReturn(Optional.of(pedido));
 
-        assertThrows(RegraDeNegocioException.class, () -> useCase.executar(1L, 999L));
+        assertThrows(NaoEncontradoException.class, () -> useCase.executar(1L, 999L));
         assertEquals(1, pedido.getPagamentos().size());
         verify(pedidoRepositoryPort, never()).salvar(any());
     }

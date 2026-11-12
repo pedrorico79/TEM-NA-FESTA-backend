@@ -1,10 +1,10 @@
 package com.temnafesta.application.usecase;
 
+import com.temnafesta.domain.exception.NaoEncontradoException;
 import com.temnafesta.application.dto.AlterarAtivoClienteCommand;
 import com.temnafesta.application.dto.AtualizarClienteCommand;
 import com.temnafesta.application.dto.CriarClienteCommand;
 import com.temnafesta.application.dto.CriarEndrecoCommand;
-import com.temnafesta.application.exception.RecursoNaoEncontradoException;
 import com.temnafesta.domain.exception.RegraDeNegocioException;
 import com.temnafesta.domain.model.Cliente;
 import com.temnafesta.domain.ports.out.repository.ClienteRepositoryPort;
@@ -113,7 +113,7 @@ class ClienteUseCasesTest {
                     1L, "Maria", null, null, null, null, null);
             when(clienteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RecursoNaoEncontradoException.class,
+            assertThrows(NaoEncontradoException.class,
                     () -> atualizarClienteUseCase.executar(command));
             verify(clienteRepositoryPort, never()).salvar(any());
         }
@@ -160,7 +160,7 @@ class ClienteUseCasesTest {
         void naoDeveAlterarQuandoNaoEncontrado() {
             when(clienteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RecursoNaoEncontradoException.class, () -> alterarAtivoClienteUseCase
+            assertThrows(NaoEncontradoException.class, () -> alterarAtivoClienteUseCase
                     .executar(new AlterarAtivoClienteCommand(1L, false)));
         }
     }
@@ -192,7 +192,7 @@ class ClienteUseCasesTest {
         void naoDeveDeletarQuandoNaoEncontrado() {
             when(clienteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RecursoNaoEncontradoException.class, () -> deletarClienteUseCase.executar(1L));
+            assertThrows(NaoEncontradoException.class, () -> deletarClienteUseCase.executar(1L));
         }
     }
 
@@ -209,7 +209,7 @@ class ClienteUseCasesTest {
         void naoDeveBuscarQuandoNaoEncontrado() {
             when(clienteRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RecursoNaoEncontradoException.class, () -> buscarClientePorIdUseCase.executar(1L));
+            assertThrows(NaoEncontradoException.class, () -> buscarClientePorIdUseCase.executar(1L));
         }
 
         @Test

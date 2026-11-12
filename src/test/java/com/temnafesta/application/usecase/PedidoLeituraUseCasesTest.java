@@ -1,6 +1,7 @@
 package com.temnafesta.application.usecase;
 
-import com.temnafesta.domain.exception.RegraDeNegocioException;
+import com.temnafesta.domain.exception.NaoEncontradoException;
+import com.temnafesta.application.exception.RequisicaoInvalidaException;
 import com.temnafesta.domain.model.ItemPedido;
 import com.temnafesta.domain.model.Pagamento;
 import com.temnafesta.domain.model.Pedido;
@@ -75,7 +76,7 @@ class PedidoLeituraUseCasesTest {
         void naoDeveRetornarQuandoNaoExiste() {
             when(pedidoRepositoryPort.buscarPorId(1L)).thenReturn(Optional.empty());
 
-            assertThrows(RegraDeNegocioException.class, () -> listarPedidoPorIdUseCase.executar(1L));
+            assertThrows(NaoEncontradoException.class, () -> listarPedidoPorIdUseCase.executar(1L));
         }
     }
 
@@ -130,7 +131,7 @@ class PedidoLeituraUseCasesTest {
 
         @Test
         void naoDeveAceitarDiasNegativos() {
-            assertThrows(IllegalArgumentException.class, () -> listarProximasRetiradasUseCase.executar(-1));
+            assertThrows(RequisicaoInvalidaException.class, () -> listarProximasRetiradasUseCase.executar(-1));
         }
     }
 
